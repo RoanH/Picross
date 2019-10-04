@@ -232,12 +232,51 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		g.setColor(Color.BLACK);
 		
 		//row numbers
-		for(int y = 0; y < height; y++){
+		System.out.println("----- start -----");
+		for(int y = 0; y < height; /*y++*/){
+			boolean[] found = new boolean[rowHints[y].length];
+			int x = 0;
+			int f = 0;
+			int h = 0;
+			int dir = 1;
+			while(h < found.length && x >= 0 && x < width && h >= 0){
+				boolean black = (state[x][y] == Tile.BLACK) || (state[x][y] == Tile.TRY_BLACK);
+				if(black){
+					System.out.println("accept: " + f);
+					f++;
+				}
+				if(state[x][y] == Tile.WHITE || state[x][y] == Tile.TRY_WHITE || (x == 0 && black) || (x == width - 1 && black)){
+					System.out.println("check: " + f);
+					if(f == rowHints[y][h]){
+						found[h] = true;
+						h += dir;
+						f = 0;
+					}
+				}
+				if(state[x][y] == Tile.EMPTY){
+					if(dir == 1){
+						dir = -1;
+						x = width;
+						h = found.length - 1;
+						f = 0;
+						System.out.println("Reverse");
+					}else{
+						break;
+					}
+				}
+				x += dir;
+			}
+			
+			
+			
 			int offset = -15;
 			for(int i = rowHints[y].length - 1; i >= 0; i--){
+				g.setColor(found[i] ? Color.GRAY : Color.BLACK);
 				g.drawString(String.valueOf(rowHints[y][i]), offset, y * SIZE + (SIZE + g.getFontMetrics().getAscent() - g.getFontMetrics().getDescent()) / 2);
 				offset -= 20;
 			}
+			
+			break;
 		}
 		
 		//column numbers
