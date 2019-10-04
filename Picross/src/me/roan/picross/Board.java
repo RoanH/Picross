@@ -166,13 +166,10 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		
 		//increment starts as 1 flips to -1 if the line is incomplete
 		int dir = 1;
-		while(x >= 0 && x < width){
-			System.out.println("Run: " + x);
-			
+		while(x >= 0 && x < width){			
 			//found an empty tile, start looking from the right
 			if(state[x][y] == Tile.EMPTY){
 				if(dir == 1){
-					System.out.println("reverse");
 					dir = -1;
 					x = width - 1;
 					h = found.length - 1;
@@ -199,7 +196,6 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 				if(f != 0){
 					//too many chains found
 					if((h < 0 || h >= found.length)){
-						System.out.println("This is totally: " + h);
 						Arrays.fill(found, null);
 					}else{
 						//check if the found chain length matches the one we're looking for
@@ -207,7 +203,6 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 							found[h] = Boolean.TRUE;
 						}else{
 							//invalidate the chain that was found
-							System.out.println("Set null");
 							found[h] = null;
 						}
 						h += dir;
@@ -216,13 +211,11 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 				}else{
 					//hit the end without finding any chains
 					if((x == width - 1 && dir == 1) && h == 0){
-						System.out.println("Full end no chains");
 						Arrays.fill(found, null);
 					}
 				}
 				//hit the end without finding enough chains
 				if((x == width - 1 && dir == 1) && h != found.length){
-					System.out.println("Full end not enough chains: " + x + " | " + h);
 					Arrays.fill(found, null);
 				}
 			}
