@@ -32,8 +32,8 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 	private final Tile[][] state;
 	private final int width;
 	private final int height;
-	private int dx = 100;
-	private int dy = 100;
+	private int dx = 200;
+	private int dy = 200;
 	//private BufferedImage background = null;
 	private boolean clear = false;
 	private boolean reveal = false;
@@ -73,7 +73,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		
 		solution = new boolean[width][height];
 		state = new Tile[width][height];
-		for(int i = 0; i < height; i++){
+		for(int i = 0; i < width; i++){
 			Arrays.fill(state[i], Tile.EMPTY);
 		}
 		rowHints = new int[height][];
@@ -222,7 +222,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 			int offset = -15;
 			for(int i = rowHints[y].length - 1; i >= 0; i--){
 				g.drawString(String.valueOf(rowHints[y][i]), offset, y * SIZE + (SIZE + g.getFontMetrics().getAscent() - g.getFontMetrics().getDescent()) / 2);
-				offset -= 15;
+				offset -= 20;
 			}
 		}
 		
@@ -232,7 +232,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 			for(int i = colHints[x].length - 1; i >= 0; i--){
 				String str = String.valueOf(colHints[x][i]);
 				g.drawString(str, x * SIZE + (SIZE - g.getFontMetrics().stringWidth(str)) / 2, offset);
-				offset -= 15;
+				offset -= 20;
 			}
 		}
 	}
