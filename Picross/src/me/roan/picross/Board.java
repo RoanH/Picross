@@ -14,6 +14,7 @@ import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
+import java.util.function.Function;
 
 import javax.swing.JPanel;
 
@@ -154,9 +155,17 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		}
 	}
 	
-	private Boolean[] computeFoundRowNums(int y){
+	private Boolean[] computeFoundRowNums(final int y){
+		return computeJudgement(rowHints[y], width, x->state[x][y]);
+	}
+	
+	private Boolean[] computeFoundColNums(final int x){
+		return computeJudgement(colHints[x], height, y->state[x][y]);
+	}
+	
+	private Boolean[] computeJudgement(int[] hints, int max, Function<Integer, Tile> state){
 		//All are false initially
-		Boolean[] found = new Boolean[rowHints[y].length];
+		Boolean[] found = new Boolean[hints.length];
 		Arrays.fill(found, Boolean.FALSE);
 		
 		//x = current position, f = chain length found so far, h = current hint to look for
@@ -166,12 +175,12 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		
 		//increment starts as 1 flips to -1 if the line is incomplete
 		int dir = 1;
-		while(x >= 0 && x < width){			
+		while(x >= 0 && x < max){			
 			//found an empty tile, start looking from the right
-			if(state[x][y] == Tile.EMPTY){
+			if(state.apply(x) == Tile.EMPTY){
 				if(dir == 1){
 					dir = -1;
-					x = width - 1;
+					x = max - 1;
 					h = found.length - 1;
 					f = 0;
 					continue;
@@ -182,9 +191,9 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 			}
 			
 			//if the current tile is filled
-			boolean black = (state[x][y] == Tile.BLACK) || (state[x][y] == Tile.TRY_BLACK);
+			boolean black = (state.apply(x) == Tile.BLACK) || (state.apply(x) == Tile.TRY_BLACK);
 			//if we're at the end of a search
-			boolean end = (x == 0 && dir == -1) || (x == width - 1 && dir == 1);
+			boolean end = (x == 0 && dir == -1) || (x == max - 1 && dir == 1);
 			
 			//increment chain length
 			if(black){
@@ -192,14 +201,14 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 			}
 			
 			//if we hit the end or are on a white tile
-			if(state[x][y] == Tile.WHITE || state[x][y] == Tile.TRY_WHITE || end){
+			if(state.apply(x) == Tile.WHITE || state.apply(x) == Tile.TRY_WHITE || end){
 				if(f != 0){
 					//too many chains found
 					if((h < 0 || h >= found.length)){
 						Arrays.fill(found, null);
 					}else{
 						//check if the found chain length matches the one we're looking for
-						if(f == rowHints[y][h]){
+						if(f == hints[h]){
 							found[h] = Boolean.TRUE;
 						}else{
 							//invalidate the chain that was found
@@ -210,12 +219,12 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 					}
 				}else{
 					//hit the end without finding any chains
-					if((x == width - 1 && dir == 1) && h == 0){
+					if((x == max - 1 && dir == 1) && h == 0){
 						Arrays.fill(found, null);
 					}
 				}
 				//hit the end without finding enough chains
-				if((x == width - 1 && dir == 1) && h != found.length){
+				if((x == max - 1 && dir == 1) && h != found.length){
 					Arrays.fill(found, null);
 				}
 			}
@@ -223,48 +232,6 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 			x += dir;
 		}
 		return found;
-	}
-	
-	private boolean[] computeFoundColNums(int x){
-		boolean[] found = new boolean[colHints[x].length];
-		int y = 0;
-		int f = 0;
-		int h = 0;
-		int dir = 1;
-		boolean bad = false;
-		while(y >= 0 && y < height){
-			boolean black = (state[x][y] == Tile.BLACK) || (state[x][y] == Tile.TRY_BLACK);
-			boolean end = (y == 0 && dir == -1) || (y == height - 1 && dir == 1);
-			if(black){
-				f++;
-			}
-			if(state[x][y] == Tile.WHITE || state[x][y] == Tile.TRY_WHITE || (end && black)){
-				if(h < 0 || h >= found.length){
-					bad = true;
-					break;
-				}
-				if(f == colHints[x][h]){
-					found[h] = true;
-					h += dir;
-					f = 0;
-				}else if(f != 0 || end){
-					bad = true;
-					break;
-				}
-			}
-			if(state[x][y] == Tile.EMPTY){
-				if(dir == 1){
-					dir = -1;
-					y = height;
-					h = found.length - 1;
-					f = 0;
-				}else if(f != 0 || end){
-					break;
-				}
-			}
-			y += dir;
-		}
-		return bad ? null : found;
 	}
 	
 	@Override
@@ -345,7 +312,6 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		g.setColor(Color.BLACK);
 		
 		//row numbers
-		System.out.println("----- start -----");
 		for(int y = 0; y < height; y++){
 			Boolean[] found = computeFoundRowNums(y);
 			int offset = -15;
@@ -358,10 +324,10 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		
 		//column numbers
 		for(int x = 0; x < width; x++){
-			boolean[] found = computeFoundColNums(x);
+			Boolean[] found = computeFoundColNums(x);
 			int offset = -5;
 			for(int i = colHints[x].length - 1; i >= 0; i--){
-				g.setColor(found == null ? Color.RED : (found[i] ? Color.GRAY : Color.BLACK));
+				g.setColor(found[i] == null ? Color.RED : (found[i] ? Color.GRAY : Color.BLACK));
 				String str = String.valueOf(colHints[x][i]);
 				g.drawString(str, x * SIZE + (SIZE - g.getFontMetrics().stringWidth(str)) / 2, offset);
 				offset -= 20;
