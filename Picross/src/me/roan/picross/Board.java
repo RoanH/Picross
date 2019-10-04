@@ -253,7 +253,6 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 //			}
 //		}
 		
-		
 		//origin at the top left corner of the grid
 		g.translate(dx, dy);
 		
@@ -382,24 +381,6 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 //			break;
 //		case KeyEvent.VK_LEFT:
 //			setActiveTile(activeTile.left);
-//			break;
-//		case KeyEvent.VK_W:
-//		case KeyEvent.VK_SPACE:
-//			revealTile(activeTile);
-//			break;
-//		case KeyEvent.VK_E:
-//		case KeyEvent.VK_SHIFT:
-//			activeTile.toggleFlag();
-//			listener.update(getFlagsPlaced(), getRevealedTiles());
-//			this.repaint();
-//			break;
-//		case KeyEvent.VK_F:
-//			if(activeTile.hasMine && !activeTile.hasFlag()){
-//				activeTile.toggleFlag();
-//				this.repaint();
-//			}else{
-//				revealTile(activeTile);
-//			}
 //			break;
 		case KeyEvent.VK_S:
 			clear = !clear;

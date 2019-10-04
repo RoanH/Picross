@@ -25,7 +25,7 @@ public class Main{
 		
 		final JLabel state = new JLabel("Game state");
 		
-		Board board = new Board(10, 10);
+		Board board = new Board(30, 15);
 		
 		JScrollPane pane = new JScrollPane(board);
 		pane.getVerticalScrollBar().setUnitIncrement(Board.SIZE);
