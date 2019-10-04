@@ -22,7 +22,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 	 * Serial ID
 	 */
 	private static final long serialVersionUID = 6310638885364285013L;
-	private static final double RANDOMISATIONS = 0.5;
+	private static final double RANDOMISATIONS = 0.8;
 	private static final Font NUMBERS = new Font("Dialog", Font.BOLD, 15);
 	public static final int SIZE = 50;
 	private final Random random;
@@ -178,7 +178,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		
 		//row numbers
 		for(int y = 0; y < height; y++){
-			int offset = -12;
+			int offset = -15;
 			int n = 0;
 			for(int x = width - 1; x >= -1; x--){
 				if(x != -1 && solution[x][y]){
