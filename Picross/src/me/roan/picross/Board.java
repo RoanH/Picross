@@ -98,7 +98,8 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 			Tile old = state[x][y];
 			if(trialMode){
 				if(state[x][y] == Tile.EMPTY || state[x][y].isTrial()){
-					state[x][y] = newState.toTest();
+					newState = newState.toTest();
+					state[x][y] = (old == newState) ? Tile.EMPTY : newState;
 				}
 			}else{
 				state[x][y] = (old == newState) ? Tile.EMPTY : newState;
