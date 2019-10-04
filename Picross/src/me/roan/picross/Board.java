@@ -153,7 +153,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 			}
 		}
 		
-		//row number
+		//row numbers
 		for(int y = 0; y < height; y++){
 			int offset = -10;
 			int n = 0;
@@ -162,6 +162,21 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 					n++;
 				}else if(n != 0){
 					g.drawString(String.valueOf(n), offset, y * SIZE + 25);
+					n = 0;
+					offset -= 10;
+				}
+			}
+		}
+		
+		//column numbers
+		for(int x = 0; x < width; x++){
+			int offset = -10;
+			int n = 0;
+			for(int y = height - 1; y >= -1; y--){
+				if(y != -1 && solution[x][y]){
+					n++;
+				}else if(n != 0){
+					g.drawString(String.valueOf(n), x * SIZE + 25, offset);
 					n = 0;
 					offset -= 10;
 				}
