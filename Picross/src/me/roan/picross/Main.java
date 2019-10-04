@@ -1,8 +1,6 @@
 package me.roan.picross;
 
 import java.awt.BorderLayout;
-import java.io.File;
-import java.util.List;
 
 import javax.swing.JFrame;
 import javax.swing.JLabel;
