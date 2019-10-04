@@ -6,10 +6,10 @@ import java.util.Base64;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class Seed{
-	private long seed;
-	private int width;
-	private int height;
-	private double density;
+	public final long seed;
+	public final int width;
+	public final int height;
+	public final double density;
 	
 	public Seed(int width, int height, double density){
 		this(ThreadLocalRandom.current().nextLong(), width, height, density);

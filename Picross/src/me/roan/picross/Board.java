@@ -10,12 +10,11 @@ import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
-import java.awt.image.BufferedImage;
 import java.util.Arrays;
 import java.util.Random;
-import java.util.concurrent.ThreadLocalRandom;
 import java.util.function.Function;
 
+import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 public class Board extends JPanel implements KeyListener, MouseListener{
@@ -23,8 +22,8 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 	 * Serial ID
 	 */
 	private static final long serialVersionUID = 6310638885364285013L;
-	private static final double DENSITY = 0.8;
 	private static final Font NUMBERS = new Font("Dialog", Font.BOLD, 15);
+	private Seed seed;
 	public static final int SIZE = 50;
 	private final Random random;
 	private final boolean[][] solution;
@@ -35,43 +34,19 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 	private final int height;
 	private int dx = 250;
 	private int dy = 200;
-	//private BufferedImage background = null;
 	private boolean clear = false;
 	private boolean reveal = false;
 	private boolean trialMode = false;
-
-//	public static final Board fromImage(File img){
-//		try{
-//			BufferedImage bg = ImageIO.read(img);
-//			int w = (int)Math.ceil((double)bg.getWidth() / Tile.SIZE);
-//			int h = (int)Math.ceil((double)bg.getHeight() / Tile.SIZE);
-//			return new Board(w, h, (int)(w * h * MINE_PERCENTAGE), bg);
-//		}catch(IOException e){
-//			return new Board(20, 15, 40);
-//		}
-//	}
 	
-	public Board(int width, int height){
-		this(width, height, ThreadLocalRandom.current().nextLong());
-	}
-	
-	public Board(int width, int height, BufferedImage bg){
-		this(width, height, ThreadLocalRandom.current().nextLong(), bg);
-	}
-	
-	public Board(int width, int height, long seed){
-		this(width, height, seed, null);
-	}
-	
-	public Board(int width, int height, long seed, BufferedImage bg){
+	public Board(Seed seed, JComponent parent){
 		this.setFocusable(true);
-		this.addKeyListener(this);
+		parent.addKeyListener(this);
 		this.addMouseListener(this);
 		
-		//this.background = bg;
-		random = new Random(seed);
-		this.width = width;
-		this.height = height;
+		this.seed = seed;
+		random = new Random(seed.seed);
+		this.width = seed.width;
+		this.height = seed.height;
 		
 		solution = new boolean[width][height];
 		state = new Tile[width][height];
@@ -88,9 +63,9 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		clear = flag;
 	}
 	
-//	public boolean hasBackground(){
-//		return background != null;
-//	}
+	public Seed getSeed(){
+		return seed;
+	}
 	
 	public void setClicked(int px, int py, Tile newState){
 		int x = (px - dx) / SIZE;
@@ -113,7 +88,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 	}
 	
 	private final void initialiseGrid(){
-		for(int n = 0; n < DENSITY * (width * height); n++){
+		for(int n = 0; n < seed.density * (width * height); n++){
 			solution[random.nextInt(width)][random.nextInt(height)] = true;
 		}
 		

@@ -20,6 +20,8 @@ public class Main{
 	
 	private static final String TITLE = "Picross";
 	private static final JFrame frame = new JFrame(TITLE);
+	private static JPanel gameContainer = new JPanel(new FlowLayout(FlowLayout.CENTER));
+	private static Board board = null;
 
 	public static void main(String[] args){
 		showGameGUI();
@@ -45,25 +47,41 @@ public class Main{
 		
 		
 		
-		
 		JMenu game = new JMenu("Game");
 		JMenuItem fromRandom = new JMenuItem("New game...");
-		JMenuItem fromImage = new JMenuItem("New game from image");
-		JMenuItem fromSeed = new JMenuItem("New game from seed");
+		//JMenuItem fromImage = new JMenuItem("New game from image...");
+		JMenuItem fromSeed = new JMenuItem("New game from seed...");
+		
+		JMenuItem quickA = new JMenuItem("New 10x10 @ 0.8 game");
+		JMenuItem quickB = new JMenuItem("New 15x15 @ 0.8 game");
+		JMenuItem quickC = new JMenuItem("New 30x15 @ 0.8 game");
+		
+		quickA.addActionListener(e->openGame(new Seed(10, 10, 0.8D)));
+		quickB.addActionListener(e->openGame(new Seed(15, 15, 0.8D)));
+		quickC.addActionListener(e->openGame(new Seed(30, 15, 0.8D)));
+
 		
 		
+		game.add(fromRandom);
+		//game.add(fromImage);
+		game.add(fromSeed);
+		game.addSeparator();
+		game.add(quickA);
+		game.add(quickB);
+		game.add(quickC);
+		
+		
+		
+		bar.add(game);
 		bar.add(help);
 		
 		
 		frame.setJMenuBar(bar);
+		gameContainer.setFocusable(true);
 		
 		final JLabel state = new JLabel("Game state");
 		
-		Board board = new Board(15, 15);
-		
-		JPanel container = new JPanel(new FlowLayout(FlowLayout.CENTER));
-		container.add(board);
-		JScrollPane pane = new JScrollPane(container);
+		JScrollPane pane = new JScrollPane(gameContainer);
 		pane.getVerticalScrollBar().setUnitIncrement(Board.SIZE);
 		pane.getHorizontalScrollBar().setUnitIncrement(Board.SIZE);
 		content.add(pane, BorderLayout.CENTER);
@@ -73,6 +91,14 @@ public class Main{
 		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
+	}
+	
+	private static void openGame(Seed seed){
+		gameContainer.removeAll();
+		gameContainer.removeMouseListener(board);
+		gameContainer.add(board = new Board(seed, gameContainer));
+		gameContainer.revalidate();
+		gameContainer.repaint();
 	}
 	
 	private static void showControls(){
