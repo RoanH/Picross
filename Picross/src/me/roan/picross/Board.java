@@ -27,6 +27,8 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 	public static final int SIZE = 50;
 	private final Random random;
 	private final boolean[][] solution;
+	private final int[][] rowHints;
+	private final int[][] colHints;
 	private final Tile[][] state;
 	private final int width;
 	private final int height;
@@ -74,6 +76,8 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		for(int i = 0; i < height; i++){
 			Arrays.fill(state[i], Tile.EMPTY);
 		}
+		rowHints = new int[height][];
+		colHints = new int[width][];
 		
 		initialiseGrid();
 	}
@@ -106,6 +110,43 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 	private final void initialiseGrid(){
 		for(int n = 0; n < RANDOMISATIONS * (width * height); n++){
 			solution[random.nextInt(width)][random.nextInt(height)] = true;
+		}
+		
+		int[] buffer = new int[Math.max(width, height)];
+		
+		//row numbers
+		int nums = 0;
+		for(int y = 0; y < height; y++){
+			int n = 0;
+			for(int x = 0; x <= width; x++){
+				if(x != width && solution[x][y]){
+					n++;
+				}else if(n != 0){
+					buffer[nums] = n;
+					nums++;
+					n = 0;
+				}
+			}
+			rowHints[y] = Arrays.copyOf(buffer, nums);
+			Arrays.fill(buffer, 0);
+			nums = 0;
+		}
+				
+		//column numbers
+		for(int x = 0; x < width; x++){
+			int n = 0;
+			for(int y = 0; y <= height; y++){
+				if(y != height && solution[x][y]){
+					n++;
+				}else if(n != 0){
+					buffer[nums] = n;
+					nums++;
+					n = 0;
+				}
+			}
+			colHints[x] = Arrays.copyOf(buffer, nums);
+			Arrays.fill(buffer, 0);
+			nums = 0;
 		}
 	}
 	
@@ -179,31 +220,19 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		//row numbers
 		for(int y = 0; y < height; y++){
 			int offset = -15;
-			int n = 0;
-			for(int x = width - 1; x >= -1; x--){
-				if(x != -1 && solution[x][y]){
-					n++;
-				}else if(n != 0){
-					g.drawString(String.valueOf(n), offset, y * SIZE + (SIZE + g.getFontMetrics().getAscent() - g.getFontMetrics().getDescent()) / 2);
-					n = 0;
-					offset -= 15;
-				}
+			for(int i = rowHints[y].length - 1; i >= 0; i--){
+				g.drawString(String.valueOf(rowHints[y][i]), offset, y * SIZE + (SIZE + g.getFontMetrics().getAscent() - g.getFontMetrics().getDescent()) / 2);
+				offset -= 15;
 			}
 		}
 		
 		//column numbers
 		for(int x = 0; x < width; x++){
 			int offset = -5;
-			int n = 0;
-			for(int y = height - 1; y >= -1; y--){
-				if(y != -1 && solution[x][y]){
-					n++;
-				}else if(n != 0){
-					String str = String.valueOf(n);
-					g.drawString(str, x * SIZE + (SIZE - g.getFontMetrics().stringWidth(str)) / 2, offset);
-					n = 0;
-					offset -= 15;
-				}
+			for(int i = colHints[x].length - 1; i >= 0; i--){
+				String str = String.valueOf(colHints[x][i]);
+				g.drawString(str, x * SIZE + (SIZE - g.getFontMetrics().stringWidth(str)) / 2, offset);
+				offset -= 15;
 			}
 		}
 	}
