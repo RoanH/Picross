@@ -313,10 +313,11 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		//row numbers
 		for(int y = 0; y < height; y++){
 			Boolean[] found = computeFoundRowNums(y);
-			int offset = -15;
+			int offset = -10;
 			for(int i = rowHints[y].length - 1; i >= 0; i--){
 				g.setColor(found[i] == null ? Color.RED : (found[i] ? Color.GRAY : Color.BLACK));
-				g.drawString(String.valueOf(rowHints[y][i]), offset, y * SIZE + (SIZE + g.getFontMetrics().getAscent() - g.getFontMetrics().getDescent()) / 2);
+				String str = String.valueOf(rowHints[y][i]);
+				g.drawString(str, offset - (g.getFontMetrics().stringWidth(str) / 2), y * SIZE + (SIZE + g.getFontMetrics().getAscent() - g.getFontMetrics().getDescent()) / 2);
 				offset -= 20;
 			}
 		}
