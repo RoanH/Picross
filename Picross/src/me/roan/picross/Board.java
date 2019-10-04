@@ -2,6 +2,7 @@ package me.roan.picross;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -22,14 +23,18 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 	 */
 	private static final long serialVersionUID = 6310638885364285013L;
 	private static final double RANDOMISATIONS = 0.5;
+	private static final Font NUMBERS = new Font("Dialog", Font.BOLD, 15);
 	public static final int SIZE = 50;
 	private final Random random;
 	private final boolean[][] solution;
 	private final Tile[][] state;
 	private final int width;
 	private final int height;
+	private int dx = 100;
+	private int dy = 100;
 	//private BufferedImage background = null;
 	private boolean clear = false;
+	private boolean reveal = false;
 
 //	public static final Board fromImage(File img){
 //		try{
@@ -72,7 +77,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		
 		initialiseGrid();
 	}
-	
+		
 	public void setClear(boolean flag){
 		clear = flag;
 	}
@@ -80,6 +85,19 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 //	public boolean hasBackground(){
 //		return background != null;
 //	}
+	
+	public void setClicked(int px, int py, Tile newState){
+		int x = (px - dx) / SIZE;
+		int y = (py - dy) / SIZE;
+		if(x >= 0 && y >= 0 && x < width && y < height){
+			Tile old = state[x][y];
+			if(old == newState){
+				state[x][y] = Tile.EMPTY;
+			}else{
+				state[x][y] = newState;
+			}
+		}
+	}
 	
 	public int getTileCount(){
 		return width * height;
@@ -112,7 +130,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		
 		
 		//origin at the top left corner of the grid
-		g.translate(100, 100);
+		g.translate(dx, dy);
 		
 		//grid
 		g.setColor(Color.GRAY);
@@ -138,14 +156,17 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 			for(int y = 0; y < height; y++){
 				switch(state[x][y]){
 				case BLACK:
+					g.fillRect(x * SIZE + 5, y * SIZE + 5, SIZE - 10, SIZE - 10);
+					break;
+				case WHITE:
+					g.drawLine(x * SIZE + 5, y * SIZE + 5, x * SIZE + SIZE - 5, y * SIZE + SIZE - 5);
+					g.drawLine(x * SIZE + SIZE - 5, y * SIZE + 5, x * SIZE + 5, y * SIZE + SIZE - 5);
 					break;
 				case EMPTY:
 					break;
-				case WHITE:
-					break;
 				}
-				//Debug
-				if(solution[x][y]){
+
+				if(reveal && solution[x][y]){
 					g.setColor(Color.RED);
 					g.fillRect(x * SIZE + 15, y * SIZE + 15, 20, 20);
 					g.setColor(Color.BLACK);
@@ -153,32 +174,35 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 			}
 		}
 		
+		g.setFont(NUMBERS);
+		
 		//row numbers
 		for(int y = 0; y < height; y++){
-			int offset = -10;
+			int offset = -12;
 			int n = 0;
 			for(int x = width - 1; x >= -1; x--){
 				if(x != -1 && solution[x][y]){
 					n++;
 				}else if(n != 0){
-					g.drawString(String.valueOf(n), offset, y * SIZE + 25);
+					g.drawString(String.valueOf(n), offset, y * SIZE + (SIZE + g.getFontMetrics().getAscent() - g.getFontMetrics().getDescent()) / 2);
 					n = 0;
-					offset -= 10;
+					offset -= 15;
 				}
 			}
 		}
 		
 		//column numbers
 		for(int x = 0; x < width; x++){
-			int offset = -10;
+			int offset = -5;
 			int n = 0;
 			for(int y = height - 1; y >= -1; y--){
 				if(y != -1 && solution[x][y]){
 					n++;
 				}else if(n != 0){
-					g.drawString(String.valueOf(n), x * SIZE + 25, offset);
+					String str = String.valueOf(n);
+					g.drawString(str, x * SIZE + (SIZE - g.getFontMetrics().stringWidth(str)) / 2, offset);
 					n = 0;
-					offset -= 10;
+					offset -= 15;
 				}
 			}
 		}
@@ -190,21 +214,15 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 
 	@Override
 	public void mousePressed(MouseEvent e){
-//		switch(e.getButton()){
-//		case MouseEvent.BUTTON1:
-//			getTileAt(e.getX() / SIZE, e.getY() / SIZE).ifPresent(tile->{
-//				setActiveTile(tile);
-//				revealTile(tile);
-//			});
-//			break;
-//		case MouseEvent.BUTTON3:
-//			getTileAt(e.getX() / SIZE, e.getY() / SIZE).ifPresent(tile->{
-//				tile.toggleFlag();
-//				listener.update(getFlagsPlaced(), getRevealedTiles());
-//			});
-//			this.repaint();
-//			break;
-//		}
+		switch(e.getButton()){
+		case MouseEvent.BUTTON1:
+			setClicked(e.getX(), e.getY(), Tile.BLACK);
+			break;
+		case MouseEvent.BUTTON3:
+			setClicked(e.getX(), e.getY(), Tile.WHITE);
+			break;
+		}
+		this.repaint();
 	}
 
 	@Override
@@ -258,6 +276,10 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 //			break;
 		case KeyEvent.VK_S:
 			clear = !clear;
+			this.repaint();
+			break;
+		case KeyEvent.VK_R:
+			reveal = !reveal;
 			this.repaint();
 			break;
 		}
