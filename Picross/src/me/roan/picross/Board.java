@@ -23,7 +23,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 	 * Serial ID
 	 */
 	private static final long serialVersionUID = 6310638885364285013L;
-	private static final double RANDOMISATIONS = 0.8;
+	private static final double DENSITY = 0.8;
 	private static final Font NUMBERS = new Font("Dialog", Font.BOLD, 15);
 	public static final int SIZE = 50;
 	private final Random random;
@@ -33,7 +33,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 	private final Tile[][] state;
 	private final int width;
 	private final int height;
-	private int dx = 200;
+	private int dx = 250;
 	private int dy = 200;
 	//private BufferedImage background = null;
 	private boolean clear = false;
@@ -113,7 +113,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 	}
 	
 	private final void initialiseGrid(){
-		for(int n = 0; n < RANDOMISATIONS * (width * height); n++){
+		for(int n = 0; n < DENSITY * (width * height); n++){
 			solution[random.nextInt(width)][random.nextInt(height)] = true;
 		}
 		
@@ -236,7 +236,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 	
 	@Override
 	public Dimension getPreferredSize(){
-		return new Dimension(width * SIZE + dx, height * SIZE + dy);
+		return new Dimension(width * SIZE + dx + 1, height * SIZE + dy + 1);
 	}
 	
 	@Override
