@@ -111,9 +111,10 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 //		}
 		
 		
-		
+		//origin at the top left corner of the grid
 		g.translate(100, 100);
 		
+		//grid
 		g.setColor(Color.GRAY);
 		for(int x = 0; x < width; x++){
 			g.fillRect(x * SIZE - 1, 0, 2, height * SIZE);
@@ -123,6 +124,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		}
 		
 		g.setColor(Color.BLACK);
+		g.drawRect(-1, -1, 1, 1);
 		for(int x = 0; x <= width; x += 5){
 			g.fillRect(x * SIZE - 1, 0, 2, height * SIZE + 1);
 		}
@@ -130,6 +132,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 			g.fillRect(0, y * SIZE - 1, width * SIZE + 1, 2);
 		}
 		
+		//cell status
 		g.setColor(Color.BLACK);
 		for(int x = 0; x < width; x++){
 			for(int y = 0; y < height; y++){
@@ -146,6 +149,21 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 					g.setColor(Color.RED);
 					g.fillRect(x * SIZE + 15, y * SIZE + 15, 20, 20);
 					g.setColor(Color.BLACK);
+				}
+			}
+		}
+		
+		//row number
+		for(int y = 0; y < height; y++){
+			int offset = -10;
+			int n = 0;
+			for(int x = width - 1; x >= -1; x--){
+				if(x != -1 && solution[x][y]){
+					n++;
+				}else if(n != 0){
+					g.drawString(String.valueOf(n), offset, y * SIZE + 25);
+					n = 0;
+					offset -= 10;
 				}
 			}
 		}
