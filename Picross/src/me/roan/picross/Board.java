@@ -37,6 +37,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 	//private BufferedImage background = null;
 	private boolean clear = false;
 	private boolean reveal = false;
+	private boolean trialMode = false;
 
 //	public static final Board fromImage(File img){
 //		try{
@@ -95,10 +96,12 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		int y = (py - dy) / SIZE;
 		if(x >= 0 && y >= 0 && x < width && y < height){
 			Tile old = state[x][y];
-			if(old == newState){
-				state[x][y] = Tile.EMPTY;
+			if(trialMode){
+				if(state[x][y] == Tile.EMPTY || state[x][y].isTrial()){
+					state[x][y] = newState.toTest();
+				}
 			}else{
-				state[x][y] = newState;
+				state[x][y] = (old == newState) ? Tile.EMPTY : newState;
 			}
 		}
 	}
@@ -192,30 +195,40 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		}
 		
 		//cell status
-		g.setColor(Color.BLACK);
 		for(int x = 0; x < width; x++){
 			for(int y = 0; y < height; y++){
 				switch(state[x][y]){
 				case BLACK:
+					g.setColor(Color.BLACK);
 					g.fillRect(x * SIZE + 5, y * SIZE + 5, SIZE - 10, SIZE - 10);
 					break;
 				case WHITE:
+					g.setColor(Color.BLACK);
 					g.drawLine(x * SIZE + 5, y * SIZE + 5, x * SIZE + SIZE - 5, y * SIZE + SIZE - 5);
 					g.drawLine(x * SIZE + SIZE - 5, y * SIZE + 5, x * SIZE + 5, y * SIZE + SIZE - 5);
 					break;
 				case EMPTY:
+					break;
+				case TRY_BLACK:
+					g.setColor(Color.BLUE);
+					g.fillRect(x * SIZE + 5, y * SIZE + 5, SIZE - 10, SIZE - 10);
+					break;
+				case TRY_WHITE:
+					g.setColor(Color.BLUE);
+					g.drawLine(x * SIZE + 5, y * SIZE + 5, x * SIZE + SIZE - 5, y * SIZE + SIZE - 5);
+					g.drawLine(x * SIZE + SIZE - 5, y * SIZE + 5, x * SIZE + 5, y * SIZE + SIZE - 5);
 					break;
 				}
 
 				if(reveal && solution[x][y]){
 					g.setColor(Color.RED);
 					g.fillRect(x * SIZE + 15, y * SIZE + 15, 20, 20);
-					g.setColor(Color.BLACK);
 				}
 			}
 		}
 		
 		g.setFont(NUMBERS);
+		g.setColor(Color.BLACK);
 		
 		//row numbers
 		for(int y = 0; y < height; y++){
@@ -307,8 +320,34 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 			clear = !clear;
 			this.repaint();
 			break;
+		case KeyEvent.VK_T:
+			trialMode = true;
+			this.repaint();
+			break;
 		case KeyEvent.VK_R:
 			reveal = !reveal;
+			this.repaint();
+			break;
+		case KeyEvent.VK_V:
+			for(int x = 0; x < width; x++){
+				for(int y = 0; y < height; y++){
+					if(state[x][y].isTrial()){
+						state[x][y] = Tile.EMPTY;
+					}
+				}
+			}
+			trialMode = false;
+			this.repaint();
+			break;
+		case KeyEvent.VK_C:
+			for(int x = 0; x < width; x++){
+				for(int y = 0; y < height; y++){
+					if(state[x][y].isTrial()){
+						state[x][y] = state[x][y].toReal();
+					}
+				}
+			}
+			trialMode = false;
 			this.repaint();
 			break;
 		}
