@@ -233,24 +233,32 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		
 		//row numbers
 		System.out.println("----- start -----");
-		for(int y = 0; y < height; /*y++*/){
+		for(int y = 0; y < height; y++){
 			boolean[] found = new boolean[rowHints[y].length];
 			int x = 0;
 			int f = 0;
 			int h = 0;
 			int dir = 1;
-			while(h < found.length && x >= 0 && x < width && h >= 0){
+			boolean bad = false;
+			while(x >= 0 && x < width){
 				boolean black = (state[x][y] == Tile.BLACK) || (state[x][y] == Tile.TRY_BLACK);
 				if(black){
 					System.out.println("accept: " + f);
 					f++;
 				}
-				if(state[x][y] == Tile.WHITE || state[x][y] == Tile.TRY_WHITE || (x == 0 && black) || (x == width - 1 && black)){
+				if(state[x][y] == Tile.WHITE || state[x][y] == Tile.TRY_WHITE || (x == 0 && black && dir == -1) || (x == width - 1 && black && dir == 1)){
 					System.out.println("check: " + f);
+					if(h < 0 || h >= found.length){
+						bad = true;
+						break;
+					}
 					if(f == rowHints[y][h]){
 						found[h] = true;
 						h += dir;
 						f = 0;
+					}else{
+						bad = true;
+						break;
 					}
 				}
 				if(state[x][y] == Tile.EMPTY){
@@ -266,17 +274,13 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 				}
 				x += dir;
 			}
-			
-			
-			
+
 			int offset = -15;
 			for(int i = rowHints[y].length - 1; i >= 0; i--){
-				g.setColor(found[i] ? Color.GRAY : Color.BLACK);
+				g.setColor(bad ? Color.RED : (found[i] ? Color.GRAY : Color.BLACK));
 				g.drawString(String.valueOf(rowHints[y][i]), offset, y * SIZE + (SIZE + g.getFontMetrics().getAscent() - g.getFontMetrics().getDescent()) / 2);
 				offset -= 20;
 			}
-			
-			break;
 		}
 		
 		//column numbers
