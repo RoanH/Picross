@@ -10,6 +10,7 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.image.BufferedImage;
+import java.util.Arrays;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -63,8 +64,11 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		this.width = width;
 		this.height = height;
 		
-		state = new Tile[width][height];
 		solution = new boolean[width][height];
+		state = new Tile[width][height];
+		for(int i = 0; i < height; i++){
+			Arrays.fill(state[i], Tile.EMPTY);
+		}
 		
 		initialiseGrid();
 	}
@@ -82,7 +86,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 	}
 	
 	private final void initialiseGrid(){
-		for(int n = 0; n < RANDOMISATIONS * width * height; n++){
+		for(int n = 0; n < RANDOMISATIONS * (width * height); n++){
 			solution[random.nextInt(width)][random.nextInt(height)] = true;
 		}
 	}
@@ -106,12 +110,44 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 //			}
 //		}
 		
-		g.setColor(Color.DARK_GRAY);
+		
+		
+		g.translate(100, 100);
+		
+		g.setColor(Color.GRAY);
 		for(int x = 0; x < width; x++){
-			g.fillRect(x * SIZE, 0, 2, this.getHeight());
+			g.fillRect(x * SIZE - 1, 0, 2, height * SIZE);
 		}
 		for(int y = 0; y < height; y++){
-			g.fillRect(0, y * SIZE, this.getWidth(), 2);
+			g.fillRect(0, y * SIZE - 1, width * SIZE, 2);
+		}
+		
+		g.setColor(Color.BLACK);
+		for(int x = 0; x <= width; x += 5){
+			g.fillRect(x * SIZE - 1, 0, 2, height * SIZE + 1);
+		}
+		for(int y = 0; y <= height; y += 5){
+			g.fillRect(0, y * SIZE - 1, width * SIZE + 1, 2);
+		}
+		
+		g.setColor(Color.BLACK);
+		for(int x = 0; x < width; x++){
+			for(int y = 0; y < height; y++){
+				switch(state[x][y]){
+				case BLACK:
+					break;
+				case EMPTY:
+					break;
+				case WHITE:
+					break;
+				}
+				//Debug
+				if(solution[x][y]){
+					g.setColor(Color.RED);
+					g.fillRect(x * SIZE + 15, y * SIZE + 15, 20, 20);
+					g.setColor(Color.BLACK);
+				}
+			}
 		}
 	}
 
