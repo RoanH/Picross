@@ -111,7 +111,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 	
 	@Override
 	public Dimension getPreferredSize(){
-		return new Dimension(width * SIZE, height * SIZE);
+		return new Dimension(width * SIZE + dx, height * SIZE + dy);
 	}
 	
 	@Override
