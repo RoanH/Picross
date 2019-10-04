@@ -154,6 +154,47 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		}
 	}
 	
+	private boolean[] computeFoundRowNums(int y){
+		boolean[] found = new boolean[rowHints[y].length];
+		int x = 0;
+		int f = 0;
+		int h = 0;
+		int dir = 1;
+		boolean bad = false;
+		while(x >= 0 && x < width){
+			boolean black = (state[x][y] == Tile.BLACK) || (state[x][y] == Tile.TRY_BLACK);
+			if(black){
+				f++;
+			}
+			if(state[x][y] == Tile.WHITE || state[x][y] == Tile.TRY_WHITE || (x == 0 && black && dir == -1) || (x == width - 1 && black && dir == 1)){
+				if(h < 0 || h >= found.length){
+					bad = true;
+					break;
+				}
+				if(f == rowHints[y][h]){
+					found[h] = true;
+					h += dir;
+					f = 0;
+				}else{
+					bad = true;
+					break;
+				}
+			}
+			if(state[x][y] == Tile.EMPTY){
+				if(dir == 1){
+					dir = -1;
+					x = width;
+					h = found.length - 1;
+					f = 0;
+				}else{
+					break;
+				}
+			}
+			x += dir;
+		}
+		return bad ? null : found;
+	}
+	
 	@Override
 	public Dimension getPreferredSize(){
 		return new Dimension(width * SIZE + dx, height * SIZE + dy);
@@ -234,50 +275,10 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		//row numbers
 		System.out.println("----- start -----");
 		for(int y = 0; y < height; y++){
-			boolean[] found = new boolean[rowHints[y].length];
-			int x = 0;
-			int f = 0;
-			int h = 0;
-			int dir = 1;
-			boolean bad = false;
-			while(x >= 0 && x < width){
-				boolean black = (state[x][y] == Tile.BLACK) || (state[x][y] == Tile.TRY_BLACK);
-				if(black){
-					System.out.println("accept: " + f);
-					f++;
-				}
-				if(state[x][y] == Tile.WHITE || state[x][y] == Tile.TRY_WHITE || (x == 0 && black && dir == -1) || (x == width - 1 && black && dir == 1)){
-					System.out.println("check: " + f);
-					if(h < 0 || h >= found.length){
-						bad = true;
-						break;
-					}
-					if(f == rowHints[y][h]){
-						found[h] = true;
-						h += dir;
-						f = 0;
-					}else{
-						bad = true;
-						break;
-					}
-				}
-				if(state[x][y] == Tile.EMPTY){
-					if(dir == 1){
-						dir = -1;
-						x = width;
-						h = found.length - 1;
-						f = 0;
-						System.out.println("Reverse");
-					}else{
-						break;
-					}
-				}
-				x += dir;
-			}
-
+			boolean[] found = computeFoundRowNums(y);
 			int offset = -15;
 			for(int i = rowHints[y].length - 1; i >= 0; i--){
-				g.setColor(bad ? Color.RED : (found[i] ? Color.GRAY : Color.BLACK));
+				g.setColor(found == null ? Color.RED : (found[i] ? Color.GRAY : Color.BLACK));
 				g.drawString(String.valueOf(rowHints[y][i]), offset, y * SIZE + (SIZE + g.getFontMetrics().getAscent() - g.getFontMetrics().getDescent()) / 2);
 				offset -= 20;
 			}
