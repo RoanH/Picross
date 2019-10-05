@@ -92,7 +92,6 @@ public class Main{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
 		}catch(ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e1){
 		}
-		UIManager.getDefaults().put("ScrollPane.ancestorInputMap", new UIDefaults.LazyInputMap(new Object[]{}));
 
 		try{
 			Image img = ImageIO.read(ClassLoader.getSystemResource("icon.png"));
