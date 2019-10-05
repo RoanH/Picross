@@ -24,6 +24,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 	 */
 	private static final long serialVersionUID = 6310638885364285013L;
 	private static final Font NUMBERS = new Font("Dialog", Font.BOLD, 15);
+	private final long startTime = System.currentTimeMillis();
 	private Seed seed;
 	public static final int SIZE = 50;
 	private final Random random;
@@ -59,6 +60,10 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		colHints = new int[width][];
 		
 		initialiseGrid();
+	}
+	
+	public long getPassedTime(){
+		return System.currentTimeMillis() - startTime;
 	}
 	
 	public void addListener(Runnable listener){
@@ -236,7 +241,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 	
 	@Override
 	public Dimension getPreferredSize(){
-		return new Dimension(width * SIZE + dx + 1, height * SIZE + dy + 1);
+		return new Dimension(width * SIZE + dx * 2, height * SIZE + dy + 1);
 	}
 	
 	@Override
@@ -287,10 +292,6 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 			g.setColor(Color.BLUE);
 			g.drawString(String.format(" (+%1$.2f)", (100.0D * (tryBlack + tryWhite)) / getTileCount()), fm.stringWidth(line), 60);
 		}
-		
-		
-		
-		
 		
 		//origin at the top left corner of the grid
 		g.translate(dx, dy);
