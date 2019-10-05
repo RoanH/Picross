@@ -249,7 +249,7 @@ public class Main{
 		
 		JLabel other = new JLabel(
 			"<html>"
-			+ "- You can drag the game around with the mouse if you click and hold outside the grid (useful if number are offscreen)"
+			+ "- You can drag the game around with the mouse if you click and hold outside the grid (useful if numbers are offscreen)"
 		);
 		other.setBorder(BorderFactory.createTitledBorder("Other"));
 		
