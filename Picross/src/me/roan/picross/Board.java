@@ -37,16 +37,19 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	private final int height;
 	private int dx = 0;
 	private int dy = 0;
-	private boolean clear = false;
 	private boolean reveal = false;
 	private boolean trialMode = false;
 	private Runnable listener;
 	private Point last;
+	private int x = -1;
+	private int y = 0;
 	
 	public Board(Seed seed){
 		this.setFocusable(true);
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
+		this.addKeyListener(this);
+		this.requestFocus();
 		
 		this.seed = seed;
 		random = new Random(seed.seed);
@@ -87,10 +90,6 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		}
 		return n;
 	}
-		
-	public void setClear(boolean flag){
-		clear = flag;
-	}
 	
 	public Seed getSeed(){
 		return seed;
@@ -105,8 +104,10 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	}
 	
 	public void setClicked(int px, int py, Tile newState){
-		int x = toGridX(px);
-		int y = toGridY(py);
+		setGridClicked(toGridX(px), toGridY(py), newState);
+	}
+	
+	public void setGridClicked(int x, int y, Tile newState){
 		if(x >= 0 && y >= 0 && x < width && y < height){
 			Tile old = state[x][y];
 			if(trialMode){
@@ -359,6 +360,11 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			}
 		}
 		
+		if(x != -1){
+			g.setColor(Color.RED);
+			g.drawRect(x * SIZE + 1, y * SIZE + 1, SIZE - 3, SIZE - 3);
+		}
+		
 		g.setFont(NUMBERS);
 		g.setColor(Color.BLACK);
 		
@@ -425,33 +431,47 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	@Override
 	public void keyPressed(KeyEvent e){
 		switch(e.getKeyCode()){
-//		case KeyEvent.VK_UP:
-//			setActiveTile(activeTile.up);
-//			break;
-//		case KeyEvent.VK_DOWN:
-//			setActiveTile(activeTile.down);
-//			break;
-//		case KeyEvent.VK_RIGHT:
-//			setActiveTile(activeTile.right);
-//			break;
-//		case KeyEvent.VK_LEFT:
-//			setActiveTile(activeTile.left);
-//			break;
+		case KeyEvent.VK_SPACE:
+			setGridClicked(x, y, Tile.BLACK);
+			break;
+		case KeyEvent.VK_SHIFT:
+			setGridClicked(x, y, Tile.WHITE);
+			break;
+		case KeyEvent.VK_W:
+		case KeyEvent.VK_UP:
+		case KeyEvent.VK_KP_UP:
+			if(y > 0){
+				y--;
+			}
+			break;
 		case KeyEvent.VK_S:
-			clear = !clear;
-			this.repaint();
+		case KeyEvent.VK_DOWN:
+		case KeyEvent.VK_KP_DOWN:
+			if(y < height - 1){
+				y++;
+			}
+			break;
+		case KeyEvent.VK_D:
+		case KeyEvent.VK_RIGHT:
+		case KeyEvent.VK_KP_RIGHT:
+			if(x < width - 1){
+				x++;
+			}
+			break;
+		case KeyEvent.VK_A:
+		case KeyEvent.VK_LEFT:
+		case KeyEvent.VK_KP_LEFT:
+			if(x == -1){
+				x = 0;
+			}else if(x > 0){
+				x--;
+			}
 			break;
 		case KeyEvent.VK_T:
 			trialMode = true;
-			this.repaint();
 			break;
 		case KeyEvent.VK_R:
-			reveal = true;
-			this.repaint();
-			break;
-		case KeyEvent.VK_H:
-			reveal = false;
-			this.repaint();
+			reveal = !reveal;
 			break;
 		case KeyEvent.VK_V:
 			for(int x = 0; x < width; x++){
@@ -462,7 +482,6 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 				}
 			}
 			trialMode = false;
-			this.repaint();
 			break;
 		case KeyEvent.VK_C:
 			for(int x = 0; x < width; x++){
@@ -473,9 +492,9 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 				}
 			}
 			trialMode = false;
-			this.repaint();
 			break;
 		}
+		this.repaint();
 	}
 
 	@Override

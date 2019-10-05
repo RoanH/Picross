@@ -62,6 +62,7 @@ public class Main{
 		//Dialog.setDialogIcon(icon);
 		
 		JPanel content = new JPanel(new BorderLayout());
+		content.setFocusable(true);
 		frame.add(content);
 		
 		seedField = new JTextField("");
@@ -168,8 +169,9 @@ public class Main{
 
 			@Override
 			public boolean dispatchKeyEvent(KeyEvent e){
-				if(board != null){
+				if(board != null && e.getID() == KeyEvent.KEY_PRESSED){
 					board.keyPressed(e);
+					System.out.println("Fire: " + e);
 				}
 				return false;
 			}
@@ -178,7 +180,6 @@ public class Main{
 	
 	private static void openGame(Seed seed){
 		gameContainer.removeAll();
-		gameContainer.removeMouseListener(board);
 		gameContainer.add(board = new Board(seed));
 		gameContainer.revalidate();
 		gameContainer.repaint();
@@ -194,10 +195,20 @@ public class Main{
 		
 		JLabel controls = new JLabel(
 			"<html>"
+			+ "<b>Mouse:</b><br>"
 			+ "- Left mouse button to fill a tile<br>"
 			+ "- Right mouse button to place a cross<br>"
 			+ "- Left click a filled tile to empty it<br>"
-			+ "- Right click a cross to remove it<html>"
+			+ "- Right click a cross to remove it<br><br>"
+			+ "<b>Keyboard:</b><br>"
+			+ "- W or arrow up to move up<br>"
+			+ "- S or arrow down to move down<br>"
+			+ "- A or arrow left to move left<br>"
+			+ "- D or arrow right to move right<br>"
+			+ "- Space bar to fill a tile<br>"
+			+ "- Shift to place a cross<br>"
+			+ "- Press space bar on a filled tile to empty it<br>"
+			+ "- Press shift on a cross to remove it<html>"
 		);
 		controls.setBorder(BorderFactory.createTitledBorder("Playing"));
 		
@@ -211,8 +222,7 @@ public class Main{
 		
 		JLabel check = new JLabel(
 			"<html>"
-			+ "- R to view the original solution (note that other solutions might also be valid)<br>"
-			+ "- H to hide the original solution</html>"
+			+ "- R to toggle showing the original solution (note that other solutions might also be valid)</html>"
 		);
 		check.setBorder(BorderFactory.createTitledBorder("Check"));
 		
