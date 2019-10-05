@@ -19,30 +19,102 @@ import java.util.function.Function;
 
 import javax.swing.JPanel;
 
+/**
+ * Board class that keeps track of the game state
+ * and displays the puzzle.
+ * @author Roan
+ * @see Tile
+ * @see Seed
+ */
 public class Board extends JPanel implements KeyListener, MouseListener, MouseMotionListener{
 	/**
-	 * Serial ID
+	 * Serial ID.
 	 */
 	private static final long serialVersionUID = 6310638885364285013L;
+	/**
+	 * Font to use to draw the hint numbers.
+	 */
 	private static final Font NUMBERS = new Font("Dialog", Font.BOLD, 15);
-	private final long startTime = System.currentTimeMillis();
-	private Seed seed;
+	/**
+	 * Size in pixels of the grid cells.
+	 */
 	public static final int SIZE = 50;
+	/**
+	 * The time at which this board was created.
+	 */
+	private final long startTime = System.currentTimeMillis();
+	/**
+	 * The seed for this board.
+	 * @see Seed
+	 */
+	private final Seed seed;
+	/**
+	 * Random number generator for this board.
+	 */
 	private final Random random;
+	/**
+	 * Solution this puzzle is based on.
+	 */
 	private final boolean[][] solution;
+	/**
+	 * Hint numbers for each row.
+	 */
 	private final int[][] rowHints;
+	/**
+	 * Hint numbers for each column.
+	 */
 	private final int[][] colHints;
+	/**
+	 * Current state of each grid cell.
+	 * @see Tile
+	 */
 	private final Tile[][] state;
+	/**
+	 * Number of columns in the grid.
+	 */
 	private final int width;
+	/**
+	 * Number of rows in the grid.
+	 */
 	private final int height;
+	/**
+	 * Grid translation along the x-axis.
+	 */
 	private int dx = 0;
+	/**
+	 * Grid translation along the y-axis.
+	 */
 	private int dy = 0;
+	/**
+	 * Whether or not the solution is shown.
+	 */
 	private boolean reveal = false;
+	/**
+	 * Whether or not test mode is enabled.
+	 */
 	private boolean testMode = false;
+	/**
+	 * Last click or drag location.
+	 */
 	private Point last;
+	/**
+	 * x-coordinate of the currently selected grid cell.
+	 * Will be <code>-1</code> if the users is not playing
+	 * with the keyboard.
+	 */
 	private int x = -1;
+	/**
+	 * y-coordinate of the currently selected grid cell.
+	 */
 	private int y = 0;
 	
+	/**
+	 * Constructs a new board from
+	 * the given seed.
+	 * @param seed The seed to generate
+	 *        the board from.
+	 * @see Seed
+	 */
 	public Board(Seed seed){
 		this.setFocusable(true);
 		this.addMouseListener(this);
@@ -66,14 +138,33 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		initialiseGrid();
 	}
 	
+	/**
+	 * Gets the number of milliseconds that have
+	 * passed since this board was created.
+	 * @return The number of milliseconds that
+	 *         have passed since this board was created.
+	 */
 	public long getPassedTime(){
 		return System.currentTimeMillis() - startTime;
 	}
 	
+	/**
+	 * Check whether or not test mode
+	 * is currently enabled.
+	 * @return True if test mode is enabled,
+	 *         false if it is not.
+	 */
 	public boolean isTestMode(){
 		return testMode;
 	}
 	
+	/**
+	 * Returns the total number of tiles in the grid
+	 * of the given type.
+	 * @param type The type of tile to count.
+	 * @return The total number of tiles in the grid
+	 *         of the given type.
+	 */
 	public int getTileCount(Tile type){
 		int n = 0;
 		for(int x = 0; x < width; x++){
@@ -86,22 +177,54 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		return n;
 	}
 	
+	/**
+	 * Gets the seed for this board.
+	 * @return The seed for this board.
+	 */
 	public Seed getSeed(){
 		return seed;
 	}
 	
+	/**
+	 * Converts the given x-coordinate
+	 * in pixel to a grid tile.
+	 * @param px The x-coordinate to convert.
+	 * @return The grid x-coordinate that
+	 *         corresponds with the given
+	 *         on screen x-coordinate.
+	 */
 	private int toGridX(int px){
 		return (px - dx - ((this.getWidth() - width * SIZE) / 2)) / SIZE;
 	}
 	
+	/**
+	 * Converts the given y-coordinate
+	 * in pixel to a grid tile.
+	 * @param py The y-coordinate to convert.
+	 * @return The grid y-coordinate that
+	 *         corresponds with the given
+	 *         on screen y-coordinate.
+	 */
 	private int toGridY(int py){
 		return (py - dy - ((this.getHeight() - height * SIZE) / 2)) / SIZE;
 	}
 	
+	/**
+	 * Computes the new state for the given clicked tile.
+	 * @param px The on screen x-coordinate for the tile that was clicked.
+	 * @param py The on screen y-coordinate for the tile that was clicked.
+	 * @param newState The new state for the tile that was clicked.
+	 */
 	public void setClicked(int px, int py, Tile newState){
 		setGridClicked(toGridX(px), toGridY(py), newState);
 	}
 	
+	/**
+	 * Computes the new state for the given clicked tile.
+	 * @param x The x-coordinate for the tile that was clicked.
+	 * @param y The y-coordinate for the tile that was clicked.
+	 * @param newState The new state for the tile that was clicked.
+	 */
 	public void setGridClicked(int x, int y, Tile newState){
 		if(x >= 0 && y >= 0 && x < width && y < height){
 			Tile old = state[x][y];
