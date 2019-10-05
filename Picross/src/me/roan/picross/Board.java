@@ -284,11 +284,11 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		}
 		
 		g.setColor(Color.BLACK);
-		line = String.format("Done: %1$.2f", (100.0D * (black + white)) / getTileCount());
+		line = String.format("Done: %1$.2f%%", (100.0D * (black + white)) / getTileCount());
 		g.drawString(line, 0, 60);
 		if(trialMode){
 			g.setColor(Color.BLUE);
-			g.drawString(String.format(" (+%1$.2f)", (100.0D * (tryBlack + tryWhite)) / getTileCount()), fm.stringWidth(line), 60);
+			g.drawString(String.format(" (+%1$.2f%%)", (100.0D * (tryBlack + tryWhite)) / getTileCount()), fm.stringWidth(line), 60);
 		}
 		
 		//origin at the top left corner of the grid
