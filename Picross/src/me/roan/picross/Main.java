@@ -32,15 +32,43 @@ import me.roan.util.ClickableLink;
 import me.roan.util.Dialog;
 import me.roan.util.Util;
 
+/**
+ * Picross (nonogram) puzzle program.
+ * @author Roan
+ * @see <a href="https://github.com/RoanH/Picross">GitHub (RoanH/Picross)</a>
+ */
 public class Main{
-	
+	/**
+	 * Frame title used for all windows.
+	 */
 	private static final String TITLE = "Picross";
+	/**
+	 * Main frame for this program.
+	 */
 	private static final JFrame frame = new JFrame(TITLE);
+	/**
+	 * The panel holding the game board.
+	 */
 	private static JPanel gameContainer = new JPanel(new BorderLayout());
+	/**
+	 * The board that is currently shown.
+	 */
 	private static Board board = null;
+	/**
+	 * Field that displays the board seed.
+	 */
 	private static JTextField seedField;
+	/**
+	 * Field that displays the board type.
+	 */
 	private static JLabel infoField;
+	/**
+	 * Field that displays the elapsed time.
+	 */
 	private static JLabel timerField;
+	/**
+	 * Timer used to update the elapsed game time.
+	 */
 	private static Timer timer = new Timer(1000, e->{
 		if(board != null){
 			long ms = board.getPassedTime();
@@ -48,10 +76,17 @@ public class Main{
 		}
 	});
 
+	/**
+	 * Starts the program.
+	 * @param args No valid command line arguments.
+	 */
 	public static void main(String[] args){
 		showGameGUI();
 	}
 	
+	/**
+	 * Constructs and shows the GUI.
+	 */
 	private static final void showGameGUI(){
 		try{
 			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
@@ -192,7 +227,6 @@ public class Main{
 		frame.setVisible(true);
 		
 		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher(){
-
 			@Override
 			public boolean dispatchKeyEvent(KeyEvent e){
 				if(board != null && e.getID() == KeyEvent.KEY_PRESSED){
@@ -203,6 +237,10 @@ public class Main{
 		});
 	}
 	
+	/**
+	 * Opens a game with the given seed.
+	 * @param seed The seed to generate the board with.
+	 */
 	private static void openGame(Seed seed){
 		gameContainer.removeAll();
 		gameContainer.add(board = new Board(seed));
@@ -214,6 +252,9 @@ public class Main{
 		timer.restart();
 	}
 	
+	/**
+	 * Shows a help dialog with the rules.
+	 */
 	private static void showRules(){
 		JLabel text = new JLabel(
 			"<html>"
@@ -235,6 +276,9 @@ public class Main{
 		Dialog.showMessageDialog(text);
 	}
 	
+	/**
+	 * Shows a help dialog with the controls.
+	 */
 	private static void showControls(){
 		JPanel help = new JPanel();
 		help.setLayout(new BoxLayout(help, BoxLayout.Y_AXIS));
