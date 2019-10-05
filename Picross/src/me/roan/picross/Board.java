@@ -3,6 +3,7 @@ package me.roan.picross;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
 import java.awt.RenderingHints;
@@ -37,6 +38,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 	private boolean clear = false;
 	private boolean reveal = false;
 	private boolean trialMode = false;
+	private Runnable listener;
 	
 	public Board(Seed seed, JComponent parent){
 		this.setFocusable(true);
@@ -57,6 +59,26 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		colHints = new int[width][];
 		
 		initialiseGrid();
+	}
+	
+	public void addListener(Runnable listener){
+		this.listener = listener;
+	}
+	
+	public boolean isTestMode(){
+		return trialMode;
+	}
+	
+	public int getTileCount(Tile type){
+		int n = 0;
+		for(int x = 0; x < width; x++){
+			for(int y = 0; y < height; y++){
+				if(state[x][y] == type){
+					n++;
+				}
+			}
+		}
+		return n;
 	}
 		
 	public void setClear(boolean flag){
@@ -80,6 +102,9 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 			}else{
 				state[x][y] = (old == newState) ? Tile.EMPTY : newState;
 			}
+		}
+		if(listener != null){
+			listener.run();
 		}
 	}
 	
@@ -227,6 +252,45 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 //				return;
 //			}
 //		}
+		
+		if(trialMode){
+			g.setColor(Color.BLUE);
+			g.drawString("Test mode", 0, 15);
+		}
+		
+		FontMetrics fm = g.getFontMetrics();
+		int black = getTileCount(Tile.BLACK);
+		int tryBlack = getTileCount(Tile.TRY_BLACK);
+		int white = getTileCount(Tile.WHITE);
+		int tryWhite = getTileCount(Tile.TRY_WHITE);
+		
+		g.setColor(Color.BLACK);
+		String line = "Filled: " + black;
+		g.drawString(line, 0, 30);
+		if(trialMode){
+			g.setColor(Color.BLUE);
+			g.drawString(" (+" + tryBlack + ")", fm.stringWidth(line), 30);
+		}
+		
+		g.setColor(Color.BLACK);
+		line = "Crossed: " + white;
+		g.drawString(line, 0, 45);
+		if(trialMode){
+			g.setColor(Color.BLUE);
+			g.drawString(" (+" + tryWhite + ")", fm.stringWidth(line), 45);
+		}
+		
+		g.setColor(Color.BLACK);
+		line = String.format("Done: %1$.2f", (100.0D * (black + white)) / getTileCount());
+		g.drawString(line, 0, 60);
+		if(trialMode){
+			g.setColor(Color.BLUE);
+			g.drawString(String.format(" (+%1$.2f)", (100.0D * (tryBlack + tryWhite)) / getTileCount()), fm.stringWidth(line), 60);
+		}
+		
+		
+		
+		
 		
 		//origin at the top left corner of the grid
 		g.translate(dx, dy);
