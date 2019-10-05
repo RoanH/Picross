@@ -125,7 +125,6 @@ public class Main{
 			}
 		});
 		
-		
 		game.add(fromRandom);
 		//game.add(fromImage);
 		game.add(fromSeed);
@@ -136,7 +135,6 @@ public class Main{
 		
 		bar.add(game);
 		bar.add(help);
-		
 		
 		frame.setJMenuBar(bar);
 		gameContainer.setFocusable(true);
@@ -171,7 +169,6 @@ public class Main{
 			public boolean dispatchKeyEvent(KeyEvent e){
 				if(board != null && e.getID() == KeyEvent.KEY_PRESSED){
 					board.keyPressed(e);
-					System.out.println("Fire: " + e);
 				}
 				return false;
 			}

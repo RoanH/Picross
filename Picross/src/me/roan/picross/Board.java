@@ -440,21 +440,27 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		case KeyEvent.VK_W:
 		case KeyEvent.VK_UP:
 		case KeyEvent.VK_KP_UP:
-			if(y > 0){
+			if(x == -1){
+				x = 0;
+			}else if(y > 0){
 				y--;
 			}
 			break;
 		case KeyEvent.VK_S:
 		case KeyEvent.VK_DOWN:
 		case KeyEvent.VK_KP_DOWN:
-			if(y < height - 1){
+			if(x == -1){
+				x = 0;
+			}else if(y < height - 1){
 				y++;
 			}
 			break;
 		case KeyEvent.VK_D:
 		case KeyEvent.VK_RIGHT:
 		case KeyEvent.VK_KP_RIGHT:
-			if(x < width - 1){
+			if(x == -1){
+				x = 0;
+			}else if(x < width - 1){
 				x++;
 			}
 			break;
