@@ -212,7 +212,7 @@ public class Main{
 		
 		JPanel footer = new JPanel(new GridLayout(1, 2));
 		footer.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2));
-		footer.add(Util.getVersionLabel("Picross", "v1.0-ALPHA", false, SwingConstants.LEFT));//XXX Version number
+		footer.add(Util.getVersionLabel("Picross", "v1.0", false, SwingConstants.LEFT));//XXX Version number - don't forget build.gradle
 		JLabel git = new JLabel("<html><font color=blue><u>GitHub</u></font></html>", SwingConstants.RIGHT);
 		git.addMouseListener(new ClickableLink("https://github.com/RoanH/Picross"));
 		footer.add(git);
