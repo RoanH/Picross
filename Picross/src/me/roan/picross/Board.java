@@ -116,6 +116,9 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		}
 	}
 	
+	/**
+	 * Resets the board to its initial cleared state.
+	 */
 	public void reset(){
 		x = -1;
 		testMode = false;
@@ -130,10 +133,20 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		this.repaint();
 	}
 	
+	/**
+	 * Returns the total number of tiles in the grid.
+	 * @return The total number of tiles in the grid.
+	 */
 	public int getTileCount(){
 		return width * height;
 	}
 	
+	/**
+	 * Initialises the gird by computing the hints from the seed.
+	 * @see #seed
+	 * @see #rowHints
+	 * @see #colHints
+	 */
 	private final void initialiseGrid(){
 		for(int n = 0; n < seed.density * (width * height); n++){
 			solution[random.nextInt(width)][random.nextInt(height)] = true;
@@ -177,14 +190,50 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		}
 	}
 	
+	/**
+	 * Computes the judgement for the given row.
+	 * @param y The row to compute the judgement for.
+	 * @return The judgement for the given row.
+	 * @see #computeJudgement(int[], int, Function)
+	 */
 	private Boolean[] computeFoundRowNums(final int y){
 		return computeJudgement(rowHints[y], width, x->state[x][y]);
 	}
 	
+	/**
+	 * Computes the judgement for the given column.
+	 * @param x The row to compute the judgement for.
+	 * @return The judgement for the given column.
+	 * @see #computeJudgement(int[], int, Function)
+	 */
 	private Boolean[] computeFoundColNums(final int x){
 		return computeJudgement(colHints[x], height, y->state[x][y]);
 	}
 	
+	/**
+	 * Computes the judgement for a row or column by
+	 * stating which numbers have to be grayed out
+	 * or which numbers have to be rendered in red
+	 * because they are marked invalid.
+	 * @param hints The hints or numbers for the row
+	 *        or column to check.
+	 * @param max The maximum row or column index.
+	 * @param state A function that maps an integer
+	 *        index to the row or column state at
+	 *        that index.
+	 * @return The judgement for a row or column
+	 *         as an array of {@link Boolean}.
+	 *         Each index of this array corresponds
+	 *         to the hint at the same index in the
+	 *         <code>hints</code> array. If the {@link Boolean}
+	 *         value is <code>null</code> then there
+	 *         is an error with the sequence the hint represents,
+	 *         if the value is <code>true</code> then the
+	 *         sequence is correctly marked, if the value
+	 *         if <code>false</code> then the sequence is not marked yet.
+	 * @see #computeFoundColNums(int)
+	 * @see #computeFoundRowNums(int)
+	 */
 	private Boolean[] computeJudgement(int[] hints, int max, Function<Integer, Tile> state){
 		//All are false initially
 		Boolean[] found = new Boolean[hints.length];
@@ -267,13 +316,6 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		Graphics2D g = (Graphics2D)g1;
 		g.setRenderingHint(RenderingHints.KEY_ANTIALIASING, RenderingHints.VALUE_ANTIALIAS_ON);
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
-		
-//		if(background != null){
-//			g.drawImage(background, (Math.min(this.getWidth(), width * Tile.SIZE) - background.getWidth()) / 2, (Math.min(this.getHeight(), height * Tile.SIZE) - background.getHeight()) / 2, this);
-//			if(clear){
-//				return;
-//			}
-//		}
 		
 		if(testMode){
 			g.setColor(Color.BLUE);
