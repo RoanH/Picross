@@ -108,7 +108,14 @@ public class Main{
 			form.add(field);
 			
 			if(Dialog.showSelectDialog(form)){
-				openGame(new Seed(field.getText()));
+				Seed seed = null;
+				try{
+					seed = new Seed(field.getText());
+				}catch(IllegalArgumentException e2){
+					Dialog.showErrorDialog("The provided seed is invalid.");
+					return;
+				}
+				openGame(seed);
 			}
 		});
 		fromRandom.addActionListener(e->{
