@@ -66,5 +66,5 @@ compile:
     expire_in: 1 week
     paths:
       - ${PROJECTNAME}-*.jar
-      - ${PROJECTNAME}.exe
+      - ${PROJECTNAME}-*.exe
       
