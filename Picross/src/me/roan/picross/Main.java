@@ -80,7 +80,7 @@ public class Main{
 		JMenuItem quickB = new JMenuItem("New 15x15 @ 0.8 game");
 		JMenuItem quickC = new JMenuItem("New 30x15 @ 0.8 game");
 		
-		quickA.addActionListener(e->openGame(new Seed(10, 10, 0.8D)));
+		quickA.addActionListener(e->openGame(new Seed(10, 7, 0.8D)));
 		quickB.addActionListener(e->openGame(new Seed(15, 15, 0.8D)));
 		quickC.addActionListener(e->openGame(new Seed(30, 15, 0.8D)));
 		fromSeed.addActionListener(e->{
@@ -95,7 +95,11 @@ public class Main{
 		fromRandom.addActionListener(e->{
 			JPanel form = new JPanel(new GridLayout(3, 2));
 			
-			//TODO
+			form.add(new JLabel("Width: "));
+			
+			
+			
+			
 			
 			
 			

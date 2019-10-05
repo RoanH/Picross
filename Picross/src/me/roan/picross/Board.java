@@ -318,12 +318,14 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		
 		g.setColor(Color.BLACK);
 		g.drawRect(-1, -1, 1, 1);
-		for(int x = 0; x <= width; x += 5){
-			g.fillRect(x * SIZE - 1, 0, 2, height * SIZE + 1);
+		for(int x = 0; x < width; x += 5){
+			g.fillRect(x * SIZE - 1, 0, 2, height * SIZE);
 		}
-		for(int y = 0; y <= height; y += 5){
-			g.fillRect(0, y * SIZE - 1, width * SIZE + 1, 2);
+		for(int y = 0; y < height; y += 5){
+			g.fillRect(0, y * SIZE - 1, width * SIZE, 2);
 		}
+		g.fillRect(width * SIZE - 1, 0, 2, height * SIZE + 1);
+		g.fillRect(0, height * SIZE - 1, width * SIZE + 1, 2);
 		
 		//cell status
 		for(int x = 0; x < width; x++){
