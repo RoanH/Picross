@@ -19,7 +19,8 @@ sourceSets{
 
 compileJava.options.encoding = 'UTF-8'
 sourceCompatibility = 1.8
-shadowJar.archiveName = 'Picross.jar'
+version = 'v1.0'
+shadowJar.archiveName = 'Picross-' + project.version + '.jar'
 
 repositories{
 	//Local cache
@@ -44,4 +45,11 @@ application{
 
 launch4j{
 	mainClassName = application.mainClassName
+	icon = "${projectDir}/icon.ico"
+	jreMinVersion = project.sourceCompatibility
+	outfile = project.name + '-' + project.version + '.exe'
+	fileDescription = project.name
+	version = project.version.substring(1)
+	textVersion = project.version.substring(1)
+	copyright = "Roan Hofland"
 }
