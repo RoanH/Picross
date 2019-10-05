@@ -33,8 +33,8 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 	private final Tile[][] state;
 	private final int width;
 	private final int height;
-	private int dx = 250;
-	private int dy = 200;
+	private int dx = 0;
+	private int dy = 0;
 	private boolean clear = false;
 	private boolean reveal = false;
 	private boolean trialMode = false;
@@ -93,8 +93,8 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 	}
 	
 	public void setClicked(int px, int py, Tile newState){
-		int x = (px - dx) / SIZE;
-		int y = (py - dy) / SIZE;
+		int x = (px - dx - ((this.getWidth() - width * SIZE) / 2)) / SIZE;
+		int y = (py - dy - ((this.getHeight() - height * SIZE) / 2)) / SIZE;
 		if(x >= 0 && y >= 0 && x < width && y < height){
 			Tile old = state[x][y];
 			if(trialMode){
@@ -258,7 +258,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		
 		if(trialMode){
 			g.setColor(Color.BLUE);
-			g.drawString("Test mode", 0, 15);
+			g.drawString(" Test mode", 0, 15);
 		}
 		
 		FontMetrics fm = g.getFontMetrics();
@@ -268,7 +268,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		int tryWhite = getTileCount(Tile.TRY_WHITE);
 		
 		g.setColor(Color.BLACK);
-		String line = "Filled: " + black;
+		String line = " Filled: " + black;
 		g.drawString(line, 0, 30);
 		if(trialMode){
 			g.setColor(Color.BLUE);
@@ -276,7 +276,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		}
 		
 		g.setColor(Color.BLACK);
-		line = "Crossed: " + white;
+		line = " Crossed: " + white;
 		g.drawString(line, 0, 45);
 		if(trialMode){
 			g.setColor(Color.BLUE);
@@ -284,7 +284,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		}
 		
 		g.setColor(Color.BLACK);
-		line = String.format("Done: %1$.2f%%", (100.0D * (black + white)) / getTileCount());
+		line = String.format(" Done: %1$.2f%%", (100.0D * (black + white)) / getTileCount());
 		g.drawString(line, 0, 60);
 		if(trialMode){
 			g.setColor(Color.BLUE);
@@ -292,7 +292,7 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		}
 		
 		//origin at the top left corner of the grid
-		g.translate(dx, dy);
+		g.translate((this.getWidth() - width * SIZE) / 2 + dx, (this.getHeight() - height * SIZE) / 2 + dy);
 		
 		//grid
 		g.setColor(Color.GRAY);

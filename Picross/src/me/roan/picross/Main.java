@@ -1,6 +1,7 @@
 package me.roan.picross;
 
 import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.KeyEventDispatcher;
@@ -27,7 +28,7 @@ public class Main{
 	
 	private static final String TITLE = "Picross";
 	private static final JFrame frame = new JFrame(TITLE);
-	private static JPanel gameContainer = new JPanel(new FlowLayout(FlowLayout.CENTER));
+	private static JPanel gameContainer = new JPanel(new BorderLayout());
 	private static Board board = null;
 	private static JTextField seedField;
 	private static JLabel infoField;
@@ -114,6 +115,7 @@ public class Main{
 		
 		frame.setJMenuBar(bar);
 		gameContainer.setFocusable(true);
+		gameContainer.setBorder(BorderFactory.createMatteBorder(1, 0, 1, 0, Color.BLACK));
 		
 		JPanel state = new JPanel(new GridLayout(1, 3));
 		state.add(infoField);
@@ -121,11 +123,8 @@ public class Main{
 		JPanel rightFlow = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		rightFlow.add(seedField);
 		state.add(rightFlow);
-		
-		JScrollPane pane = new JScrollPane(gameContainer);
-		pane.getVerticalScrollBar().setUnitIncrement(Board.SIZE);
-		pane.getHorizontalScrollBar().setUnitIncrement(Board.SIZE);
-		content.add(pane, BorderLayout.CENTER);
+
+		content.add(gameContainer, BorderLayout.CENTER);
 		content.add(state, BorderLayout.PAGE_START);
 		
 		frame.setSize(1000, 800);
