@@ -18,7 +18,9 @@ import javax.swing.JMenuItem;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
 import javax.swing.JTextField;
+import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
 import javax.swing.UIDefaults;
@@ -93,16 +95,28 @@ public class Main{
 			}
 		});
 		fromRandom.addActionListener(e->{
-			JPanel form = new JPanel(new GridLayout(3, 2));
+			JPanel form = new JPanel(new BorderLayout());
+			JPanel spinners = new JPanel(new GridLayout(3, 1, 0, 2));
+			JPanel labels = new JPanel(new GridLayout(3, 1, 0, 2));
 			
-			form.add(new JLabel("Width: "));
+			labels.add(new JLabel("Width: "));
+			JSpinner width = new JSpinner(new SpinnerNumberModel(15, 1, Integer.MAX_VALUE, 5));
+			spinners.add(width);
 			
+			labels.add(new JLabel("Height: "));
+			JSpinner height = new JSpinner(new SpinnerNumberModel(15, 1, Integer.MAX_VALUE, 5));
+			spinners.add(height);
 			
+			labels.add(new JLabel("Density: "));
+			JSpinner density = new JSpinner(new SpinnerNumberModel(0.8D, 0.0D, 100.0D, 0.1D));
+			spinners.add(density);
 			
+			form.add(labels, BorderLayout.LINE_START);
+			form.add(spinners, BorderLayout.CENTER);
 			
-			
-			
-			
+			if(JOptionPane.OK_OPTION == JOptionPane.showOptionDialog(frame, form, TITLE, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, 0)){
+				openGame(new Seed((int)width.getValue(), (int)height.getValue(), (double)density.getValue()));
+			}
 		});
 		
 		
