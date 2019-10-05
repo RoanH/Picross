@@ -1,0 +1,46 @@
+plugins{
+	id 'java'
+	id 'application'
+	id 'eclipse'
+	id 'com.github.johnrengelman.shadow' version '5.1.0'
+	id 'edu.sc.seis.launch4j' version '2.4.6'
+}
+
+sourceSets{
+	main{
+		java{
+			srcDirs = ['src']
+		}
+		resources{
+			srcDirs = ['src']
+		}
+	}
+}
+
+compileJava.options.encoding = 'UTF-8'
+sourceCompatibility = 1.8
+
+repositories{
+	//Local cache
+	if(project.hasProperty("nexusPublic")){
+		maven{
+			url "$nexusPublic"
+		}
+	}
+	jcenter()
+	maven{
+		url "https://jitpack.io"
+	}
+}
+
+dependencies{
+	implementation 'com.github.RoanH:Util:1.0-SNAPSHOT'
+}
+
+application{
+	mainClassName = 'me.roan.picross.Main'
+}
+
+launch4j{
+	mainClassName = application.mainClassName
+}
