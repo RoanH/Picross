@@ -130,7 +130,7 @@ public class Main{
 	private static void showControls(){
 		JPanel help = new JPanel(new BorderLayout());
 		
-		JLabel controls = new JLabel("<html>- Left mouse button to fill a tile<br>- Right mouse button to place a cross<br>- Left click a fill tile to empty it<br>- Right click a cross to remove it<html>");
+		JLabel controls = new JLabel("<html>- Left mouse button to fill a tile<br>- Right mouse button to place a cross<br>- Left click a filled tile to empty it<br>- Right click a cross to remove it<html>");
 		controls.setBorder(BorderFactory.createTitledBorder("Playing"));
 		
 		JLabel test = new JLabel("<html>- T to enter test mode<br>- C to leave test mode and save changes<br>- V to leave test mode and undo changes<html>");
