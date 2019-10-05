@@ -4,10 +4,13 @@ import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.Image;
 import java.awt.KeyEventDispatcher;
 import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
+import java.io.IOException;
 
+import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -56,9 +59,15 @@ public class Main{
 		}
 		UIManager.getDefaults().put("ScrollPane.ancestorInputMap", new UIDefaults.LazyInputMap(new Object[]{}));
 
+		try{
+			Image img = ImageIO.read(ClassLoader.getSystemResource("icon.png"));
+			Dialog.setDialogIcon(img);
+			frame.setIconImage(img);
+		}catch(IOException e){
+			//pity
+		}
 		Dialog.setParentFrame(frame);
 		Dialog.setDialogTitle(TITLE);
-		//Dialog.setDialogIcon(icon);
 		
 		JPanel content = new JPanel(new BorderLayout());
 		content.setFocusable(true);
