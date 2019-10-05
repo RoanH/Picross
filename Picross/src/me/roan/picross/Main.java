@@ -3,6 +3,9 @@ package me.roan.picross;
 import java.awt.BorderLayout;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
+import java.awt.KeyEventDispatcher;
+import java.awt.KeyboardFocusManager;
+import java.awt.event.KeyEvent;
 
 import javax.swing.BorderFactory;
 import javax.swing.JFrame;
@@ -129,12 +132,23 @@ public class Main{
 		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
+		
+		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher(){
+
+			@Override
+			public boolean dispatchKeyEvent(KeyEvent e){
+				if(board != null){
+					board.keyPressed(e);
+				}
+				return false;
+			}
+		});
 	}
 	
 	private static void openGame(Seed seed){
 		gameContainer.removeAll();
 		gameContainer.removeMouseListener(board);
-		gameContainer.add(board = new Board(seed, gameContainer));
+		gameContainer.add(board = new Board(seed));
 		gameContainer.revalidate();
 		gameContainer.repaint();
 		seedField.setText(" Seed: " + board.getSeed());
@@ -152,7 +166,7 @@ public class Main{
 		JLabel test = new JLabel("<html>- T to enter test mode<br>- C to leave test mode and save changes<br>- V to leave test mode and undo changes<html>");
 		test.setBorder(BorderFactory.createTitledBorder("Test mode"));
 		
-		JLabel check = new JLabel("<html>- R to view the original solution (note that other solutions might also be valid)</html>");
+		JLabel check = new JLabel("<html>- R to view the original solution (note that other solutions might also be valid)<br>- H to hide the original solution</html>");
 		check.setBorder(BorderFactory.createTitledBorder("Check"));
 		
 		help.add(controls, BorderLayout.PAGE_START);

@@ -15,7 +15,6 @@ import java.util.Arrays;
 import java.util.Random;
 import java.util.function.Function;
 
-import javax.swing.JComponent;
 import javax.swing.JPanel;
 
 public class Board extends JPanel implements KeyListener, MouseListener{
@@ -41,9 +40,8 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 	private boolean trialMode = false;
 	private Runnable listener;
 	
-	public Board(Seed seed, JComponent parent){
+	public Board(Seed seed){
 		this.setFocusable(true);
-		parent.addKeyListener(this);
 		this.addMouseListener(this);
 		
 		this.seed = seed;
@@ -432,7 +430,11 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 			this.repaint();
 			break;
 		case KeyEvent.VK_R:
-			reveal = !reveal;
+			reveal = true;
+			this.repaint();
+			break;
+		case KeyEvent.VK_H:
+			reveal = false;
 			this.repaint();
 			break;
 		case KeyEvent.VK_V:
