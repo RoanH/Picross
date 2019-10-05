@@ -26,6 +26,10 @@ import javax.swing.UIDefaults;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
 
+import me.roan.util.ClickableLink;
+import me.roan.util.Dialog;
+import me.roan.util.Util;
+
 public class Main{
 	
 	private static final String TITLE = "Picross";
@@ -53,6 +57,9 @@ public class Main{
 		}
 		UIManager.getDefaults().put("ScrollPane.ancestorInputMap", new UIDefaults.LazyInputMap(new Object[]{}));
 
+		Dialog.setParentFrame(frame);
+		Dialog.setDialogTitle(TITLE);
+		//Dialog.setDialogIcon(icon);
 		
 		JPanel content = new JPanel(new BorderLayout());
 		frame.add(content);
@@ -70,8 +77,6 @@ public class Main{
 		controls.addActionListener(e->showControls());
 		help.add(controls);
 		
-		
-		
 		JMenu game = new JMenu("Game");
 		JMenuItem fromRandom = new JMenuItem("New game...");
 		//JMenuItem fromImage = new JMenuItem("New game from image...");
@@ -81,7 +86,7 @@ public class Main{
 		JMenuItem quickB = new JMenuItem("New 15x15 @ 0.8 game");
 		JMenuItem quickC = new JMenuItem("New 30x15 @ 0.8 game");
 		
-		quickA.addActionListener(e->openGame(new Seed(10, 7, 0.8D)));
+		quickA.addActionListener(e->openGame(new Seed(10, 10, 0.8D)));
 		quickB.addActionListener(e->openGame(new Seed(15, 15, 0.8D)));
 		quickC.addActionListener(e->openGame(new Seed(30, 15, 0.8D)));
 		fromSeed.addActionListener(e->{
@@ -89,6 +94,7 @@ public class Main{
 			form.add(new JLabel("Seed: "));
 			JTextField field = new JTextField(32);
 			form.add(field);
+			
 			if(JOptionPane.OK_OPTION == JOptionPane.showOptionDialog(frame, form, TITLE, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, 0)){
 				openGame(new Seed(field.getText()));
 			}
@@ -141,9 +147,17 @@ public class Main{
 		JPanel rightFlow = new JPanel(new FlowLayout(FlowLayout.RIGHT));
 		rightFlow.add(seedField);
 		state.add(rightFlow);
+		
+		JPanel footer = new JPanel(new GridLayout(1, 2));
+		footer.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2));
+		footer.add(Util.getVersionLabel("Picross", "v1.0-ALPHA", false, SwingConstants.LEFT));//XXX Version number
+		JLabel git = new JLabel("<html><font color=blue><u>GitHub</u></font></html>", SwingConstants.RIGHT);
+		git.addMouseListener(new ClickableLink("https://github.com/RoanH/Picross"));
+		footer.add(git);
 
 		content.add(gameContainer, BorderLayout.CENTER);
 		content.add(state, BorderLayout.PAGE_START);
+		content.add(footer, BorderLayout.PAGE_END);
 		
 		frame.setSize(1000, 800);
 		frame.setLocationRelativeTo(null);
@@ -213,6 +227,6 @@ public class Main{
 		help.add(check);
 		help.add(other);
 		
-		JOptionPane.showMessageDialog(frame, help, TITLE, JOptionPane.INFORMATION_MESSAGE);
+		Dialog.showMessageDialog(help);
 	}
 }
