@@ -34,7 +34,7 @@ repositories{
 }
 
 dependencies{
-	implementation 'com.github.RoanH:Util:1.0-SNAPSHOT'
+	implementation 'com.github.RoanH:Util:v1.0'
 }
 
 application{
