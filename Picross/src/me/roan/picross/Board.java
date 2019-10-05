@@ -38,8 +38,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	private int dx = 0;
 	private int dy = 0;
 	private boolean reveal = false;
-	private boolean trialMode = false;
-	private Runnable listener;
+	private boolean testMode = false;
 	private Point last;
 	private int x = -1;
 	private int y = 0;
@@ -71,12 +70,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		return System.currentTimeMillis() - startTime;
 	}
 	
-	public void addListener(Runnable listener){
-		this.listener = listener;
-	}
-	
 	public boolean isTestMode(){
-		return trialMode;
+		return testMode;
 	}
 	
 	public int getTileCount(Tile type){
@@ -110,8 +105,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	public void setGridClicked(int x, int y, Tile newState){
 		if(x >= 0 && y >= 0 && x < width && y < height){
 			Tile old = state[x][y];
-			if(trialMode){
-				if(state[x][y] == Tile.EMPTY || state[x][y].isTrial()){
+			if(testMode){
+				if(state[x][y] == Tile.EMPTY || state[x][y].isTest()){
 					newState = newState.toTest();
 					state[x][y] = (old == newState) ? Tile.EMPTY : newState;
 				}
@@ -119,14 +114,11 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 				state[x][y] = (old == newState) ? Tile.EMPTY : newState;
 			}
 		}
-		if(listener != null){
-			listener.run();
-		}
 	}
 	
 	public void reset(){
 		x = -1;
-		trialMode = false;
+		testMode = false;
 		reveal = false;
 		dx = 0;
 		dy = 0;
@@ -283,7 +275,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 //			}
 //		}
 		
-		if(trialMode){
+		if(testMode){
 			g.setColor(Color.BLUE);
 			g.drawString(" Test mode", 0, 15);
 		}
@@ -297,7 +289,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		g.setColor(Color.BLACK);
 		String line = " Filled: " + black;
 		g.drawString(line, 0, 30);
-		if(trialMode){
+		if(testMode){
 			g.setColor(Color.BLUE);
 			g.drawString(" (+" + tryBlack + ")", fm.stringWidth(line), 30);
 		}
@@ -305,7 +297,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		g.setColor(Color.BLACK);
 		line = " Crossed: " + white;
 		g.drawString(line, 0, 45);
-		if(trialMode){
+		if(testMode){
 			g.setColor(Color.BLUE);
 			g.drawString(" (+" + tryWhite + ")", fm.stringWidth(line), 45);
 		}
@@ -313,7 +305,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		g.setColor(Color.BLACK);
 		line = String.format(" Done: %1$.2f%%", (100.0D * (black + white)) / getTileCount());
 		g.drawString(line, 0, 60);
-		if(trialMode){
+		if(testMode){
 			g.setColor(Color.BLUE);
 			g.drawString(String.format(" (+%1$.2f%%)", (100.0D * (tryBlack + tryWhite)) / getTileCount()), fm.stringWidth(line), 60);
 		}
@@ -488,7 +480,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			}
 			break;
 		case KeyEvent.VK_T:
-			trialMode = true;
+			testMode = true;
 			break;
 		case KeyEvent.VK_R:
 			reveal = !reveal;
@@ -496,22 +488,22 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		case KeyEvent.VK_V:
 			for(int x = 0; x < width; x++){
 				for(int y = 0; y < height; y++){
-					if(state[x][y].isTrial()){
+					if(state[x][y].isTest()){
 						state[x][y] = Tile.EMPTY;
 					}
 				}
 			}
-			trialMode = false;
+			testMode = false;
 			break;
 		case KeyEvent.VK_C:
 			for(int x = 0; x < width; x++){
 				for(int y = 0; y < height; y++){
-					if(state[x][y].isTrial()){
+					if(state[x][y].isTest()){
 						state[x][y] = state[x][y].toReal();
 					}
 				}
 			}
-			trialMode = false;
+			testMode = false;
 			break;
 		}
 		this.repaint();
