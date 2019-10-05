@@ -9,6 +9,7 @@ import java.awt.KeyboardFocusManager;
 import java.awt.event.KeyEvent;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JMenu;
@@ -157,20 +158,43 @@ public class Main{
 	}
 	
 	private static void showControls(){
-		JPanel help = new JPanel(new BorderLayout());
+		JPanel help = new JPanel();
+		help.setLayout(new BoxLayout(help, BoxLayout.Y_AXIS));
 		
-		JLabel controls = new JLabel("<html>- Left mouse button to fill a tile<br>- Right mouse button to place a cross<br>- Left click a filled tile to empty it<br>- Right click a cross to remove it<html>");
+		JLabel controls = new JLabel(
+			"<html>"
+			+ "- Left mouse button to fill a tile<br>"
+			+ "- Right mouse button to place a cross<br>"
+			+ "- Left click a filled tile to empty it<br>"
+			+ "- Right click a cross to remove it<html>"
+		);
 		controls.setBorder(BorderFactory.createTitledBorder("Playing"));
 		
-		JLabel test = new JLabel("<html>- T to enter test mode<br>- C to leave test mode and save changes<br>- V to leave test mode and undo changes<html>");
+		JLabel test = new JLabel(
+			"<html>"
+			+ "- T to enter test mode<br>"
+			+ "- C to leave test mode and save changes<br>"
+			+ "- V to leave test mode and undo changes<html>"
+		);
 		test.setBorder(BorderFactory.createTitledBorder("Test mode"));
 		
-		JLabel check = new JLabel("<html>- R to view the original solution (note that other solutions might also be valid)<br>- H to hide the original solution</html>");
+		JLabel check = new JLabel(
+			"<html>"
+			+ "- R to view the original solution (note that other solutions might also be valid)<br>"
+			+ "- H to hide the original solution</html>"
+		);
 		check.setBorder(BorderFactory.createTitledBorder("Check"));
 		
-		help.add(controls, BorderLayout.PAGE_START);
-		help.add(test, BorderLayout.CENTER);
-		help.add(check, BorderLayout.PAGE_END);
+		JLabel other = new JLabel(
+			"<html>"
+			+ "- You can drag the game around with the mouse if you click and hold outside the grid (useful if number are offscreen)"
+		);
+		other.setBorder(BorderFactory.createTitledBorder("Other"));
+		
+		help.add(controls);
+		help.add(test);
+		help.add(check);
+		help.add(other);
 		
 		JOptionPane.showMessageDialog(frame, help, TITLE, JOptionPane.INFORMATION_MESSAGE);
 	}

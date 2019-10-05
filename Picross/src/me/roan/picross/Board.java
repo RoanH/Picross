@@ -6,18 +6,20 @@ import java.awt.Font;
 import java.awt.FontMetrics;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.Point;
 import java.awt.RenderingHints;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
+import java.awt.event.MouseMotionListener;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.function.Function;
 
 import javax.swing.JPanel;
 
-public class Board extends JPanel implements KeyListener, MouseListener{
+public class Board extends JPanel implements KeyListener, MouseListener, MouseMotionListener{
 	/**
 	 * Serial ID
 	 */
@@ -38,11 +40,14 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 	private boolean clear = false;
 	private boolean reveal = false;
 	private boolean trialMode = false;
+	private boolean move = false;
 	private Runnable listener;
+	private Point last;
 	
 	public Board(Seed seed){
 		this.setFocusable(true);
 		this.addMouseListener(this);
+		this.addMouseMotionListener(this);
 		
 		this.seed = seed;
 		random = new Random(seed.seed);
@@ -92,9 +97,17 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 		return seed;
 	}
 	
+	private int toGridX(int px){
+		return (px - dx - ((this.getWidth() - width * SIZE) / 2)) / SIZE;
+	}
+	
+	private int toGridY(int py){
+		return (py - dy - ((this.getHeight() - height * SIZE) / 2)) / SIZE;
+	}
+	
 	public void setClicked(int px, int py, Tile newState){
-		int x = (px - dx - ((this.getWidth() - width * SIZE) / 2)) / SIZE;
-		int y = (py - dy - ((this.getHeight() - height * SIZE) / 2)) / SIZE;
+		int x = toGridX(px);
+		int y = toGridY(py);
 		if(x >= 0 && y >= 0 && x < width && y < height){
 			Tile old = state[x][y];
 			if(trialMode){
@@ -388,10 +401,12 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 			break;
 		}
 		this.repaint();
+		last = e.getPoint();
 	}
 
 	@Override
-	public void mouseReleased(MouseEvent e){		
+	public void mouseReleased(MouseEvent e){
+		
 	}
 
 	@Override
@@ -464,5 +479,24 @@ public class Board extends JPanel implements KeyListener, MouseListener{
 
 	@Override
 	public void keyReleased(KeyEvent e){		
+	}
+
+	@Override
+	public void mouseDragged(MouseEvent e){
+		Point to = e.getPoint();
+		int tx = toGridX(to.x);
+		int ty = toGridY(to.y);
+		
+		if(tx < 0 || tx > width * SIZE || ty < 0 || ty > height * SIZE){
+			dx += to.x - last.x;
+			dy += to.y - last.y;
+		}
+		
+		last = to;
+		this.repaint();
+	}
+
+	@Override
+	public void mouseMoved(MouseEvent e){		
 	}
 }
