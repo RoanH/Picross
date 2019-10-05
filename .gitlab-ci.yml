@@ -1,0 +1,70 @@
+image: openjdk:8
+
+variables:
+  PROJECTNAME: "Picross"
+
+before_script:
+  - java -version
+  - ls -l
+  - cd ${PROJECTNAME}
+  - chmod -R 755 ./*
+
+stages:
+  - compile
+  - status
+  - javadoc
+  - publish
+  
+pending:
+  allow_failure: true
+  script:
+    - curl --request POST --form "type=status" --form "status=pending" --form "repo=${PROJECTNAME}" --form "commit=${CI_COMMIT_SHA}" ${CISERVER}
+  stage: compile
+
+success:
+  allow_failure: true
+  script:
+    - curl --request POST --form "type=status" --form "status=success" --form "repo=${PROJECTNAME}" --form "commit=${CI_COMMIT_SHA}" ${CISERVER}
+  when: on_success
+  stage: status
+
+failure:
+  allow_failure: true
+  script:
+    - curl --request POST --form "type=status" --form "status=failure" --form "repo=${PROJECTNAME}" --form "commit=${CI_COMMIT_SHA}" ${CISERVER}
+  when: on_failure
+  stage: status
+
+verify:
+  allow_failure: true
+  script: curl ${SERVER}ci/javadoc.sh | bash
+  stage: javadoc
+
+javadoc:
+  script:
+    - mkdir ../javadoc
+    - ./gradlew javadoc
+    - mv ./build/docs/javadoc/* ../javadoc
+  stage: javadoc
+  environment: javadoc
+  artifacts:
+    name: "$PROJECTNAME"
+    expire_in: 1 week
+    paths:
+      - javadoc/
+
+compile:
+  script:
+    - ./gradlew shadowJar
+    - ./gradlew createExe
+    - mv ./build/libs/* ../
+    - mv ./build/launch4j/*.exe ../
+  stage: compile
+  environment: builds
+  artifacts:
+    name: "${PROJECTNAME}"
+    expire_in: 1 week
+    paths:
+      - ${PROJECTNAME}-*.jar
+      - ${PROJECTNAME}.exe
+      
