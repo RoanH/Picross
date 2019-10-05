@@ -1,7 +1,7 @@
 image: openjdk:8
 
 variables:
-  PROJECTNAME: "Util"
+  PROJECTNAME: "Picross"
 
 before_script:
   - java -version
