@@ -124,6 +124,20 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		}
 	}
 	
+	public void reset(){
+		x = -1;
+		trialMode = false;
+		reveal = false;
+		dx = 0;
+		dy = 0;
+		for(int x = 0; x < width; x++){
+			for(int y = 0; y < height; y++){
+				state[x][y] = Tile.EMPTY;
+			}
+		}
+		this.repaint();
+	}
+	
 	public int getTileCount(){
 		return width * height;
 	}

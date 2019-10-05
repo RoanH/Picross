@@ -128,6 +128,13 @@ public class Main{
 			}
 		});
 		
+		JMenuItem reset = new JMenuItem("Reset");
+		reset.addActionListener(e->{
+			if(board != null){
+				board.reset();
+			}
+		});
+		
 		game.add(fromRandom);
 		//game.add(fromImage);
 		game.add(fromSeed);
@@ -135,6 +142,8 @@ public class Main{
 		game.add(quickA);
 		game.add(quickB);
 		game.add(quickC);
+		game.addSeparator();
+		game.add(reset);
 		
 		bar.add(game);
 		bar.add(help);
