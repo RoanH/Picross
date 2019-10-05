@@ -15,7 +15,6 @@ import javax.swing.JLabel;
 import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
-import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JSpinner;
 import javax.swing.JTextField;
@@ -76,6 +75,9 @@ public class Main{
 		JMenu help = new JMenu("Help");
 		JMenuItem controls = new JMenuItem("Controls");
 		controls.addActionListener(e->showControls());
+		JMenuItem rules = new JMenuItem("Rules");
+		rules.addActionListener(e->showRules());
+		help.add(rules);
 		help.add(controls);
 		
 		JMenu game = new JMenu("Game");
@@ -96,7 +98,7 @@ public class Main{
 			JTextField field = new JTextField(32);
 			form.add(field);
 			
-			if(JOptionPane.OK_OPTION == JOptionPane.showOptionDialog(frame, form, TITLE, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, 0)){
+			if(Dialog.showSelectDialog(form)){
 				openGame(new Seed(field.getText()));
 			}
 		});
@@ -119,8 +121,9 @@ public class Main{
 			
 			form.add(labels, BorderLayout.LINE_START);
 			form.add(spinners, BorderLayout.CENTER);
+			form.add(new JLabel("Game settings: "), BorderLayout.PAGE_START);
 			
-			if(JOptionPane.OK_OPTION == JOptionPane.showOptionDialog(frame, form, TITLE, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, 0)){
+			if(Dialog.showSelectDialog(form)){
 				openGame(new Seed((int)width.getValue(), (int)height.getValue(), (double)density.getValue()));
 			}
 		});
@@ -184,6 +187,27 @@ public class Main{
 		infoField.setText("Type: " + seed.width + "x" + seed.height + " @ " + seed.density);
 		timerField.setText("Time: 00:00");
 		timer.restart();
+	}
+	
+	private static void showRules(){
+		JLabel text = new JLabel(
+			"<html>"
+			+ "The goal of the game is to change every tile in the grid to either a filled tile or a tile with a cross in it.<br>"
+			+ "To do this the numbers in front of each row and the number above each column give hits as to which tiles have to<br>"
+			+ "be filled. Each individual number represents a sequence of filled connected tiles on that row or column.<br>"
+			+ "These sequences appear in the same order as their associated numbers. So for example the hint <tt>2 3 2 1</tt><br>"
+			+ "means that in order there is a sequence of 2 filled tiles, followed by a sequence of 3 filled tiles, followed by a<br>"
+			+ "sequence of 2 and finally followed by a sequence of 1 tile. Between these sequences are one or more cross tiles.<br><br>"
+			+ "As you are playing the program will start graying out the numbers. When a number turns gray this means that you have<br>"
+			+ "enclosed a sequence of that length and it is connected via a sequence of filled and/or cross tiles to the side of the<br>"
+			+ "game board. If a number turns red this means that there is an error with the sequence representing the number that<br>"
+			+ "turned red. If all the numbers turn red this means that either too many or too few sequences are present on a line/column<br>"
+			+ "while the entire line is filled with filled tiles or cross tiles.<br><br>"
+			+ "Filling the entire grid using these hints completes the game. Have fun!"
+		);
+		text.setBorder(BorderFactory.createTitledBorder("Rules"));
+		
+		Dialog.showMessageDialog(text);
 	}
 	
 	private static void showControls(){
