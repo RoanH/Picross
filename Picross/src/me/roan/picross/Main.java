@@ -78,7 +78,23 @@ public class Main{
 		quickA.addActionListener(e->openGame(new Seed(10, 10, 0.8D)));
 		quickB.addActionListener(e->openGame(new Seed(15, 15, 0.8D)));
 		quickC.addActionListener(e->openGame(new Seed(30, 15, 0.8D)));
-
+		fromSeed.addActionListener(e->{
+			JPanel form = new JPanel();
+			form.add(new JLabel("Seed: "));
+			JTextField field = new JTextField(32);
+			form.add(field);
+			if(JOptionPane.OK_OPTION == JOptionPane.showOptionDialog(frame, form, TITLE, JOptionPane.OK_CANCEL_OPTION, JOptionPane.QUESTION_MESSAGE, null, null, 0)){
+				openGame(new Seed(field.getText()));
+			}
+		});
+		fromRandom.addActionListener(e->{
+			JPanel form = new JPanel(new GridLayout(3, 2));
+			
+			//TODO
+			
+			
+			
+		});
 		
 		
 		game.add(fromRandom);
