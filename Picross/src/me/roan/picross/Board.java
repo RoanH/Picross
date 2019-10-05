@@ -40,7 +40,6 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	private boolean clear = false;
 	private boolean reveal = false;
 	private boolean trialMode = false;
-	private boolean move = false;
 	private Runnable listener;
 	private Point last;
 	
