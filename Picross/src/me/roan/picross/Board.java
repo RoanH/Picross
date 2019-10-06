@@ -31,6 +31,9 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * Serial ID.
 	 */
 	private static final long serialVersionUID = 6310638885364285013L;
+	private static final Color TEST_MODE = Color.BLUE;
+	private static final Color MISTAKE = Color.RED;
+	public static final Color SOLVED = Color.GREEN.darker().darker();
 	/**
 	 * Font to use to draw the hint numbers.
 	 */
@@ -116,6 +119,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * Current marking judgement for all the columns.
 	 */
 	private Boolean[][] colJudgement;
+	private boolean solved = false;
 	
 	/**
 	 * Constructs a new board from
@@ -167,6 +171,10 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 */
 	public boolean isTestMode(){
 		return testMode;
+	}
+	
+	public boolean isSolved(){
+		return solved;
 	}
 	
 	/**
@@ -237,7 +245,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * @param newState The new state for the tile that was clicked.
 	 */
 	public void setGridClicked(int x, int y, Tile newState){
-		if(x >= 0 && y >= 0 && x < width && y < height){
+		if(x >= 0 && y >= 0 && x < width && y < height && !solved){
 			Tile old = state[x][y];
 			if(testMode){
 				if(state[x][y] == Tile.EMPTY || state[x][y].isTest()){
@@ -256,9 +264,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	private void checkSolution(){
 		if(isGridComplete()){
 			if(isSolutionValid()){
-				System.out.println("Done");
-				reveal = true;//nums green?
 				endTime = System.currentTimeMillis();
+				solved = true;
 			}
 		}
 	}
@@ -513,8 +520,11 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		
 		if(testMode){
-			g.setColor(Color.BLUE);
+			g.setColor(TEST_MODE);
 			g.drawString(" Test mode", 0, 15);
+		}else if(solved){
+			g.setColor(SOLVED);
+			g.drawString(" Solved", 0, 15);
 		}
 		
 		FontMetrics fm = g.getFontMetrics();
@@ -527,7 +537,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		String line = " Filled: " + black;
 		g.drawString(line, 0, 30);
 		if(testMode){
-			g.setColor(Color.BLUE);
+			g.setColor(TEST_MODE);
 			g.drawString(" (+" + tryBlack + ")", fm.stringWidth(line), 30);
 		}
 		
@@ -535,7 +545,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		line = " Crossed: " + white;
 		g.drawString(line, 0, 45);
 		if(testMode){
-			g.setColor(Color.BLUE);
+			g.setColor(TEST_MODE);
 			g.drawString(" (+" + tryWhite + ")", fm.stringWidth(line), 45);
 		}
 		
@@ -543,7 +553,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		line = String.format(" Done: %1$.2f%%", (100.0D * (black + white)) / getTileCount());
 		g.drawString(line, 0, 60);
 		if(testMode){
-			g.setColor(Color.BLUE);
+			g.setColor(TEST_MODE);
 			g.drawString(String.format(" (+%1$.2f%%)", (100.0D * (tryBlack + tryWhite)) / getTileCount()), fm.stringWidth(line), 60);
 		}
 		
@@ -616,7 +626,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			Boolean[] found = rowJudgement[y];
 			int offset = -10;
 			for(int i = rowHints[y].length - 1; i >= 0; i--){
-				g.setColor(found[i] == null ? Color.RED : (found[i] ? Color.GRAY : Color.BLACK));
+				g.setColor(solved ? SOLVED : (found[i] == null ? MISTAKE : (found[i] ? Color.GRAY : Color.BLACK)));
 				String str = String.valueOf(rowHints[y][i]);
 				g.drawString(str, offset - (g.getFontMetrics().stringWidth(str) / 2), y * SIZE + (SIZE + g.getFontMetrics().getAscent() - g.getFontMetrics().getDescent()) / 2);
 				offset -= 20;
@@ -628,7 +638,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			Boolean[] found = colJudgement[x];
 			int offset = -5;
 			for(int i = colHints[x].length - 1; i >= 0; i--){
-				g.setColor(found[i] == null ? Color.RED : (found[i] ? Color.GRAY : Color.BLACK));
+				g.setColor(solved ? SOLVED : (found[i] == null ? MISTAKE : (found[i] ? Color.GRAY : Color.BLACK)));
 				String str = String.valueOf(colHints[x][i]);
 				g.drawString(str, x * SIZE + (SIZE - g.getFontMetrics().stringWidth(str)) / 2, offset);
 				offset -= 20;
@@ -717,33 +727,39 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			}
 			break;
 		case KeyEvent.VK_T:
-			testMode = true;
+			if(!solved){
+				testMode = true;
+			}
 			break;
 		case KeyEvent.VK_R:
 			reveal = !reveal;
 			break;
 		case KeyEvent.VK_V:
-			for(int x = 0; x < width; x++){
-				for(int y = 0; y < height; y++){
-					if(state[x][y].isTest()){
-						state[x][y] = Tile.EMPTY;
-						computeRowJudgement(y);
+			if(testMode){
+				for(int x = 0; x < width; x++){
+					for(int y = 0; y < height; y++){
+						if(state[x][y].isTest()){
+							state[x][y] = Tile.EMPTY;
+							computeRowJudgement(y);
+						}
 					}
+					computeColJudgement(x);
 				}
-				computeColJudgement(x);
+				testMode = false;
 			}
-			testMode = false;
 			break;
 		case KeyEvent.VK_C:
-			for(int x = 0; x < width; x++){
-				for(int y = 0; y < height; y++){
-					if(state[x][y].isTest()){
-						state[x][y] = state[x][y].toReal();
+			if(testMode){
+				for(int x = 0; x < width; x++){
+					for(int y = 0; y < height; y++){
+						if(state[x][y].isTest()){
+							state[x][y] = state[x][y].toReal();
+						}
 					}
 				}
+				testMode = false;
+				checkSolution();
 			}
-			testMode = false;
-			checkSolution();
 			break;
 		}
 		this.repaint();
