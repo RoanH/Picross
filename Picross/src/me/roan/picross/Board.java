@@ -43,6 +43,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * The time at which this board was created.
 	 */
 	private final long startTime = System.currentTimeMillis();
+	private long endTime = -1L;
 	/**
 	 * The seed for this board.
 	 * @see Seed
@@ -155,7 +156,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 *         have passed since this board was created.
 	 */
 	public long getPassedTime(){
-		return System.currentTimeMillis() - startTime;
+		return (endTime == -1 ? System.currentTimeMillis() : endTime) - startTime;
 	}
 	
 	/**
@@ -247,8 +248,48 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			}else{
 				state[x][y] = (old == newState) ? Tile.EMPTY : newState;
 				computeJudgement(x, y);
+				checkSolution();
 			}
 		}
+	}
+	
+	private void checkSolution(){
+		if(isGridComplete()){
+			if(isSolutionValid()){
+				System.out.println("Done");
+				reveal = true;//nums green?
+				endTime = System.currentTimeMillis();
+			}
+		}
+	}
+	
+	public boolean isGridComplete(){
+		for(int x = 0; x < width; x++){
+			for(int y = 0; y < height; y++){
+				if(state[x][y] == Tile.EMPTY || state[x][y].isTest()){
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
+	public boolean isSolutionValid(){
+		for(int y = 0; y < height; y++){
+			for(int i = 0; i < rowJudgement[y].length; i++){
+				if(rowJudgement[y][i] != Boolean.TRUE){
+					return false;
+				}
+			}
+		}
+		for(int x = 0; x < width; x++){
+			for(int i = 0; i < colJudgement[x].length; i++){
+				if(colJudgement[x][i] != Boolean.TRUE){
+					return false;
+				}
+			}
+		}
+		return true;
 	}
 	
 	/**
@@ -702,6 +743,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 				}
 			}
 			testMode = false;
+			checkSolution();
 			break;
 		}
 		this.repaint();
