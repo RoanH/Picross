@@ -668,8 +668,10 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 				for(int y = 0; y < height; y++){
 					if(state[x][y].isTest()){
 						state[x][y] = Tile.EMPTY;
+						computeRowJudgement(y);
 					}
 				}
+				computeColJudgement(x);
 			}
 			testMode = false;
 			break;
