@@ -107,7 +107,13 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * y-coordinate of the currently selected grid cell.
 	 */
 	private int y = 0;
+	/**
+	 * Current marking judgement for all the rows.
+	 */
 	private Boolean[][] rowJudgement;
+	/**
+	 * Current marking judgement for all the columns.
+	 */
 	private Boolean[][] colJudgement;
 	
 	/**
@@ -323,6 +329,14 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		}
 	}
 	
+	/**
+	 * Computes the judgement for the given row and column.
+	 * @param x The column to compute the judgement for.
+	 * @param y The row to compute the judgement for.
+	 * @see #computeJudgement(Boolean[], int[], int, Function)
+	 * @see #computeColJudgement(int)
+	 * @see #computeRowJudgement(int)
+	 */
 	private void computeJudgement(int x, int y){
 		computeColJudgement(x);
 		computeRowJudgement(y);
@@ -331,8 +345,9 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	/**
 	 * Computes the judgement for the given row.
 	 * @param y The row to compute the judgement for.
-	 * @return The judgement for the given row.
-	 * @see #computeJudgement(int[], int, Function)
+	 * @see #computeJudgement(Boolean[], int[], int, Function)
+	 * @see #computeColJudgement(int)
+	 * @see #computeJudgement(int, int)
 	 */
 	private void computeRowJudgement(final int y){
 		computeJudgement(rowJudgement[y], rowHints[y], width, x->state[x][y]);
@@ -341,8 +356,9 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	/**
 	 * Computes the judgement for the given column.
 	 * @param x The row to compute the judgement for.
-	 * @return The judgement for the given column.
-	 * @see #computeJudgement(int[], int, Function)
+	 * @see #computeJudgement(Boolean[], int[], int, Function)
+	 * @see #computeRowJudgement(int)
+	 * @see #computeJudgement(int, int)
 	 */
 	private void computeColJudgement(final int x){
 		computeJudgement(colJudgement[x], colHints[x], height, y->state[x][y]);
@@ -353,24 +369,26 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * stating which numbers have to be grayed out
 	 * or which numbers have to be rendered in red
 	 * because they are marked invalid.
+	 * @param result The array to store the resulting
+	 *        judgement in. The judgement for a row or column
+	 *        is stored as an array of {@link Boolean}.
+	 *        Each index of this array corresponds
+	 *        to the hint at the same index in the
+	 *        <code>hints</code> array. If the {@link Boolean}
+	 *        value is <code>null</code> then there
+	 *        is an error with the sequence the hint represents,
+	 *        if the value is <code>true</code> then the
+	 *        sequence is correctly marked, if the value
+	 *        if <code>false</code> then the sequence is not marked yet.
 	 * @param hints The hints or numbers for the row
 	 *        or column to check.
 	 * @param max The maximum row or column index.
 	 * @param state A function that maps an integer
 	 *        index to the row or column state at
 	 *        that index.
-	 * @return The judgement for a row or column
-	 *         as an array of {@link Boolean}.
-	 *         Each index of this array corresponds
-	 *         to the hint at the same index in the
-	 *         <code>hints</code> array. If the {@link Boolean}
-	 *         value is <code>null</code> then there
-	 *         is an error with the sequence the hint represents,
-	 *         if the value is <code>true</code> then the
-	 *         sequence is correctly marked, if the value
-	 *         if <code>false</code> then the sequence is not marked yet.
-	 * @see #computeFoundColNums(int)
-	 * @see #computeFoundRowNums(int)
+	 * @see #computeColJudgement(int)
+	 * @see #computeRowJudgement(int)
+	 * @see #computeJudgement(int, int)
 	 */
 	private void computeJudgement(Boolean[] result, int[] hints, int max, Function<Integer, Tile> state){
 		//All are false initially
