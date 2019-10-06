@@ -308,10 +308,16 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		reveal = false;
 		dx = 0;
 		dy = 0;
+		solved = false;
+		endTime = -1;
 		for(int x = 0; x < width; x++){
 			for(int y = 0; y < height; y++){
 				state[x][y] = Tile.EMPTY;
 			}
+			Arrays.fill(colJudgement[x], Boolean.FALSE);
+		}
+		for(int y = 0; y < height; y++){
+			Arrays.fill(rowJudgement[y], Boolean.FALSE);
 		}
 		this.repaint();
 	}
