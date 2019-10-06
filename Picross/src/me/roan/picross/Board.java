@@ -107,6 +107,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * y-coordinate of the currently selected grid cell.
 	 */
 	private int y = 0;
+	private Boolean[][] rowJudgement;
+	private Boolean[][] colJudgement;
 	
 	/**
 	 * Constructs a new board from
@@ -134,6 +136,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		}
 		rowHints = new int[height][];
 		colHints = new int[width][];
+		rowJudgement = new Boolean[height][];
+		colJudgement = new Boolean[width][];
 		
 		initialiseGrid();
 	}
@@ -232,9 +236,11 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 				if(state[x][y] == Tile.EMPTY || state[x][y].isTest()){
 					newState = newState.toTest();
 					state[x][y] = (old == newState) ? Tile.EMPTY : newState;
+					computeJudgement(x, y);
 				}
 			}else{
 				state[x][y] = (old == newState) ? Tile.EMPTY : newState;
+				computeJudgement(x, y);
 			}
 		}
 	}
@@ -291,6 +297,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 				}
 			}
 			rowHints[y] = Arrays.copyOf(buffer, nums);
+			rowJudgement[y] = new Boolean[nums];
+			Arrays.fill(rowJudgement[y], Boolean.FALSE);
 			Arrays.fill(buffer, 0);
 			nums = 0;
 		}
@@ -308,9 +316,16 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 				}
 			}
 			colHints[x] = Arrays.copyOf(buffer, nums);
+			colJudgement[x] = new Boolean[nums];
+			Arrays.fill(colJudgement[x], Boolean.FALSE);
 			Arrays.fill(buffer, 0);
 			nums = 0;
 		}
+	}
+	
+	private void computeJudgement(int x, int y){
+		computeColJudgement(x);
+		computeRowJudgement(y);
 	}
 	
 	/**
@@ -319,8 +334,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * @return The judgement for the given row.
 	 * @see #computeJudgement(int[], int, Function)
 	 */
-	private Boolean[] computeFoundRowNums(final int y){
-		return computeJudgement(rowHints[y], width, x->state[x][y]);
+	private void computeRowJudgement(final int y){
+		computeJudgement(rowJudgement[y], rowHints[y], width, x->state[x][y]);
 	}
 	
 	/**
@@ -329,8 +344,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * @return The judgement for the given column.
 	 * @see #computeJudgement(int[], int, Function)
 	 */
-	private Boolean[] computeFoundColNums(final int x){
-		return computeJudgement(colHints[x], height, y->state[x][y]);
+	private void computeColJudgement(final int x){
+		computeJudgement(colJudgement[x], colHints[x], height, y->state[x][y]);
 	}
 	
 	/**
@@ -357,10 +372,9 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * @see #computeFoundColNums(int)
 	 * @see #computeFoundRowNums(int)
 	 */
-	private Boolean[] computeJudgement(int[] hints, int max, Function<Integer, Tile> state){
+	private void computeJudgement(Boolean[] result, int[] hints, int max, Function<Integer, Tile> state){
 		//All are false initially
-		Boolean[] found = new Boolean[hints.length];
-		Arrays.fill(found, Boolean.FALSE);
+		Arrays.fill(result, Boolean.FALSE);
 		
 		//x = current position, f = chain length found so far, h = current hint to look for
 		int x = 0;
@@ -375,7 +389,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 				if(dir == 1){
 					dir = -1;
 					x = max - 1;
-					h = found.length - 1;
+					h = result.length - 1;
 					f = 0;
 					continue;
 				}else{
@@ -398,15 +412,15 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			if(state.apply(x) == Tile.WHITE || state.apply(x) == Tile.TRY_WHITE || end){
 				if(f != 0){
 					//too many chains found
-					if((h < 0 || h >= found.length)){
-						Arrays.fill(found, null);
+					if((h < 0 || h >= result.length)){
+						Arrays.fill(result, null);
 					}else{
 						//check if the found chain length matches the one we're looking for
 						if(f == hints[h]){
-							found[h] = Boolean.TRUE;
+							result[h] = Boolean.TRUE;
 						}else{
 							//invalidate the chain that was found
-							found[h] = null;
+							result[h] = null;
 						}
 						h += dir;
 						f = 0;
@@ -414,18 +428,17 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 				}else{
 					//hit the end without finding any chains
 					if((x == max - 1 && dir == 1) && h == 0){
-						Arrays.fill(found, null);
+						Arrays.fill(result, null);
 					}
 				}
 				//hit the end without finding enough chains
-				if((x == max - 1 && dir == 1) && h != found.length){
-					Arrays.fill(found, null);
+				if((x == max - 1 && dir == 1) && h != result.length){
+					Arrays.fill(result, null);
 				}
 			}
 			
 			x += dir;
 		}
-		return found;
 	}
 	
 	@Override
@@ -541,7 +554,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		
 		//row numbers
 		for(int y = 0; y < height; y++){
-			Boolean[] found = computeFoundRowNums(y);
+			Boolean[] found = rowJudgement[y];
 			int offset = -10;
 			for(int i = rowHints[y].length - 1; i >= 0; i--){
 				g.setColor(found[i] == null ? Color.RED : (found[i] ? Color.GRAY : Color.BLACK));
@@ -553,7 +566,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		
 		//column numbers
 		for(int x = 0; x < width; x++){
-			Boolean[] found = computeFoundColNums(x);
+			Boolean[] found = colJudgement[x];
 			int offset = -5;
 			for(int i = colHints[x].length - 1; i >= 0; i--){
 				g.setColor(found[i] == null ? Color.RED : (found[i] ? Color.GRAY : Color.BLACK));
