@@ -101,7 +101,7 @@ public class Main{
 		}
 		Dialog.setParentFrame(frame);
 		Dialog.setDialogTitle(TITLE);
-		
+
 		JPanel content = new JPanel(new BorderLayout());
 		content.setFocusable(true);
 		frame.add(content);
