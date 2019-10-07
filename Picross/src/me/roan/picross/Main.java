@@ -68,7 +68,12 @@ public class Main{
 	/**
 	 * Timer used to update the elapsed game time.
 	 */
-	private static Timer timer;
+	private static Timer timer = new Timer(1000, e->{
+		if(board != null){
+			long ms = board.getPassedTime();
+			timerField.setText(String.format("Time: %02d:%02d", ms / 60000, (ms % 60000) / 1000));
+		}
+	});
 
 	/**
 	 * Starts the program.
@@ -96,18 +101,7 @@ public class Main{
 		}
 		Dialog.setParentFrame(frame);
 		Dialog.setDialogTitle(TITLE);
-		
-		timer = new Timer(1000, e->{
-			if(board != null){
-				long ms = board.getPassedTime();
-				timerField.setText(String.format("Time: %02d:%02d", ms / 60000, (ms % 60000) / 1000));
-				if(board.isSolved()){
-					timerField.setForeground(Board.SOLVED);
-					timer.stop();
-				}
-			}
-		});
-		
+				
 		JPanel content = new JPanel(new BorderLayout());
 		content.setFocusable(true);
 		frame.add(content);

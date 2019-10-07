@@ -33,7 +33,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	private static final long serialVersionUID = 6310638885364285013L;
 	private static final Color TEST_MODE = Color.BLUE;
 	private static final Color MISTAKE = Color.RED;
-	public static final Color SOLVED = Color.GREEN.darker().darker();
+	private static final Color SOLVED = Color.GREEN.darker().darker();
 	/**
 	 * Font to use to draw the hint numbers.
 	 */
@@ -45,7 +45,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	/**
 	 * The time at which this board was created.
 	 */
-	private final long startTime = System.currentTimeMillis();
+	private long startTime = System.currentTimeMillis();
 	private long endTime = -1L;
 	/**
 	 * The seed for this board.
@@ -310,6 +310,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		dy = 0;
 		solved = false;
 		endTime = -1;
+		startTime = System.currentTimeMillis();
 		for(int x = 0; x < width; x++){
 			for(int y = 0; y < height; y++){
 				state[x][y] = Tile.EMPTY;
