@@ -101,7 +101,7 @@ public class Main{
 		}
 		Dialog.setParentFrame(frame);
 		Dialog.setDialogTitle(TITLE);
-				
+
 		JPanel content = new JPanel(new BorderLayout());
 		content.setFocusable(true);
 		frame.add(content);
@@ -247,7 +247,6 @@ public class Main{
 		seedField.setText(" Seed: " + board.getSeed());
 		infoField.setText("Type: " + seed.width + "x" + seed.height + " @ " + seed.density);
 		timerField.setText("Time: 00:00");
-		timerField.setForeground(Color.BLACK);
 		timer.restart();
 	}
 	
