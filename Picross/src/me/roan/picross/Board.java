@@ -31,9 +31,18 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * Serial ID.
 	 */
 	private static final long serialVersionUID = 6310638885364285013L;
-	private static final Color TEST_MODE = Color.BLUE;
-	private static final Color MISTAKE = Color.RED;
-	private static final Color SOLVED = Color.GREEN.darker().darker();
+	/**
+	 * Color used to indicate test mode related elements.
+	 */
+	private static final Color TEST_MODE_COLOR = Color.BLUE;
+	/**
+	 * Color used to indicate hint numbers that aren't marked correctly.
+	 */
+	private static final Color MISTAKE_COLOR = Color.RED;
+	/**
+	 * Color used to indicate elements of a solved puzzle.
+	 */
+	private static final Color SOLVED_COLOR = Color.GREEN.darker().darker();
 	/**
 	 * Font to use to draw the hint numbers.
 	 */
@@ -46,6 +55,9 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * The time at which this board was created.
 	 */
 	private long startTime = System.currentTimeMillis();
+	/**
+	 * The time at which this board was solved or <code>-1L</code>.
+	 */
 	private long endTime = -1L;
 	/**
 	 * The seed for this board.
@@ -119,6 +131,9 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * Current marking judgement for all the columns.
 	 */
 	private Boolean[][] colJudgement;
+	/**
+	 * Whether or not this puzzle is currently solved.
+	 */
 	private boolean solved = false;
 	
 	/**
@@ -173,6 +188,11 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		return testMode;
 	}
 	
+	/**
+	 * Returns whether this board is solved.
+	 * @return True if this board is sovled,
+	 *         false if it is not.
+	 */
 	public boolean isSolved(){
 		return solved;
 	}
@@ -261,6 +281,17 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		}
 	}
 	
+	/**
+	 * Checks to see if the board is
+	 * in a solved state and if so
+	 * updates the internal state of
+	 * this board to reflect that by
+	 * stopping time from passing and
+	 * setting the {@link #solved} flag
+	 * to <code>true</code>.
+	 * @see #endTime
+	 * @see #solved
+	 */
 	private void checkSolution(){
 		if(isGridComplete()){
 			if(isSolutionValid()){
@@ -270,6 +301,16 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		}
 	}
 	
+	/**
+	 * Checks to see if the entire grid is filled
+	 * with final solution tiles. Final solution
+	 * tiles are non-empty and non-test mode tiles.
+	 * This means that the entire board has to be
+	 * filled with {@link Tile#BLACK} and
+	 * {@link Tile#WHITE} tiles.
+	 * @return Whether or not the entire grid is filled.
+	 * @see Tile
+	 */
 	public boolean isGridComplete(){
 		for(int x = 0; x < width; x++){
 			for(int y = 0; y < height; y++){
@@ -281,6 +322,15 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		return true;
 	}
 	
+	/**
+	 * Checks to see if board in its
+	 * current states contain no errors
+	 * and that all hints have been met.
+	 * Note that it is not checked if the
+	 * entire grid is filled with tiles.
+	 * @return Whether the current solution is valid.
+	 * @see #isGridComplete()
+	 */
 	public boolean isSolutionValid(){
 		for(int y = 0; y < height; y++){
 			for(int i = 0; i < rowJudgement[y].length; i++){
@@ -527,10 +577,10 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		g.setRenderingHint(RenderingHints.KEY_TEXT_ANTIALIASING, RenderingHints.VALUE_TEXT_ANTIALIAS_ON);
 		
 		if(testMode){
-			g.setColor(TEST_MODE);
+			g.setColor(TEST_MODE_COLOR);
 			g.drawString(" Test mode", 0, 15);
 		}else if(solved){
-			g.setColor(SOLVED);
+			g.setColor(SOLVED_COLOR);
 			g.drawString(" Solved", 0, 15);
 		}
 		
@@ -544,7 +594,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		String line = " Filled: " + black;
 		g.drawString(line, 0, 30);
 		if(testMode){
-			g.setColor(TEST_MODE);
+			g.setColor(TEST_MODE_COLOR);
 			g.drawString(" (+" + tryBlack + ")", fm.stringWidth(line), 30);
 		}
 		
@@ -552,7 +602,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		line = " Crossed: " + white;
 		g.drawString(line, 0, 45);
 		if(testMode){
-			g.setColor(TEST_MODE);
+			g.setColor(TEST_MODE_COLOR);
 			g.drawString(" (+" + tryWhite + ")", fm.stringWidth(line), 45);
 		}
 		
@@ -560,7 +610,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		line = String.format(" Done: %1$.2f%%", (100.0D * (black + white)) / getTileCount());
 		g.drawString(line, 0, 60);
 		if(testMode){
-			g.setColor(TEST_MODE);
+			g.setColor(TEST_MODE_COLOR);
 			g.drawString(String.format(" (+%1$.2f%%)", (100.0D * (tryBlack + tryWhite)) / getTileCount()), fm.stringWidth(line), 60);
 		}
 		
@@ -633,7 +683,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			Boolean[] found = rowJudgement[y];
 			int offset = -10;
 			for(int i = rowHints[y].length - 1; i >= 0; i--){
-				g.setColor(solved ? SOLVED : (found[i] == null ? MISTAKE : (found[i] ? Color.GRAY : Color.BLACK)));
+				g.setColor(solved ? SOLVED_COLOR : (found[i] == null ? MISTAKE_COLOR : (found[i] ? Color.GRAY : Color.BLACK)));
 				String str = String.valueOf(rowHints[y][i]);
 				g.drawString(str, offset - (g.getFontMetrics().stringWidth(str) / 2), y * SIZE + (SIZE + g.getFontMetrics().getAscent() - g.getFontMetrics().getDescent()) / 2);
 				offset -= 20;
@@ -645,7 +695,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			Boolean[] found = colJudgement[x];
 			int offset = -5;
 			for(int i = colHints[x].length - 1; i >= 0; i--){
-				g.setColor(solved ? SOLVED : (found[i] == null ? MISTAKE : (found[i] ? Color.GRAY : Color.BLACK)));
+				g.setColor(solved ? SOLVED_COLOR : (found[i] == null ? MISTAKE_COLOR : (found[i] ? Color.GRAY : Color.BLACK)));
 				String str = String.valueOf(colHints[x][i]);
 				g.drawString(str, x * SIZE + (SIZE - g.getFontMetrics().stringWidth(str)) / 2, offset);
 				offset -= 20;
