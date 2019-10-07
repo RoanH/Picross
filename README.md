@@ -56,8 +56,8 @@ General controls needed to play the game.
 - You can drag the game around with the mouse if you click and hold outside the grid (useful if numbers are offscreen)
 
 # Downloads (Java 8 required, should run on any OS)
-[Windows executable](https://github.com/RoanH/Picross/releases/download/v1.0/Picross-v1.0.exe)    
-[Runnable Java Archive](https://github.com/RoanH/Picross/releases/download/v1.0/Picross-v1.0.jar)
+[Windows executable](https://github.com/RoanH/Picross/releases/download/v1.1/Picross-v1.1.exe)    
+[Runnable Java Archive](https://github.com/RoanH/Picross/releases/download/v1.1/Picross-v1.1.jar)
 
 # Development
 This is an [Eclipse](https://www.eclipse.org/) + [Gradle](https://gradle.org/) project with [Util](https://github.com/RoanH/Util) as the only JAR dependency.

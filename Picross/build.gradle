@@ -19,7 +19,7 @@ sourceSets{
 
 compileJava.options.encoding = 'UTF-8'
 sourceCompatibility = 1.8
-version = 'v1.0'//Don't forget Main.java
+version = 'v1.1'//Don't forget Main.java
 shadowJar.archiveName = 'Picross-' + project.version + '.jar'
 
 repositories{
