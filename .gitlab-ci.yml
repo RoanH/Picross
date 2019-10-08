@@ -13,8 +13,7 @@ stages:
   - compile
   - status
   - javadoc
-  - publish
-  
+
 pending:
   allow_failure: true
   script:
