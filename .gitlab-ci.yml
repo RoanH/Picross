@@ -43,7 +43,7 @@ verify:
 javadoc:
   script:
     - mkdir ../javadoc
-    - ./gradlew javadoc
+    - ./gradlew -PnexusPublic=${NEXUS_PUBLIC} javadoc
     - mv ./build/docs/javadoc/* ../javadoc
   stage: javadoc
   environment: javadoc
@@ -55,8 +55,8 @@ javadoc:
 
 compile:
   script:
-    - ./gradlew shadowJar
-    - ./gradlew createExe
+    - ./gradlew -PnexusPublic=${NEXUS_PUBLIC} shadowJar
+    - ./gradlew -PnexusPublic=${NEXUS_PUBLIC} createExe
     - mv ./build/libs/* ../
     - mv ./build/launch4j/*.exe ../
   stage: compile
