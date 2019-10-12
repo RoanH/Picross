@@ -227,8 +227,18 @@ public class Main{
 		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher(){
 			@Override
 			public boolean dispatchKeyEvent(KeyEvent e){
-				if(board != null && e.getID() == KeyEvent.KEY_PRESSED){
-					board.keyPressed(e);
+				if(board != null){
+					switch(e.getID()){
+					case KeyEvent.KEY_PRESSED:
+						board.keyPressed(e);
+						break;
+					case KeyEvent.KEY_RELEASED:
+						board.keyReleased(e);
+						break;
+					case KeyEvent.KEY_TYPED:
+						board.keyTyped(e);
+						break;
+					}
 				}
 				return false;
 			}
