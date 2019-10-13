@@ -135,6 +135,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * Whether or not this puzzle is currently solved.
 	 */
 	private boolean solved = false;
+	private int hx = -1;
+	private int hy = -1;
 	
 	/**
 	 * Constructs a new board from
