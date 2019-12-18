@@ -45,6 +45,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * Color used to indicate elements of a solved puzzle.
 	 */
 	private static final Color SOLVED_COLOR = Color.GREEN.darker().darker();
+	private static final Color BACKDROP = new Color(1.0F, 1.0F, 1.0F, 0.5F);
 	/**
 	 * Font to use to draw the hint numbers.
 	 */
@@ -700,6 +701,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			int s = -20 * rowHints[y].length;
 			if(ox < -s){
 				offset -= ox + s;
+				g.setColor(BACKDROP);
+				g.fillRect(offset + s, y * SIZE + 15, -s + 10, SIZE - 30);
 			}
 			for(int i = rowHints[y].length - 1; i >= 0; i--){
 				g.setColor(solved ? SOLVED_COLOR : (found[i] == null ? MISTAKE_COLOR : (found[i] ? Color.GRAY : Color.BLACK)));
@@ -716,6 +719,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			int s = -20 * colHints[x].length;
 			if(oy < -s){
 				offset -= oy + s;
+				g.setColor(BACKDROP);
+				g.fillRect(x * SIZE + 15, offset + s, SIZE - 30, -s + 5);
 			}
 			for(int i = colHints[x].length - 1; i >= 0; i--){
 				g.setColor(solved ? SOLVED_COLOR : (found[i] == null ? MISTAKE_COLOR : (found[i] ? Color.GRAY : Color.BLACK)));
@@ -855,10 +860,10 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		int tx = toGridX(to.x);
 		int ty = toGridY(to.y);
 		
-		if(tx < 0 || tx > width || ty < 0 || ty > height){
+		//if(tx < 0 || tx > width || ty < 0 || ty > height){
 			dx += to.x - last.x;
 			dy += to.y - last.y;
-		}
+		//}
 		
 		last = to;
 		this.repaint();
