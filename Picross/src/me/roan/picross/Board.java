@@ -715,6 +715,12 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		for(int x = 0; x < width; x++){
 			Boolean[] found = colJudgement[x];
 			int offset = -5;
+			g.setColor(Color.RED);
+			int s = -20 + (colHints[x].length - 1) * -20;
+			g.drawLine(x * SIZE, s, x * SIZE + SIZE, s);
+			if(oy < -s){
+				offset -= oy + s;
+			}
 			for(int i = colHints[x].length - 1; i >= 0; i--){
 				g.setColor(solved ? SOLVED_COLOR : (found[i] == null ? MISTAKE_COLOR : (found[i] ? Color.GRAY : Color.BLACK)));
 				String str = String.valueOf(colHints[x][i]);
