@@ -13,6 +13,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.function.Function;
@@ -26,7 +28,7 @@ import javax.swing.JPanel;
  * @see Tile
  * @see Seed
  */
-public class Board extends JPanel implements KeyListener, MouseListener, MouseMotionListener{
+public class Board extends JPanel implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener{
 	/**
 	 * Serial ID.
 	 */
@@ -135,6 +137,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * Whether or not this puzzle is currently solved.
 	 */
 	private boolean solved = false;
+	private double zoom = 1.0D;
 	
 	/**
 	 * Constructs a new board from
@@ -148,6 +151,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
 		this.addKeyListener(this);
+		this.addMouseWheelListener(this);
 		this.requestFocus();
 		
 		this.seed = seed;
@@ -351,6 +355,12 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		return true;
 	}
 	
+	private void changeZoom(double newZoom){
+		dx *= newZoom / zoom;
+		dy *= newZoom / zoom;
+		zoom = newZoom;
+	}
+	
 	/**
 	 * Resets the board to its initial cleared state.
 	 */
@@ -360,6 +370,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		reveal = false;
 		dx = 0;
 		dy = 0;
+		zoom = 1.0D;
 		solved = false;
 		endTime = -1;
 		startTime = System.currentTimeMillis();
@@ -618,6 +629,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		
 		//origin at the top left corner of the grid
 		g.translate((this.getWidth() - width * SIZE) / 2 + dx, (this.getHeight() - height * SIZE) / 2 + dy);
+		g.scale(zoom, zoom);
 		
 		//grid
 		g.setColor(Color.GRAY);
@@ -845,5 +857,11 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 
 	@Override
 	public void mouseMoved(MouseEvent e){		
+	}
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e){
+		changeZoom(Math.max(zoom * (e.getWheelRotation() == -1 ? 1.1D : 0.9), 0.1D));
+		this.repaint();
 	}
 }
