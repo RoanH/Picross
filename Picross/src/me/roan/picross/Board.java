@@ -237,7 +237,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 *         on screen x-coordinate.
 	 */
 	private int toGridX(int px){
-		int lx = px - dx - ((this.getWidth() - width * SIZE) / 2);
+		int lx = (int)((px - dx - ((this.getWidth() - width * SIZE) / 2)) / zoom);
 		return lx < 0 ? -1 : (lx / SIZE);
 	}
 	
@@ -250,7 +250,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 *         on screen y-coordinate.
 	 */
 	private int toGridY(int py){
-		int ly = py - dy - ((this.getHeight() - height * SIZE) / 2);
+		int ly = (int)((py - dy - ((this.getHeight() - height * SIZE) / 2)) / zoom);
 		return ly < 0 ? -1 : (ly / SIZE);
 	}
 	
