@@ -628,8 +628,12 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		}
 		
 		//origin at the top left corner of the grid
-		g.translate((this.getWidth() - width * SIZE) / 2 + dx, (this.getHeight() - height * SIZE) / 2 + dy);
+		int ox = (this.getWidth() - width * SIZE) / 2 + dx;
+		int oy = (this.getHeight() - height * SIZE) / 2 + dy;
+		g.translate(ox, oy);
 		g.scale(zoom, zoom);
+		ox /= zoom;
+		oy /= zoom;
 		
 		//grid
 		g.setColor(Color.GRAY);
@@ -693,6 +697,12 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		for(int y = 0; y < height; y++){
 			Boolean[] found = rowJudgement[y];
 			int offset = -10;
+			g.setColor(Color.RED);
+			int s = -20 + (rowHints[y].length - 1) * -20;
+			g.drawLine(s, y * SIZE, s, y * SIZE + SIZE);
+			if(ox < -s){
+				offset -= ox + s;
+			}
 			for(int i = rowHints[y].length - 1; i >= 0; i--){
 				g.setColor(solved ? SOLVED_COLOR : (found[i] == null ? MISTAKE_COLOR : (found[i] ? Color.GRAY : Color.BLACK)));
 				String str = String.valueOf(rowHints[y][i]);
