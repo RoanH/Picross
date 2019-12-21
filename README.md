@@ -50,6 +50,7 @@ General controls needed to play the game.
 - Right arrow to move the view right (and board left)
 - Left arrow to move the view left (and board right)
 - Mouse scroll wheel to zoom in and out
+- You can drag the game around with the mouse if you click and hold outside the grid or also hold down Ctrl
 
 ### Test mode
 - T to enter test mode
@@ -58,9 +59,6 @@ General controls needed to play the game.
 
 ### Check
 - R to toggle showing the original solution (note that other solutions might also be valid)
-
-### Other
-- You can drag the game around with the mouse if you click and hold outside the grid (useful if numbers are offscreen)
 
 ## Downloads
 _Requires Java 8 or higher_  
