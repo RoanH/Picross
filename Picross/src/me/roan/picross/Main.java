@@ -24,8 +24,6 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 
 import me.roan.util.ClickableLink;
 import me.roan.util.Dialog;
@@ -87,10 +85,7 @@ public class Main{
 	 * Constructs and shows the GUI.
 	 */
 	private static final void showGameGUI(){
-		try{
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		}catch(ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e1){
-		}
+		Util.installUI();
 
 		try{
 			Image img = ImageIO.read(ClassLoader.getSystemResource("icon.png"));
