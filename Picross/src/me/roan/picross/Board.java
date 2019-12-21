@@ -45,6 +45,9 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * Color used to indicate elements of a solved puzzle.
 	 */
 	private static final Color SOLVED_COLOR = Color.GREEN.darker().darker();
+	/**
+	 * Background color for numbers when they start moving with the view.
+	 */
 	private static final Color BACKDROP = new Color(1.0F, 1.0F, 1.0F, 0.8F);
 	/**
 	 * Font to use to draw the hint numbers.
@@ -138,6 +141,9 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * Whether or not this puzzle is currently solved.
 	 */
 	private boolean solved = false;
+	/**
+	 * Current zoom level.
+	 */
 	private double zoom = 1.0D;
 	
 	/**
@@ -356,6 +362,10 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		return true;
 	}
 	
+	/**
+	 * Changes the current zoom level to the given level.
+	 * @param newZoom The new zoom level.
+	 */
 	private void changeZoom(double newZoom){
 		dx *= newZoom / zoom;
 		dy *= newZoom / zoom;
