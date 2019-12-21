@@ -11,7 +11,8 @@ The program looks like this:
 - Input support for both the mouse and the keyboard.
 - A test mode where you can try out ideas before applying them to the board.
 - Realtime feedback via the numbers on the side.
-- A possible solution for each puzzle.
+- Option to see a possible solution for each puzzle.
+- Zoomable and movable board where the hint numbers follow the view so they are never off screen.
 
 ## Rules
 _[See also the Wikipedia article.](https://en.wikipedia.org/wiki/Nonogram)_
