@@ -184,6 +184,20 @@ public class Main{
 			}
 		});
 		
+		JMenuItem showSolution = new JMenuItem("Show solution");
+		showSolution.addActionListener(e->{
+			if(board != null){
+				board.showSolution(true);
+			}
+		});
+		
+		JMenuItem hideSolution = new JMenuItem("Hide solution");
+		hideSolution.addActionListener(e->{
+			if(board != null){
+				board.showSolution(false);
+			}
+		});
+		
 		game.add(fromRandom);
 		//game.add(fromImage);
 		game.add(fromSeed);
@@ -192,9 +206,110 @@ public class Main{
 		game.add(quickB);
 		game.add(quickC);
 		game.addSeparator();
+		game.add(showSolution);
+		game.add(hideSolution);
+		game.addSeparator();
 		game.add(reset);
 		
+		JMenu testMode = new JMenu("Test mode");
+		
+		JMenuItem enterTest = new JMenuItem("Enter test mode");
+		enterTest.addActionListener(e->{
+			if(board != null){
+				board.enterTestMode();
+			}
+		});
+		
+		JMenuItem leaveTestSave = new JMenuItem("Leave & save changes");
+		leaveTestSave.addActionListener(e->{
+			if(board != null){
+				board.leaveTestMode(true);
+			}
+		});
+		
+		JMenuItem leaveTestUndo = new JMenuItem("Leave & undo changes");
+		leaveTestUndo.addActionListener(e->{
+			if(board != null){
+				board.leaveTestMode(false);
+			}
+		});
+		
+		testMode.add(enterTest);
+		testMode.addSeparator();
+		testMode.add(leaveTestSave);
+		testMode.add(leaveTestUndo);
+		
+		JMenu view = new JMenu("View");
+
+		JMenuItem zoomIn = new JMenuItem("Zoom in");
+		zoomIn.addActionListener(e->{
+			if(board != null){
+				board.changeZoom(board.getZoom() * 1.25D);
+			}
+		});
+
+		JMenuItem zoomOut = new JMenuItem("Zoom out");
+		zoomOut.addActionListener(e->{
+			if(board != null){
+				board.changeZoom(Math.max(0.1D, board.getZoom() * 0.75D));
+			}
+		});
+
+		JMenuItem zoomReset = new JMenuItem("Reset zoom");
+		zoomReset.addActionListener(e->{
+			if(board != null){
+				board.changeZoom(1.0D);
+			}
+		});
+
+		JMenuItem moveUp = new JMenuItem("Move view up");
+		moveUp.addActionListener(e->{
+			if(board != null){
+				board.moveViewUp();
+			}
+		});
+
+		JMenuItem moveDown = new JMenuItem("Move view down");
+		moveDown.addActionListener(e->{
+			if(board != null){
+				board.moveViewDown();
+			}
+		});
+
+		JMenuItem moveLeft = new JMenuItem("Move view left");
+		moveLeft.addActionListener(e->{
+			if(board != null){
+				board.moveViewLeft();
+			}
+		});
+
+		JMenuItem moveRight = new JMenuItem("Move view right");
+		moveRight.addActionListener(e->{
+			if(board != null){
+				board.moveViewRight();
+			}
+		});
+
+		JMenuItem moveReset = new JMenuItem("Reset translations");
+		moveReset.addActionListener(e->{
+			if(board != null){
+				board.resetTranslation();
+			}
+		});
+		
+		view.add(zoomIn);
+		view.add(zoomOut);
+		view.add(zoomReset);
+		view.addSeparator();
+		view.add(moveUp);
+		view.add(moveDown);
+		view.add(moveLeft);
+		view.add(moveRight);
+		view.add(moveReset);
+		
 		bar.add(game);
+		bar.add(view);
+		bar.add(testMode);
 		bar.add(help);
 		
 		frame.setJMenuBar(bar);

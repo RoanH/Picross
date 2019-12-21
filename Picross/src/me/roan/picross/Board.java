@@ -56,7 +56,11 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	/**
 	 * Size in pixels of the grid cells.
 	 */
-	public static final int SIZE = 50;
+	private static final int SIZE = 50;
+	/**
+	 * Number of pixels to move by when moving the view.
+	 */
+	private static final int DELTA = 20;
 	/**
 	 * The time at which this board was created.
 	 */
@@ -291,6 +295,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 				computeJudgement(x, y);
 				checkSolution();
 			}
+			this.repaint();
 		}
 	}
 	
@@ -363,13 +368,115 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	}
 	
 	/**
+	 * Enters test mode.
+	 */
+	public void enterTestMode(){
+		if(!solved){
+			testMode = true;
+			this.repaint();
+		}
+	}
+	
+	/**
+	 * Leaves test mode.
+	 * @param save Whether to save the changes
+	 *        made or to revert them.
+	 */
+	public void leaveTestMode(boolean save){
+		if(testMode){
+			if(save){
+				for(int x = 0; x < width; x++){
+					for(int y = 0; y < height; y++){
+						if(state[x][y].isTest()){
+							state[x][y] = state[x][y].toReal();
+						}
+					}
+				}
+				checkSolution();
+			}else{
+				for(int x = 0; x < width; x++){
+					for(int y = 0; y < height; y++){
+						if(state[x][y].isTest()){
+							state[x][y] = Tile.EMPTY;
+							computeRowJudgement(y);
+						}
+					}
+					computeColJudgement(x);
+				}
+			}
+			testMode = false;
+			this.repaint();
+		}
+	}
+	
+	/**
+	 * Sets whether to show the solution or not.
+	 * @param shown True to show the solution,
+	 *        false to hide it.
+	 */
+	public void showSolution(boolean shown){
+		reveal = shown;
+		this.repaint();
+	}
+	
+	/**
 	 * Changes the current zoom level to the given level.
 	 * @param newZoom The new zoom level.
 	 */
-	private void changeZoom(double newZoom){
+	public void changeZoom(double newZoom){
 		dx *= newZoom / zoom;
 		dy *= newZoom / zoom;
 		zoom = newZoom;
+		this.repaint();
+	}
+	
+	/**
+	 * Gets the current zoom level.
+	 * @return The current zoom level.
+	 */
+	public double getZoom(){
+		return zoom;
+	}
+	
+	/**
+	 * Moves the view down.
+	 */
+	public void moveViewDown(){
+		dy -= DELTA;
+		this.repaint();
+	}
+	
+	/**
+	 * Moves the view up.
+	 */
+	public void moveViewUp(){
+		dy += DELTA;
+		this.repaint();
+	}
+	
+	/**
+	 * Moves the view right.
+	 */
+	public void moveViewRight(){
+		dx -= DELTA;
+		this.repaint();
+	}
+	
+	/**
+	 * Moves the view left.
+	 */
+	public void moveViewLeft(){
+		dx += DELTA;
+		this.repaint();
+	}
+	
+	/**
+	 * Resets all view translations.
+	 */
+	public void resetTranslation(){
+		dx = 0;
+		dy = 0;
+		this.repaint();
 	}
 	
 	/**
@@ -791,6 +898,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			}else if(y > 0){
 				y--;
 			}
+			this.repaint();
 			break;
 		case KeyEvent.VK_S:
 			if(x == -1){
@@ -798,6 +906,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			}else if(y < height - 1){
 				y++;
 			}
+			this.repaint();
 			break;
 		case KeyEvent.VK_D:
 			if(x == -1){
@@ -805,6 +914,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			}else if(x < width - 1){
 				x++;
 			}
+			this.repaint();
 			break;
 		case KeyEvent.VK_A:
 			if(x == -1){
@@ -812,60 +922,37 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			}else if(x > 0){
 				x--;
 			}
+			this.repaint();
 			break;
 		case KeyEvent.VK_T:
-			if(!solved){
-				testMode = true;
-			}
+			enterTestMode();
 			break;
 		case KeyEvent.VK_R:
-			reveal = !reveal;
+			showSolution(!reveal);
 			break;
 		case KeyEvent.VK_V:
-			if(testMode){
-				for(int x = 0; x < width; x++){
-					for(int y = 0; y < height; y++){
-						if(state[x][y].isTest()){
-							state[x][y] = Tile.EMPTY;
-							computeRowJudgement(y);
-						}
-					}
-					computeColJudgement(x);
-				}
-				testMode = false;
-			}
+			leaveTestMode(false);
 			break;
 		case KeyEvent.VK_C:
-			if(testMode){
-				for(int x = 0; x < width; x++){
-					for(int y = 0; y < height; y++){
-						if(state[x][y].isTest()){
-							state[x][y] = state[x][y].toReal();
-						}
-					}
-				}
-				testMode = false;
-				checkSolution();
-			}
+			leaveTestMode(true);
 			break;
 		case KeyEvent.VK_UP:
 		case KeyEvent.VK_KP_UP:
-			dy += 20;
+			moveViewUp();
 			break;
 		case KeyEvent.VK_LEFT:
 		case KeyEvent.VK_KP_LEFT:
-			dx += 20;
+			moveViewLeft();
 			break;
 		case KeyEvent.VK_RIGHT:
 		case KeyEvent.VK_KP_RIGHT:
-			dx -= 20;
+			moveViewRight();
 			break;
 		case KeyEvent.VK_DOWN:
 		case KeyEvent.VK_KP_DOWN:
-			dy -= 20;
+			moveViewDown();
 			break;
 		}
-		this.repaint();
 	}
 
 	@Override
@@ -894,6 +981,5 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e){
 		changeZoom(Math.max(zoom * (e.getWheelRotation() == -1 ? 1.1D : 0.9), 0.1D));
-		this.repaint();
 	}
 }
