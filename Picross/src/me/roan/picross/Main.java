@@ -431,7 +431,8 @@ public class Main{
 			+ "- Down arrow to move the view down (and board up)<br>"
 			+ "- Right arrow to move the view right (and board left)<br>"
 			+ "- Left arrow to move the view left (and board right)<br>"
-			+ "- Mouse scroll wheel to zoom in and out<html>"
+			+ "- Mouse scroll wheel to zoom in and out<br>"
+			+ "- You can drag the game around with the mouse if you click and hold outside the grid or also hold down Ctrl<html>"
 		);
 		moving.setBorder(BorderFactory.createTitledBorder("Moving"));
 		
@@ -449,17 +450,10 @@ public class Main{
 		);
 		check.setBorder(BorderFactory.createTitledBorder("Check"));
 		
-		JLabel other = new JLabel(
-			"<html>"
-			+ "- You can drag the game around with the mouse if you click and hold outside the grid (useful if numbers are offscreen)"
-		);
-		other.setBorder(BorderFactory.createTitledBorder("Other"));
-		
 		help.add(controls);
 		help.add(moving);
 		help.add(test);
 		help.add(check);
-		help.add(other);
 		
 		Dialog.showMessageDialog(help);
 	}
