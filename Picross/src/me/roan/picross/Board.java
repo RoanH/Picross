@@ -367,6 +367,9 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		return true;
 	}
 	
+	/**
+	 * Enters test mode.
+	 */
 	public void enterTestMode(){
 		if(!solved){
 			testMode = true;
@@ -374,9 +377,14 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		}
 	}
 	
-	public void leaveTestMode(boolean confirm){
+	/**
+	 * Leaves test mode.
+	 * @param save Whether to save the changes
+	 *        made or to revert them.
+	 */
+	public void leaveTestMode(boolean save){
 		if(testMode){
-			if(confirm){
+			if(save){
 				for(int x = 0; x < width; x++){
 					for(int y = 0; y < height; y++){
 						if(state[x][y].isTest()){
