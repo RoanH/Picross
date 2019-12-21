@@ -362,14 +362,54 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		return true;
 	}
 	
+	public void enterTestMode(){
+		if(!solved){
+			testMode = true;
+		}
+	}
+	
+	public void leaveTestMode(boolean confirm){
+		if(testMode){
+			if(confirm){
+				for(int x = 0; x < width; x++){
+					for(int y = 0; y < height; y++){
+						if(state[x][y].isTest()){
+							state[x][y] = state[x][y].toReal();
+						}
+					}
+				}
+				checkSolution();
+			}else{
+				for(int x = 0; x < width; x++){
+					for(int y = 0; y < height; y++){
+						if(state[x][y].isTest()){
+							state[x][y] = Tile.EMPTY;
+							computeRowJudgement(y);
+						}
+					}
+					computeColJudgement(x);
+				}
+			}
+			testMode = false;
+		}
+	}
+	
+	public void showSolution(boolean shown){
+		reveal = shown;
+	}
+	
 	/**
 	 * Changes the current zoom level to the given level.
 	 * @param newZoom The new zoom level.
 	 */
-	private void changeZoom(double newZoom){
+	public void changeZoom(double newZoom){
 		dx *= newZoom / zoom;
 		dy *= newZoom / zoom;
 		zoom = newZoom;
+	}
+	
+	public double getZoom(){
+		return zoom;
 	}
 	
 	/**
@@ -814,39 +854,16 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			}
 			break;
 		case KeyEvent.VK_T:
-			if(!solved){
-				testMode = true;
-			}
+			enterTestMode();
 			break;
 		case KeyEvent.VK_R:
-			reveal = !reveal;
+			showSolution(!reveal);
 			break;
 		case KeyEvent.VK_V:
-			if(testMode){
-				for(int x = 0; x < width; x++){
-					for(int y = 0; y < height; y++){
-						if(state[x][y].isTest()){
-							state[x][y] = Tile.EMPTY;
-							computeRowJudgement(y);
-						}
-					}
-					computeColJudgement(x);
-				}
-				testMode = false;
-			}
+			leaveTestMode(false);
 			break;
 		case KeyEvent.VK_C:
-			if(testMode){
-				for(int x = 0; x < width; x++){
-					for(int y = 0; y < height; y++){
-						if(state[x][y].isTest()){
-							state[x][y] = state[x][y].toReal();
-						}
-					}
-				}
-				testMode = false;
-				checkSolution();
-			}
+			leaveTestMode(true);
 			break;
 		case KeyEvent.VK_UP:
 		case KeyEvent.VK_KP_UP:
