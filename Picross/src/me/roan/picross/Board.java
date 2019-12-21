@@ -398,6 +398,11 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		}
 	}
 	
+	/**
+	 * Sets whether to show the solution or not.
+	 * @param shown True to show the solution,
+	 *        false to hide it.
+	 */
 	public void showSolution(boolean shown){
 		reveal = shown;
 		this.repaint();
@@ -414,30 +419,49 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		this.repaint();
 	}
 	
+	/**
+	 * Gets the current zoom level.
+	 * @return The current zoom level.
+	 */
 	public double getZoom(){
 		return zoom;
 	}
 	
+	/**
+	 * Moves the view down.
+	 */
 	public void moveViewDown(){
 		dy -= DELTA;
 		this.repaint();
 	}
 	
+	/**
+	 * Moves the view up.
+	 */
 	public void moveViewUp(){
 		dy += DELTA;
 		this.repaint();
 	}
 	
+	/**
+	 * Moves the view right.
+	 */
 	public void moveViewRight(){
 		dx -= DELTA;
 		this.repaint();
 	}
 	
+	/**
+	 * Moves the view left.
+	 */
 	public void moveViewLeft(){
 		dx += DELTA;
 		this.repaint();
 	}
 	
+	/**
+	 * Resets all view translations.
+	 */
 	public void resetTranslation(){
 		dx = 0;
 		dy = 0;
