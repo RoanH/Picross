@@ -746,8 +746,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		}
 		
 		//origin at the top left corner of the grid
-		double ox = (this.getWidth() - width * SIZE) / 2 + dx;
-		double oy = (this.getHeight() - height * SIZE) / 2 + dy;
+		double ox = (this.getWidth() - width * SIZE) / 2.0D + dx;
+		double oy = (this.getHeight() - height * SIZE) / 2.0D + dy;
 		g.translate(ox, oy);
 		g.scale(zoom, zoom);
 		ox /= zoom;
