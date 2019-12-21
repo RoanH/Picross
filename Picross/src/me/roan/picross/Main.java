@@ -299,16 +299,26 @@ public class Main{
 			+ "- Left click a filled tile to empty it<br>"
 			+ "- Right click a cross to remove it<br><br>"
 			+ "<b>Keyboard:</b><br>"
-			+ "- W or arrow up to move up<br>"
-			+ "- S or arrow down to move down<br>"
-			+ "- A or arrow left to move left<br>"
-			+ "- D or arrow right to move right<br>"
+			+ "- W to move up<br>"
+			+ "- S to move down<br>"
+			+ "- A to move left<br>"
+			+ "- D to move right<br>"
 			+ "- Space bar to fill a tile<br>"
 			+ "- Shift to place a cross<br>"
 			+ "- Press space bar on a filled tile to empty it<br>"
 			+ "- Press shift on a cross to remove it<html>"
 		);
 		controls.setBorder(BorderFactory.createTitledBorder("Playing"));
+		
+		JLabel moving = new JLabel(
+			"<html>"
+			+ "- Up arrow to move the view up (and board down)<br>"
+			+ "- Down arrow to move the view down (and board up)<br>"
+			+ "- Right arrow to move the view right (and board left)<br>"
+			+ "- Left arrow to move the view left (and board right)<br>"
+			+ "- Mouse scroll wheel to zoom in and out<html>"
+		);
+		moving.setBorder(BorderFactory.createTitledBorder("Moving"));
 		
 		JLabel test = new JLabel(
 			"<html>"
@@ -331,6 +341,7 @@ public class Main{
 		other.setBorder(BorderFactory.createTitledBorder("Other"));
 		
 		help.add(controls);
+		help.add(moving);
 		help.add(test);
 		help.add(check);
 		help.add(other);
