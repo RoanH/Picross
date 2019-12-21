@@ -4,7 +4,7 @@ Picross ([nonogram](https://en.wikipedia.org/wiki/Nonogram)) implementation insp
 The goal of the game is to complete the grid with filled tiles and cross tiles according to the restrictions given on the sides. A more detailed explanation is given below.
 
 The program looks like this:    
-![GUI](https://i.imgur.com/u7HStpO.png)
+![GUI](https://i.imgur.com/HHkKVyv.png)
 
 ## Features
 - Randomized Picross puzzles of a customizable size and density (can also be shared using the seed).
@@ -63,8 +63,8 @@ General controls needed to play the game.
 
 ## Downloads
 _Requires Java 8 or higher_  
-- [Windows executable](https://github.com/RoanH/Picross/releases/download/v1.1/Picross-v1.1.exe)    
-- [Runnable Java Archive](https://github.com/RoanH/Picross/releases/download/v1.1/Picross-v1.1.jar)
+- [Windows executable](https://github.com/RoanH/Picross/releases/download/v1.2/Picross-v1.2.exe)    
+- [Runnable Java Archive](https://github.com/RoanH/Picross/releases/download/v1.2/Picross-v1.2.jar)
 
 All releases: [releases](https://github.com/RoanH/Picross/releases)<br>
 GitHub repository: [repository](https://github.com/RoanH/Picross)<br>
