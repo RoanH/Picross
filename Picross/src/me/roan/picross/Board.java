@@ -965,7 +965,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		int tx = toGridX(to.x);
 		int ty = toGridY(to.y);
 		
-		if(tx < 0 || tx > width || ty < 0 || ty > height || solved){
+		if(tx < 0 || tx >= width || ty < 0 || ty >= height || solved){
 			dx += to.x - last.x;
 			dy += to.y - last.y;
 		}
