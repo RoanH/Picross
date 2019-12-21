@@ -56,7 +56,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	/**
 	 * Size in pixels of the grid cells.
 	 */
-	public static final int SIZE = 50;
+	private static final int SIZE = 50;
+	private static final int DELTA = 20;
 	/**
 	 * The time at which this board was created.
 	 */
@@ -291,6 +292,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 				computeJudgement(x, y);
 				checkSolution();
 			}
+			this.repaint();
 		}
 	}
 	
@@ -365,6 +367,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	public void enterTestMode(){
 		if(!solved){
 			testMode = true;
+			this.repaint();
 		}
 	}
 	
@@ -391,11 +394,13 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 				}
 			}
 			testMode = false;
+			this.repaint();
 		}
 	}
 	
 	public void showSolution(boolean shown){
 		reveal = shown;
+		this.repaint();
 	}
 	
 	/**
@@ -406,10 +411,32 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		dx *= newZoom / zoom;
 		dy *= newZoom / zoom;
 		zoom = newZoom;
+		this.repaint();
 	}
 	
 	public double getZoom(){
 		return zoom;
+	}
+	
+	public void moveViewDown(){
+		dy -= DELTA;
+	}
+	
+	public void moveViewUp(){
+		dy += DELTA;
+	}
+	
+	public void moveViewRight(){
+		dx -= DELTA;
+	}
+	
+	public void moveViewLeft(){
+		dx += DELTA;
+	}
+	
+	public void resetTranslation(){
+		dx = 0;
+		dy = 0;
 	}
 	
 	/**
@@ -831,6 +858,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			}else if(y > 0){
 				y--;
 			}
+			this.repaint();
 			break;
 		case KeyEvent.VK_S:
 			if(x == -1){
@@ -838,6 +866,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			}else if(y < height - 1){
 				y++;
 			}
+			this.repaint();
 			break;
 		case KeyEvent.VK_D:
 			if(x == -1){
@@ -845,6 +874,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			}else if(x < width - 1){
 				x++;
 			}
+			this.repaint();
 			break;
 		case KeyEvent.VK_A:
 			if(x == -1){
@@ -852,6 +882,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			}else if(x > 0){
 				x--;
 			}
+			this.repaint();
 			break;
 		case KeyEvent.VK_T:
 			enterTestMode();
@@ -867,22 +898,21 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			break;
 		case KeyEvent.VK_UP:
 		case KeyEvent.VK_KP_UP:
-			dy += 20;
+			moveViewUp();
 			break;
 		case KeyEvent.VK_LEFT:
 		case KeyEvent.VK_KP_LEFT:
-			dx += 20;
+			moveViewDown();
 			break;
 		case KeyEvent.VK_RIGHT:
 		case KeyEvent.VK_KP_RIGHT:
-			dx -= 20;
+			moveViewRight();
 			break;
 		case KeyEvent.VK_DOWN:
 		case KeyEvent.VK_KP_DOWN:
-			dy -= 20;
+			moveViewDown();
 			break;
 		}
-		this.repaint();
 	}
 
 	@Override
@@ -911,6 +941,5 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e){
 		changeZoom(Math.max(zoom * (e.getWheelRotation() == -1 ? 1.1D : 0.9), 0.1D));
-		this.repaint();
 	}
 }
