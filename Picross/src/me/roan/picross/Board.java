@@ -45,7 +45,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * Color used to indicate elements of a solved puzzle.
 	 */
 	private static final Color SOLVED_COLOR = Color.GREEN.darker().darker();
-	private static final Color BACKDROP = new Color(1.0F, 1.0F, 1.0F, 0.5F);
+	private static final Color BACKDROP = new Color(1.0F, 1.0F, 1.0F, 0.8F);
 	/**
 	 * Font to use to draw the hint numbers.
 	 */
@@ -776,8 +776,6 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			setGridClicked(x, y, Tile.WHITE);
 			break;
 		case KeyEvent.VK_W:
-		case KeyEvent.VK_UP:
-		case KeyEvent.VK_KP_UP:
 			if(x == -1){
 				x = 0;
 			}else if(y > 0){
@@ -785,8 +783,6 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			}
 			break;
 		case KeyEvent.VK_S:
-		case KeyEvent.VK_DOWN:
-		case KeyEvent.VK_KP_DOWN:
 			if(x == -1){
 				x = 0;
 			}else if(y < height - 1){
@@ -794,8 +790,6 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			}
 			break;
 		case KeyEvent.VK_D:
-		case KeyEvent.VK_RIGHT:
-		case KeyEvent.VK_KP_RIGHT:
 			if(x == -1){
 				x = 0;
 			}else if(x < width - 1){
@@ -803,8 +797,6 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			}
 			break;
 		case KeyEvent.VK_A:
-		case KeyEvent.VK_LEFT:
-		case KeyEvent.VK_KP_LEFT:
 			if(x == -1){
 				x = 0;
 			}else if(x > 0){
@@ -846,6 +838,22 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 				checkSolution();
 			}
 			break;
+		case KeyEvent.VK_UP:
+		case KeyEvent.VK_KP_UP:
+			dy += 20;
+			break;
+		case KeyEvent.VK_LEFT:
+		case KeyEvent.VK_KP_LEFT:
+			dx += 20;
+			break;
+		case KeyEvent.VK_RIGHT:
+		case KeyEvent.VK_KP_RIGHT:
+			dx -= 20;
+			break;
+		case KeyEvent.VK_DOWN:
+		case KeyEvent.VK_KP_DOWN:
+			dy -= 20;
+			break;
 		}
 		this.repaint();
 	}
@@ -860,10 +868,10 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		int tx = toGridX(to.x);
 		int ty = toGridY(to.y);
 		
-		//if(tx < 0 || tx > width || ty < 0 || ty > height){
+		if(tx < 0 || tx > width || ty < 0 || ty > height || solved){
 			dx += to.x - last.x;
 			dy += to.y - last.y;
-		//}
+		}
 		
 		last = to;
 		this.repaint();
