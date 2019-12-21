@@ -57,6 +57,9 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * Size in pixels of the grid cells.
 	 */
 	private static final int SIZE = 50;
+	/**
+	 * Number of pixels to move by when moving the view.
+	 */
 	private static final int DELTA = 20;
 	/**
 	 * The time at which this board was created.
