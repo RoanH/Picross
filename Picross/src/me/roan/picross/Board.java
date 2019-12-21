@@ -854,15 +854,17 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 
 	@Override
 	public void mousePressed(MouseEvent e){
-		switch(e.getButton()){
-		case MouseEvent.BUTTON1:
-			setClicked(e.getX(), e.getY(), Tile.BLACK);
-			break;
-		case MouseEvent.BUTTON3:
-			setClicked(e.getX(), e.getY(), Tile.WHITE);
-			break;
+		if(!e.isControlDown()){
+			switch(e.getButton()){
+			case MouseEvent.BUTTON1:
+				setClicked(e.getX(), e.getY(), Tile.BLACK);
+				break;
+			case MouseEvent.BUTTON3:
+				setClicked(e.getX(), e.getY(), Tile.WHITE);
+				break;
+			}
+			this.repaint();
 		}
-		this.repaint();
 		last = e.getPoint();
 	}
 
@@ -965,7 +967,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		int tx = toGridX(to.x);
 		int ty = toGridY(to.y);
 		
-		if(tx < 0 || tx >= width || ty < 0 || ty >= height || solved){
+		if(tx < 0 || tx >= width || ty < 0 || ty >= height || solved || e.isControlDown()){
 			dx += to.x - last.x;
 			dy += to.y - last.y;
 		}
