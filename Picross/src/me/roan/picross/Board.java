@@ -420,23 +420,28 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	
 	public void moveViewDown(){
 		dy -= DELTA;
+		this.repaint();
 	}
 	
 	public void moveViewUp(){
 		dy += DELTA;
+		this.repaint();
 	}
 	
 	public void moveViewRight(){
 		dx -= DELTA;
+		this.repaint();
 	}
 	
 	public void moveViewLeft(){
 		dx += DELTA;
+		this.repaint();
 	}
 	
 	public void resetTranslation(){
 		dx = 0;
 		dy = 0;
+		this.repaint();
 	}
 	
 	/**
@@ -902,7 +907,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			break;
 		case KeyEvent.VK_LEFT:
 		case KeyEvent.VK_KP_LEFT:
-			moveViewDown();
+			moveViewLeft();
 			break;
 		case KeyEvent.VK_RIGHT:
 		case KeyEvent.VK_KP_RIGHT:
