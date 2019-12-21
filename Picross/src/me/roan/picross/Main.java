@@ -184,6 +184,20 @@ public class Main{
 			}
 		});
 		
+		JMenuItem showSolution = new JMenuItem("Show solution");
+		showSolution.addActionListener(e->{
+			if(board != null){
+				board.showSolution(true);
+			}
+		});
+		
+		JMenuItem hideSolution = new JMenuItem("Hide solution");
+		hideSolution.addActionListener(e->{
+			if(board != null){
+				board.showSolution(false);
+			}
+		});
+		
 		game.add(fromRandom);
 		//game.add(fromImage);
 		game.add(fromSeed);
@@ -192,9 +206,45 @@ public class Main{
 		game.add(quickB);
 		game.add(quickC);
 		game.addSeparator();
+		game.add(showSolution);
+		game.add(hideSolution);
+		game.addSeparator();
 		game.add(reset);
 		
+		JMenu testMode = new JMenu("Test mode");
+		
+		JMenuItem enterTest = new JMenuItem("Enter test mode");
+		enterTest.addActionListener(e->{
+			if(board != null){
+				board.enterTestMode();
+			}
+		});
+		
+		JMenuItem leaveTestSave = new JMenuItem("Leave & save changes");
+		leaveTestSave.addActionListener(e->{
+			if(board != null){
+				board.leaveTestMode(true);
+			}
+		});
+		
+		JMenuItem leaveTestUndo = new JMenuItem("Leave & undo changes");
+		leaveTestUndo.addActionListener(e->{
+			if(board != null){
+				board.leaveTestMode(false);
+			}
+		});
+		
+		testMode.add(enterTest);
+		testMode.add(leaveTestSave);
+		testMode.add(leaveTestUndo);
+		
+		JMenu view = new JMenu("View");
+
+
+		
 		bar.add(game);
+		bar.add(view);
+		bar.add(testMode);
 		bar.add(help);
 		
 		frame.setJMenuBar(bar);
