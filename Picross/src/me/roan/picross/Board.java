@@ -424,8 +424,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * @param newZoom The new zoom level.
 	 */
 	public void changeZoom(double newZoom){
-		dx = ((((dx - SIZE * (width / 2.0D)) * newZoom) / zoom) + SIZE * (width / 2.0D));
-		dy = ((((dy - SIZE * (height / 2.0D)) * newZoom) / zoom) + SIZE * (height / 2.0D));
+		dx = (((dx - SIZE * (width / 2.0D)) * newZoom) / zoom) + SIZE * (width / 2.0D);
+		dy = (((dy - SIZE * (height / 2.0D)) * newZoom) / zoom) + SIZE * (height / 2.0D);
 		zoom = newZoom;
 		this.repaint();
 	}
