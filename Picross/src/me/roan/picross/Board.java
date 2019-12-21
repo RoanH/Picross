@@ -106,11 +106,11 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	/**
 	 * Grid translation along the x-axis.
 	 */
-	private int dx = 0;
+	private double dx = 0;
 	/**
 	 * Grid translation along the y-axis.
 	 */
-	private int dy = 0;
+	private double dy = 0;
 	/**
 	 * Whether or not the solution is shown.
 	 */
@@ -424,8 +424,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * @param newZoom The new zoom level.
 	 */
 	public void changeZoom(double newZoom){
-		dx *= newZoom / zoom;
-		dy *= newZoom / zoom;
+		dx = ((((dx - SIZE * (width / 2.0D)) * newZoom) / zoom) + SIZE * (width / 2.0D));
+		dy = ((((dy - SIZE * (height / 2.0D)) * newZoom) / zoom) + SIZE * (height / 2.0D));
 		zoom = newZoom;
 		this.repaint();
 	}
@@ -697,7 +697,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	
 	@Override
 	public Dimension getPreferredSize(){
-		return new Dimension(width * SIZE + dx * 2, height * SIZE + dy + 1);
+		return new Dimension((int)(width * SIZE + dx * 2), (int)(height * SIZE + dy + 1));
 	}
 	
 	@Override
@@ -746,8 +746,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		}
 		
 		//origin at the top left corner of the grid
-		int ox = (this.getWidth() - width * SIZE) / 2 + dx;
-		int oy = (this.getHeight() - height * SIZE) / 2 + dy;
+		double ox = (this.getWidth() - width * SIZE) / 2 + dx;
+		double oy = (this.getHeight() - height * SIZE) / 2 + dy;
 		g.translate(ox, oy);
 		g.scale(zoom, zoom);
 		ox /= zoom;
