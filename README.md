@@ -35,14 +35,21 @@ General controls needed to play the game.
 - Right click a cross to remove it
 
 ##### Keyboard
-- W or arrow up to move up
-- S or arrow down to move down
-- A or arrow left to move left
-- D or arrow right to move right
+- W to move up
+- S to move down
+- A to move left
+- D to move right
 - Space bar to fill a tile
 - Shift to place a cross
 - Press space bar on a filled tile to empty it
 - Press shift on a cross to remove it
+
+### Moving
+- Up arrow to move the view up (and board down)
+- Down arrow to move the view down (and board up)
+- Right arrow to move the view right (and board left)
+- Left arrow to move the view left (and board right)
+- Mouse scroll wheel to zoom in and out
 
 ### Test mode
 - T to enter test mode
