@@ -163,7 +163,6 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		this.addMouseMotionListener(this);
 		this.addKeyListener(this);
 		this.addMouseWheelListener(this);
-		this.requestFocus();
 		
 		this.seed = seed;
 		random = new Random(seed.seed);
@@ -874,11 +873,12 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	}
 
 	@Override
-	public void mouseEntered(MouseEvent e){		
+	public void mouseEntered(MouseEvent e){
+		this.requestFocusInWindow();
 	}
 
 	@Override
-	public void mouseExited(MouseEvent e){		
+	public void mouseExited(MouseEvent e){
 	}
 
 	@Override

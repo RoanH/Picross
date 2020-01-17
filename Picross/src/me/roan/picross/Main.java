@@ -334,25 +334,25 @@ public class Main{
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
 		
-		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher(){
-			@Override
-			public boolean dispatchKeyEvent(KeyEvent e){
-				if(board != null){
-					switch(e.getID()){
-					case KeyEvent.KEY_PRESSED:
-						board.keyPressed(e);
-						break;
-					case KeyEvent.KEY_RELEASED:
-						board.keyReleased(e);
-						break;
-					case KeyEvent.KEY_TYPED:
-						board.keyTyped(e);
-						break;
-					}
-				}
-				return false;
-			}
-		});
+//		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher(){
+//			@Override
+//			public boolean dispatchKeyEvent(KeyEvent e){
+//				if(board != null){
+//					switch(e.getID()){
+//					case KeyEvent.KEY_PRESSED:
+//						board.keyPressed(e);
+//						break;
+//					case KeyEvent.KEY_RELEASED:
+//						board.keyReleased(e);
+//						break;
+//					case KeyEvent.KEY_TYPED:
+//						board.keyTyped(e);
+//						break;
+//					}
+//				}
+//				return false;
+//			}
+//		});
 	}
 	
 	/**
