@@ -5,9 +5,6 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.KeyEventDispatcher;
-import java.awt.KeyboardFocusManager;
-import java.awt.event.KeyEvent;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -333,26 +330,6 @@ public class Main{
 		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
-		
-//		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher(){
-//			@Override
-//			public boolean dispatchKeyEvent(KeyEvent e){
-//				if(board != null){
-//					switch(e.getID()){
-//					case KeyEvent.KEY_PRESSED:
-//						board.keyPressed(e);
-//						break;
-//					case KeyEvent.KEY_RELEASED:
-//						board.keyReleased(e);
-//						break;
-//					case KeyEvent.KEY_TYPED:
-//						board.keyTyped(e);
-//						break;
-//					}
-//				}
-//				return false;
-//			}
-//		});
 	}
 	
 	/**
