@@ -116,16 +116,16 @@ public class Main{
 		
 		JMenu game = new JMenu("Game");
 		JMenuItem fromRandom = new JMenuItem("New game...");
-		//JMenuItem fromImage = new JMenuItem("New game from image...");
+		JMenuItem fromImage = new JMenuItem("New game from image...");
 		JMenuItem fromSeed = new JMenuItem("New game from seed...");
 		
 		JMenuItem quickA = new JMenuItem("New 10x10 @ 0.8 game");
 		JMenuItem quickB = new JMenuItem("New 15x15 @ 0.8 game");
 		JMenuItem quickC = new JMenuItem("New 30x15 @ 0.8 game");
 		
-		quickA.addActionListener(e->openGame(new Seed(10, 10, 0.8D)));
-		quickB.addActionListener(e->openGame(new Seed(15, 15, 0.8D)));
-		quickC.addActionListener(e->openGame(new Seed(30, 15, 0.8D)));
+		quickA.addActionListener(e->openGame(new Board(new Seed(10, 10, 0.8D))));
+		quickB.addActionListener(e->openGame(new Board(new Seed(15, 15, 0.8D))));
+		quickC.addActionListener(e->openGame(new Board(new Seed(30, 15, 0.8D))));
 		fromSeed.addActionListener(e->{
 			JPanel form = new JPanel();
 			form.add(new JLabel("Seed: "));
@@ -140,8 +140,16 @@ public class Main{
 					Dialog.showErrorDialog("The provided seed is invalid.");
 					return;
 				}
-				openGame(seed);
+				openGame(new Board(seed));
 			}
+		});
+		fromImage.addActionListener(e->{
+			try{
+				openGame(ImageParser.parseImage(Dialog.showFileOpenDialog(), 10, 10));
+			}catch(IOException e1){
+				// TODO Auto-generated catch block
+				e1.printStackTrace();
+			}//TODO
 		});
 		fromRandom.addActionListener(e->{
 			JPanel form = new JPanel(new BorderLayout());
@@ -165,7 +173,7 @@ public class Main{
 			form.add(new JLabel("Game settings: "), BorderLayout.PAGE_START);
 			
 			if(Dialog.showSelectDialog(form)){
-				openGame(new Seed((int)width.getValue(), (int)height.getValue(), (double)density.getValue()));
+				openGame(new Board(new Seed((int)width.getValue(), (int)height.getValue(), (double)density.getValue())));
 			}
 		});
 		
@@ -191,7 +199,7 @@ public class Main{
 		});
 		
 		game.add(fromRandom);
-		//game.add(fromImage);
+		game.add(fromImage);
 		game.add(fromSeed);
 		game.addSeparator();
 		game.add(quickA);
@@ -333,16 +341,21 @@ public class Main{
 	}
 	
 	/**
-	 * Opens a game with the given seed.
-	 * @param seed The seed to generate the board with.
+	 * Opens a game with the given board.
+	 * @param game The board to open.
 	 */
-	private static void openGame(Seed seed){
+	private static void openGame(Board game){
 		gameContainer.removeAll();
-		gameContainer.add(board = new Board(seed));
+		gameContainer.add(board = game);
 		gameContainer.revalidate();
 		gameContainer.repaint();
-		seedField.setText(" Seed: " + board.getSeed());
-		infoField.setText("Type: " + seed.width + "x" + seed.height + " @ " + seed.density);
+		
+		Seed seed = board.getSeed();
+		if(seed != null){
+			seedField.setText(" Seed: " + board.getSeed());
+			infoField.setText("Type: " + seed.width + "x" + seed.height + " @ " + seed.density);
+		}
+		
 		timerField.setText("Time: 00:00");
 		timer.restart();
 	}

@@ -103,7 +103,7 @@ public class ImageParser{
 			f.setVisible(true);
 		}
 		
-		return null;
+		return new Board(data);
 	}
 	
 	
