@@ -77,7 +77,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	/**
 	 * Random number generator for this board.
 	 */
-	private final Random random;
+	private Random random;
 	/**
 	 * Solution this puzzle is based on.
 	 */
@@ -158,28 +158,42 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * @see Seed
 	 */
 	public Board(Seed seed){
+		this(new boolean[seed.width][seed.height], seed);
+		
+		random = new Random(seed.seed);
+		
+		for(int n = 0; n < seed.density * (width * height); n++){
+			solution[random.nextInt(width)][random.nextInt(height)] = true;
+		}
+		
+		computeHints();
+	}
+	
+	public Board(boolean[][] data){
+		this(data, null);
+		computeHints();
+	}
+	
+	private Board(boolean[][] data, Seed seed){
 		this.setFocusable(true);
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
 		this.addKeyListener(this);
 		this.addMouseWheelListener(this);
 		
-		this.seed = seed;
-		random = new Random(seed.seed);
-		this.width = seed.width;
-		this.height = seed.height;
-		
-		solution = new boolean[width][height];
+		solution = data;
+		width = data.length;
+		height = data[0].length;
 		state = new Tile[width][height];
+		this.seed = seed;
 		for(int i = 0; i < width; i++){
 			Arrays.fill(state[i], Tile.EMPTY);
 		}
+		
 		rowHints = new int[height][];
 		colHints = new int[width][];
 		rowJudgement = new Boolean[height][];
 		colJudgement = new Boolean[width][];
-		
-		initialiseGrid();
 	}
 	
 	/**
@@ -517,11 +531,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * @see #rowHints
 	 * @see #colHints
 	 */
-	private final void initialiseGrid(){
-		for(int n = 0; n < seed.density * (width * height); n++){
-			solution[random.nextInt(width)][random.nextInt(height)] = true;
-		}
-		
+	private final void computeHints(){
 		int[] buffer = new int[Math.max(width, height)];
 		
 		//row numbers
