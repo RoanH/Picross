@@ -110,9 +110,13 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 */
 	private boolean testMode = false;
 	/**
-	 * Last click or drag location.
+	 * Last drag location.
 	 */
 	private Point last;
+	/**
+	 * Last click location.
+	 */
+	private Point lastPress;
 	/**
 	 * x-coordinate of the currently selected grid cell.
 	 * Will be <code>-1</code> if the users is not playing
@@ -137,6 +141,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	private boolean solved = false;
 	private int hx = -1;
 	private int hy = -1;
+	private Tile nextType = null;
 	
 	/**
 	 * Constructs a new board from
@@ -250,16 +255,6 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	private int toGridY(int py){
 		int ly = py - dy - ((this.getHeight() - height * SIZE) / 2);
 		return ly < 0 ? -1 : (ly / SIZE);
-	}
-	
-	/**
-	 * Computes the new state for the given clicked tile.
-	 * @param px The on screen x-coordinate for the tile that was clicked.
-	 * @param py The on screen y-coordinate for the tile that was clicked.
-	 * @param newState The new state for the tile that was clicked.
-	 */
-	public void setClicked(int px, int py, Tile newState){
-		setGridClicked(toGridX(px), toGridY(py), newState);
 	}
 	
 	/**
@@ -666,6 +661,15 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 					g.drawLine(x * SIZE + SIZE - 5, y * SIZE + 5, x * SIZE + 5, y * SIZE + SIZE - 5);
 					break;
 				}
+				
+				if(lastPress != null){
+					int mx = Math.min(lastPress.x, lastPress.x + hx);
+					int my = Math.min(lastPress.y, lastPress.y + hy);
+					if(x >= mx && x <= mx + Math.abs(hx) && y >= my && y <= my + Math.abs(hy)){
+						g.setColor(new Color(0.0F, 0.0F, 0.0F, 0.2F));
+						g.fillRect(x * SIZE + 5, y * SIZE + 5, SIZE - 10, SIZE - 10);
+					}
+				}
 
 				if(reveal && solution[x][y]){
 					g.setColor(Color.RED);
@@ -715,19 +719,32 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	public void mousePressed(MouseEvent e){
 		switch(e.getButton()){
 		case MouseEvent.BUTTON1:
-			setClicked(e.getX(), e.getY(), Tile.BLACK);
+			nextType = Tile.BLACK;
 			break;
 		case MouseEvent.BUTTON3:
-			setClicked(e.getX(), e.getY(), Tile.WHITE);
+			nextType = Tile.WHITE;
 			break;
 		}
-		this.repaint();
 		last = e.getPoint();
+		lastPress = new Point(toGridX(last.x), toGridY(last.y));
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e){
+		if(lastPress != null){
+			int mx = Math.min(lastPress.x, lastPress.x + hx);
+			int my = Math.min(lastPress.y, lastPress.y + hy);
+			for(int x = mx; x <= mx + Math.abs(hx); x++){
+				for(int y = my; y <= my + Math.abs(hy); y++){
+					setGridClicked(x, y, nextType);
+				}
+			}
+		}
 		
+		this.repaint();
+		lastPress = null;
+		hx = 0;
+		hy = 0;
 	}
 
 	@Override
@@ -839,6 +856,9 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		if(tx < 0 || tx > width || ty < 0 || ty > height){
 			dx += to.x - last.x;
 			dy += to.y - last.y;
+		}else{
+			hx = tx - lastPress.x;
+			hy = ty - lastPress.y;
 		}
 		
 		last = to;
