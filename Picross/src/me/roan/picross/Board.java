@@ -257,6 +257,16 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		return ly < 0 ? -1 : (ly / SIZE);
 	}
 	
+	private boolean isSelected(int x, int y){
+		if(lastPress != null){
+			int mx = Math.min(lastPress.x, lastPress.x + hx);
+			int my = Math.min(lastPress.y, lastPress.y + hy);
+			return x >= mx && x <= mx + Math.abs(hx) && y >= my && y <= my + Math.abs(hy);
+		}else{
+			return false;
+		}
+	}
+	
 	/**
 	 * Computes the new state for the given clicked tile.
 	 * @param x The x-coordinate for the tile that was clicked.
@@ -717,6 +727,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 
 	@Override
 	public void mousePressed(MouseEvent e){
+		last = e.getPoint();
+		lastPress = new Point(toGridX(last.x), toGridY(last.y));
 		switch(e.getButton()){
 		case MouseEvent.BUTTON1:
 			nextType = Tile.BLACK;
@@ -725,8 +737,6 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			nextType = Tile.WHITE;
 			break;
 		}
-		last = e.getPoint();
-		lastPress = new Point(toGridX(last.x), toGridY(last.y));
 	}
 
 	@Override
