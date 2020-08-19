@@ -152,8 +152,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * Whether or not this puzzle is currently solved.
 	 */
 	private boolean solved = false;
-	private int hx = -1;
-	private int hy = -1;
+	private int hx = 0;
+	private int hy = 0;
 	private Tile nextType = null;
 	/**
 	 * Current zoom level.
