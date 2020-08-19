@@ -865,6 +865,15 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			}
 		}
 		
+		if(hx != 0 || hy != 0){
+			g.setColor(Color.BLACK);
+			g.drawString(
+				(Math.abs(hx) + 1) + " x " + (Math.abs(hy) + 1),
+				Math.min(lastPress.x, lastPress.x + hx) * SIZE + 5,
+				Math.min(lastPress.y, lastPress.y + hy) * SIZE + g.getFontMetrics().getHeight()
+			);
+		}
+		
 		if(x != -1){
 			g.setColor(Color.RED);
 			g.drawRect(x * SIZE + 1, y * SIZE + 1, SIZE - 3, SIZE - 3);
