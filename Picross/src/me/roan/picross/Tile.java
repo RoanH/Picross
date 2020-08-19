@@ -95,7 +95,23 @@ public enum Tile{
 		return this == TRY_FILL || this == TRY_CROSS;
 	}
 	
-	public boolean canOverride(Tile replacement){
-		return this != replacement && ((this.isTest() && replacement.isTest()) || !(this.isTest() && replacement.isTest()) || this == EMPTY);
+	public boolean isReal(){
+		return this == FILL || this == CROSS;
+	}
+	
+	public boolean canOverride(Tile replacement, boolean testMode){
+		if((testMode && this.isReal()) || this == replacement){
+			return false;
+		}else{
+			if(replacement == EMPTY){
+				return (!testMode && this.isReal()) || this.isTest();
+			}else{
+				return this.equalMode(replacement) || this == EMPTY;
+			}
+		}
+	}
+	
+	public boolean equalMode(Tile other){
+		return (this.isTest() && other.isTest()) || (this.isReal() && other.isReal());
 	}
 }

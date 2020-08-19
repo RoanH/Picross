@@ -709,7 +709,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			int mx = Math.min(lastPress.x, lastPress.x + hx);
 			int my = Math.min(lastPress.y, lastPress.y + hy);
 			if(x >= mx && x <= mx + Math.abs(hx) && y >= my && y <= my + Math.abs(hy)){
-				if(state[x][y].canOverride(nextType) || (nextType == Tile.EMPTY && !testMode)){
+				if(state[x][y].canOverride(nextType, testMode)){
 					return nextType.toSelection();
 				}
 			}
