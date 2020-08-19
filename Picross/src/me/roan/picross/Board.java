@@ -1,6 +1,8 @@
 package me.roan.picross;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -47,6 +49,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * Font to use to draw the hint numbers.
 	 */
 	private static final Font NUMBERS = new Font("Dialog", Font.BOLD, 15);
+	private static final Composite FADE_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.2F);
 	/**
 	 * Size in pixels of the grid cells.
 	 */
@@ -273,17 +276,17 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * @param y The y-coordinate for the tile that was clicked.
 	 * @param newState The new state for the tile that was clicked.
 	 */
-	public void setGridClicked(int x, int y, Tile newState){
+	public void setGridClicked(int x, int y, Tile newState, boolean toggle){
 		if(x >= 0 && y >= 0 && x < width && y < height && !solved){
 			Tile old = state[x][y];
 			if(testMode){
 				if(state[x][y] == Tile.EMPTY || state[x][y].isTest()){
 					newState = newState.toTest();
-					state[x][y] = (old == newState) ? Tile.EMPTY : newState;
+					state[x][y] = (old == newState && toggle) ? Tile.EMPTY : newState;
 					computeJudgement(x, y);
 				}
 			}else{
-				state[x][y] = (old == newState) ? Tile.EMPTY : newState;
+				state[x][y] = (old == newState && toggle) ? Tile.EMPTY : newState;
 				computeJudgement(x, y);
 				checkSolution();
 			}
@@ -573,6 +576,38 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		}
 	}
 	
+	private Tile getState(int x, int y){
+		if(lastPress != null){
+			int mx = Math.min(lastPress.x, lastPress.x + hx);
+			int my = Math.min(lastPress.y, lastPress.y + hy);
+			if(x >= mx && x <= mx + Math.abs(hx) && y >= my && y <= my + Math.abs(hy)){
+				if(state[x][y].canOverride(nextType) || (nextType == Tile.EMPTY && !testMode)){
+					return nextType.toSelection();
+				}
+			}
+		}
+		return state[x][y];
+	}
+	
+	private Tile nextTileState(int x, int y, Tile base){
+		Tile current = state[x][y];
+		if(current == Tile.EMPTY){
+			return testMode ? base.toTest() : base;
+		}else if(testMode){
+			return current == base.toTest() ? Tile.EMPTY : base.toTest();
+		}else{
+			return current == base ? Tile.EMPTY : base;
+		}
+	}
+	
+	private boolean isWithinGridBounds(Point p){
+		return isWithinGridBounds(p.x, p.y);
+	}
+	
+	private boolean isWithinGridBounds(int x, int y){
+		return x >= 0 && y >=0 && x < width && y < height;
+	}
+	
 	@Override
 	public Dimension getPreferredSize(){
 		return new Dimension(width * SIZE + dx * 2, height * SIZE + dy + 1);
@@ -649,38 +684,50 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		//cell status
 		for(int x = 0; x < width; x++){
 			for(int y = 0; y < height; y++){
-				switch(state[x][y]){
+				Tile currentState = getState(x, y);
+				Composite comp = g.getComposite();
+				if(currentState == Tile.SEL_EMPTY){
+					g.setComposite(FADE_COMPOSITE);
+					currentState = state[x][y];
+				}
+				
+				switch(currentState){
+				case SEL_BLACK:
+					g.setComposite(FADE_COMPOSITE);
+					//$FALL-THROUGH$
 				case BLACK:
 					g.setColor(Color.BLACK);
 					g.fillRect(x * SIZE + 5, y * SIZE + 5, SIZE - 10, SIZE - 10);
 					break;
+				case SEL_WHITE:
+					g.setComposite(FADE_COMPOSITE);
+					//$FALL-THROUGH$
 				case WHITE:
 					g.setColor(Color.BLACK);
 					g.drawLine(x * SIZE + 5, y * SIZE + 5, x * SIZE + SIZE - 5, y * SIZE + SIZE - 5);
 					g.drawLine(x * SIZE + SIZE - 5, y * SIZE + 5, x * SIZE + 5, y * SIZE + SIZE - 5);
 					break;
-				case EMPTY:
-					break;
+				case SEL_TRY_BLACK:
+					g.setComposite(FADE_COMPOSITE);
+					//$FALL-THROUGH$
 				case TRY_BLACK:
 					g.setColor(Color.BLUE);
 					g.fillRect(x * SIZE + 5, y * SIZE + 5, SIZE - 10, SIZE - 10);
 					break;
+				case SEL_TRY_WHITE:
+					g.setComposite(FADE_COMPOSITE);
+					//$FALL-THROUGH$
 				case TRY_WHITE:
 					g.setColor(Color.BLUE);
 					g.drawLine(x * SIZE + 5, y * SIZE + 5, x * SIZE + SIZE - 5, y * SIZE + SIZE - 5);
 					g.drawLine(x * SIZE + SIZE - 5, y * SIZE + 5, x * SIZE + 5, y * SIZE + SIZE - 5);
 					break;
+				default:
+					break;
 				}
 				
-				if(lastPress != null){
-					int mx = Math.min(lastPress.x, lastPress.x + hx);
-					int my = Math.min(lastPress.y, lastPress.y + hy);
-					if(x >= mx && x <= mx + Math.abs(hx) && y >= my && y <= my + Math.abs(hy)){
-						g.setColor(new Color(0.0F, 0.0F, 0.0F, 0.2F));
-						g.fillRect(x * SIZE + 5, y * SIZE + 5, SIZE - 10, SIZE - 10);
-					}
-				}
-
+				g.setComposite(comp);
+				
 				if(reveal && solution[x][y]){
 					g.setColor(Color.RED);
 					g.fillRect(x * SIZE + 15, y * SIZE + 15, 20, 20);
@@ -729,13 +776,15 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	public void mousePressed(MouseEvent e){
 		last = e.getPoint();
 		lastPress = new Point(toGridX(last.x), toGridY(last.y));
-		switch(e.getButton()){
-		case MouseEvent.BUTTON1:
-			nextType = Tile.BLACK;
-			break;
-		case MouseEvent.BUTTON3:
-			nextType = Tile.WHITE;
-			break;
+		if(isWithinGridBounds(lastPress)){
+			switch(e.getButton()){
+			case MouseEvent.BUTTON1:
+				nextType = nextTileState(lastPress.x, lastPress.y, Tile.BLACK);
+				break;
+			case MouseEvent.BUTTON3:
+				nextType = nextTileState(lastPress.x, lastPress.y, Tile.WHITE);
+				break;
+			}
 		}
 	}
 
@@ -746,7 +795,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			int my = Math.min(lastPress.y, lastPress.y + hy);
 			for(int x = mx; x <= mx + Math.abs(hx); x++){
 				for(int y = my; y <= my + Math.abs(hy); y++){
-					setGridClicked(x, y, nextType);
+					setGridClicked(x, y, nextType, false);
 				}
 			}
 		}
@@ -773,10 +822,10 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	public void keyPressed(KeyEvent e){
 		switch(e.getKeyCode()){
 		case KeyEvent.VK_SPACE:
-			setGridClicked(x, y, Tile.BLACK);
+			setGridClicked(x, y, Tile.BLACK, true);
 			break;
 		case KeyEvent.VK_SHIFT:
-			setGridClicked(x, y, Tile.WHITE);
+			setGridClicked(x, y, Tile.WHITE, true);
 			break;
 		case KeyEvent.VK_W:
 		case KeyEvent.VK_UP:

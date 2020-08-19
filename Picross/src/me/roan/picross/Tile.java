@@ -24,7 +24,29 @@ public enum Tile{
 	/**
 	 * Indicates a test mode black or 'filled' tile.
 	 */
-	TRY_BLACK;
+	TRY_BLACK,
+	SEL_EMPTY,
+	SEL_WHITE,
+	SEL_BLACK,
+	SEL_TRY_WHITE,
+	SEL_TRY_BLACK;
+	
+	public Tile toSelection(){
+		switch(this){
+		case BLACK:
+			return SEL_BLACK;
+		case EMPTY:
+			return SEL_EMPTY;
+		case TRY_BLACK:
+			return SEL_TRY_BLACK;
+		case TRY_WHITE:
+			return SEL_TRY_WHITE;
+		case WHITE:
+			return SEL_WHITE;
+		default:
+			return this;
+		}
+	}
 	
 	/**
 	 * Converts this tile to it's non-test
@@ -71,5 +93,9 @@ public enum Tile{
 	 */
 	public boolean isTest(){
 		return this == TRY_BLACK || this == TRY_WHITE;
+	}
+	
+	public boolean canOverride(Tile replacement){
+		return this != replacement && ((this.isTest() && replacement.isTest()) || !(this.isTest() && replacement.isTest()) || this == EMPTY);
 	}
 }
