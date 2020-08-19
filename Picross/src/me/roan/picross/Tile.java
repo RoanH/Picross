@@ -25,12 +25,36 @@ public enum Tile{
 	 * Indicates a test mode 'filled' tile.
 	 */
 	TRY_FILL,
+	/**
+	 * Indicates an area selection tile that will transition
+	 * towards the {@link #EMPTY} state.
+	 */
 	SEL_EMPTY,
+	/**
+	 * Indicates an area selection tile that will transition
+	 * towards the {@link #CROSS} state.
+	 */
 	SEL_CROSS,
+	/**
+	 * Indicates an area selection tile that will transition
+	 * towards the {@link #FILL} state.
+	 */
 	SEL_FILL,
+	/**
+	 * Indicates an area selection tile that will transition
+	 * towards the {@link #TRY_CROSS} state.
+	 */
 	SEL_TRY_CROSS,
+	/**
+	 * Indicates an area selection tile that will transition
+	 * towards the {@link #TRY_FILL} state.
+	 */
 	SEL_TRY_FILL;
 	
+	/**
+	 * Gets the area selection variant of this tile.
+	 * @return The area selection variant of this tile.
+	 */
 	public Tile toSelection(){
 		switch(this){
 		case FILL:
@@ -95,10 +119,20 @@ public enum Tile{
 		return this == TRY_FILL || this == TRY_CROSS;
 	}
 	
+	/**
+	 * Returns if this tile is a non test mode tile.
+	 * @return True if this tile is not a tset mode tile.
+	 */
 	public boolean isReal(){
 		return this == FILL || this == CROSS;
 	}
 	
+	/**
+	 * Check to see if the given tile can replace this tile.
+	 * @param replacement The replacement tile.
+	 * @param testMode Whether test mode is enabled or not.
+	 * @return True if the given replacement tile can override this tile.
+	 */
 	public boolean canOverride(Tile replacement, boolean testMode){
 		if((testMode && this.isReal()) || this == replacement){
 			return false;
@@ -111,6 +145,13 @@ public enum Tile{
 		}
 	}
 	
+	/**
+	 * Checks to see of this tile and the given tile
+	 * are for the same mode (test mode or not).
+	 * @param other The other tile.
+	 * @return True if this tile and the given tile are
+	 *         for the same mode.
+	 */
 	public boolean equalMode(Tile other){
 		return (this.isTest() && other.isTest()) || (this.isReal() && other.isReal());
 	}
