@@ -333,8 +333,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * with final solution tiles. Final solution
 	 * tiles are non-empty and non-test mode tiles.
 	 * This means that the entire board has to be
-	 * filled with {@link Tile#BLACK} and
-	 * {@link Tile#WHITE} tiles.
+	 * filled with {@link Tile#FILL} and
+	 * {@link Tile#CROSS} tiles.
 	 * @return Whether or not the entire grid is filled.
 	 * @see Tile
 	 */
@@ -662,17 +662,17 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			}
 			
 			//if the current tile is filled
-			boolean black = (state.apply(x) == Tile.BLACK) || (state.apply(x) == Tile.TRY_BLACK);
+			boolean filled = (state.apply(x) == Tile.FILL) || (state.apply(x) == Tile.TRY_FILL);
 			//if we're at the end of a search
 			boolean end = (x == 0 && dir == -1) || (x == max - 1 && dir == 1);
 			
 			//increment chain length
-			if(black){
+			if(filled){
 				f++;
 			}
 			
-			//if we hit the end or are on a white tile
-			if(state.apply(x) == Tile.WHITE || state.apply(x) == Tile.TRY_WHITE || end){
+			//if we hit the end or are on a cross tile
+			if(state.apply(x) == Tile.CROSS || state.apply(x) == Tile.TRY_CROSS || end){
 				if(f != 0){
 					//too many chains found
 					if((h < 0 || h >= result.length)){
@@ -757,33 +757,33 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		}
 		
 		FontMetrics fm = g.getFontMetrics();
-		int black = getTileCount(Tile.BLACK);
-		int tryBlack = getTileCount(Tile.TRY_BLACK);
-		int white = getTileCount(Tile.WHITE);
-		int tryWhite = getTileCount(Tile.TRY_WHITE);
+		int filled = getTileCount(Tile.FILL);
+		int tryFill = getTileCount(Tile.TRY_FILL);
+		int crossed = getTileCount(Tile.CROSS);
+		int tryCross = getTileCount(Tile.TRY_CROSS);
 		
 		g.setColor(Color.BLACK);
-		String line = " Filled: " + black;
+		String line = " Filled: " + filled;
 		g.drawString(line, 0, 30);
 		if(testMode){
 			g.setColor(TEST_MODE_COLOR);
-			g.drawString(" (+" + tryBlack + ")", fm.stringWidth(line), 30);
+			g.drawString(" (+" + tryFill + ")", fm.stringWidth(line), 30);
 		}
 		
 		g.setColor(Color.BLACK);
-		line = " Crossed: " + white;
+		line = " Crossed: " + crossed;
 		g.drawString(line, 0, 45);
 		if(testMode){
 			g.setColor(TEST_MODE_COLOR);
-			g.drawString(" (+" + tryWhite + ")", fm.stringWidth(line), 45);
+			g.drawString(" (+" + tryCross + ")", fm.stringWidth(line), 45);
 		}
 		
 		g.setColor(Color.BLACK);
-		line = String.format(" Done: %1$.2f%%", (100.0D * (black + white)) / getTileCount());
+		line = String.format(" Done: %1$.2f%%", (100.0D * (filled + crossed)) / getTileCount());
 		g.drawString(line, 0, 60);
 		if(testMode){
 			g.setColor(TEST_MODE_COLOR);
-			g.drawString(String.format(" (+%1$.2f%%)", (100.0D * (tryBlack + tryWhite)) / getTileCount()), fm.stringWidth(line), 60);
+			g.drawString(String.format(" (+%1$.2f%%)", (100.0D * (tryFill + tryCross)) / getTileCount()), fm.stringWidth(line), 60);
 		}
 		
 		//origin at the top left corner of the grid
@@ -822,32 +822,32 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 				}
 				
 				switch(currentState){
-				case SEL_BLACK:
+				case SEL_FILL:
 					g.setComposite(FADE_COMPOSITE);
 					//$FALL-THROUGH$
-				case BLACK:
+				case FILL:
 					g.setColor(Color.BLACK);
 					g.fillRect(x * SIZE + 5, y * SIZE + 5, SIZE - 10, SIZE - 10);
 					break;
-				case SEL_WHITE:
+				case SEL_CROSS:
 					g.setComposite(FADE_COMPOSITE);
 					//$FALL-THROUGH$
-				case WHITE:
+				case CROSS:
 					g.setColor(Color.BLACK);
 					g.drawLine(x * SIZE + 5, y * SIZE + 5, x * SIZE + SIZE - 5, y * SIZE + SIZE - 5);
 					g.drawLine(x * SIZE + SIZE - 5, y * SIZE + 5, x * SIZE + 5, y * SIZE + SIZE - 5);
 					break;
-				case SEL_TRY_BLACK:
+				case SEL_TRY_FILL:
 					g.setComposite(FADE_COMPOSITE);
 					//$FALL-THROUGH$
-				case TRY_BLACK:
+				case TRY_FILL:
 					g.setColor(Color.BLUE);
 					g.fillRect(x * SIZE + 5, y * SIZE + 5, SIZE - 10, SIZE - 10);
 					break;
-				case SEL_TRY_WHITE:
+				case SEL_TRY_CROSS:
 					g.setComposite(FADE_COMPOSITE);
 					//$FALL-THROUGH$
-				case TRY_WHITE:
+				case TRY_CROSS:
 					g.setColor(Color.BLUE);
 					g.drawLine(x * SIZE + 5, y * SIZE + 5, x * SIZE + SIZE - 5, y * SIZE + SIZE - 5);
 					g.drawLine(x * SIZE + SIZE - 5, y * SIZE + 5, x * SIZE + 5, y * SIZE + SIZE - 5);
@@ -922,10 +922,10 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			if(isWithinGridBounds(lastPress)){
 				switch(e.getButton()){
 				case MouseEvent.BUTTON1:
-					nextType = nextTileState(lastPress.x, lastPress.y, Tile.BLACK);
+					nextType = nextTileState(lastPress.x, lastPress.y, Tile.FILL);
 					break;
 				case MouseEvent.BUTTON3:
-					nextType = nextTileState(lastPress.x, lastPress.y, Tile.WHITE);
+					nextType = nextTileState(lastPress.x, lastPress.y, Tile.CROSS);
 					break;
 				}
 			}
@@ -967,10 +967,10 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	public void keyPressed(KeyEvent e){
 		switch(e.getKeyCode()){
 		case KeyEvent.VK_SPACE:
-			setGridClicked(x, y, Tile.BLACK, true);
+			setGridClicked(x, y, Tile.FILL, true);
 			break;
 		case KeyEvent.VK_SHIFT:
-			setGridClicked(x, y, Tile.WHITE, true);
+			setGridClicked(x, y, Tile.CROSS, true);
 			break;
 		case KeyEvent.VK_W:
 			if(x == -1){
@@ -1045,7 +1045,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		int tx = toGridX(to.x);
 		int ty = toGridY(to.y);
 		
-		if(tx < 0 || tx >= width || ty < 0 || ty >= height || solved || e.isControlDown()){
+		if(!isWithinGridBounds(tx, ty) || solved || e.isControlDown()){
 			dx += to.x - last.x;
 			dy += to.y - last.y;
 		}else{

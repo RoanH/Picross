@@ -10,39 +10,39 @@ public enum Tile{
 	 */
 	EMPTY,
 	/**
-	 * Indicates a white or 'cross' tile.
+	 * Indicates a 'cross' tile.
 	 */
-	WHITE,
+	CROSS,
 	/**
-	 * Indicates a black or 'filled' tile.
+	 * Indicates a 'filled' tile.
 	 */
-	BLACK,
+	FILL,
 	/**
-	 * Indicates a test mode white or 'cross' tile.
+	 * Indicates a test mode 'cross' tile.
 	 */
-	TRY_WHITE,
+	TRY_CROSS,
 	/**
-	 * Indicates a test mode black or 'filled' tile.
+	 * Indicates a test mode 'filled' tile.
 	 */
-	TRY_BLACK,
+	TRY_FILL,
 	SEL_EMPTY,
-	SEL_WHITE,
-	SEL_BLACK,
-	SEL_TRY_WHITE,
-	SEL_TRY_BLACK;
+	SEL_CROSS,
+	SEL_FILL,
+	SEL_TRY_CROSS,
+	SEL_TRY_FILL;
 	
 	public Tile toSelection(){
 		switch(this){
-		case BLACK:
-			return SEL_BLACK;
+		case FILL:
+			return SEL_FILL;
 		case EMPTY:
 			return SEL_EMPTY;
-		case TRY_BLACK:
-			return SEL_TRY_BLACK;
-		case TRY_WHITE:
-			return SEL_TRY_WHITE;
-		case WHITE:
-			return SEL_WHITE;
+		case TRY_FILL:
+			return SEL_TRY_FILL;
+		case TRY_CROSS:
+			return SEL_TRY_CROSS;
+		case CROSS:
+			return SEL_CROSS;
 		default:
 			return this;
 		}
@@ -58,10 +58,10 @@ public enum Tile{
 	 */
 	public Tile toReal(){
 		switch(this){
-		case TRY_BLACK:
-			return BLACK;
-		case TRY_WHITE:
-			return WHITE;
+		case TRY_FILL:
+			return FILL;
+		case TRY_CROSS:
+			return CROSS;
 		default:
 			return this;
 		}
@@ -77,10 +77,10 @@ public enum Tile{
 	 */
 	public Tile toTest(){
 		switch(this){
-		case BLACK:
-			return TRY_BLACK;
-		case WHITE:
-			return TRY_WHITE;
+		case FILL:
+			return TRY_FILL;
+		case CROSS:
+			return TRY_CROSS;
 		default:
 			return this;
 		}
@@ -92,7 +92,7 @@ public enum Tile{
 	 *         false if it is not.
 	 */
 	public boolean isTest(){
-		return this == TRY_BLACK || this == TRY_WHITE;
+		return this == TRY_FILL || this == TRY_CROSS;
 	}
 	
 	public boolean canOverride(Tile replacement){
