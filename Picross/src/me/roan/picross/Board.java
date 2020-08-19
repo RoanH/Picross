@@ -15,6 +15,8 @@ import java.awt.event.KeyListener;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
+import java.awt.event.MouseWheelEvent;
+import java.awt.event.MouseWheelListener;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.function.Function;
@@ -28,7 +30,7 @@ import javax.swing.JPanel;
  * @see Tile
  * @see Seed
  */
-public class Board extends JPanel implements KeyListener, MouseListener, MouseMotionListener{
+public class Board extends JPanel implements KeyListener, MouseListener, MouseMotionListener, MouseWheelListener{
 	/**
 	 * Serial ID.
 	 */
@@ -46,6 +48,10 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 */
 	private static final Color SOLVED_COLOR = Color.GREEN.darker().darker();
 	/**
+	 * Background color for numbers when they start moving with the view.
+	 */
+	private static final Color BACKDROP = new Color(1.0F, 1.0F, 1.0F, 0.8F);
+	/**
 	 * Font to use to draw the hint numbers.
 	 */
 	private static final Font NUMBERS = new Font("Dialog", Font.BOLD, 15);
@@ -53,7 +59,11 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	/**
 	 * Size in pixels of the grid cells.
 	 */
-	public static final int SIZE = 50;
+	private static final int SIZE = 50;
+	/**
+	 * Number of pixels to move by when moving the view.
+	 */
+	private static final int DELTA = 20;
 	/**
 	 * The time at which this board was created.
 	 */
@@ -99,11 +109,11 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	/**
 	 * Grid translation along the x-axis.
 	 */
-	private int dx = 0;
+	private double dx = 0;
 	/**
 	 * Grid translation along the y-axis.
 	 */
-	private int dy = 0;
+	private double dy = 0;
 	/**
 	 * Whether or not the solution is shown.
 	 */
@@ -145,6 +155,10 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	private int hx = -1;
 	private int hy = -1;
 	private Tile nextType = null;
+	/**
+	 * Current zoom level.
+	 */
+	private double zoom = 1.0D;
 	
 	/**
 	 * Constructs a new board from
@@ -158,7 +172,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		this.addMouseListener(this);
 		this.addMouseMotionListener(this);
 		this.addKeyListener(this);
-		this.requestFocus();
+		this.addMouseWheelListener(this);
 		
 		this.seed = seed;
 		random = new Random(seed.seed);
@@ -243,7 +257,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 *         on screen x-coordinate.
 	 */
 	private int toGridX(int px){
-		int lx = px - dx - ((this.getWidth() - width * SIZE) / 2);
+		int lx = (int)((px - dx - ((this.getWidth() - width * SIZE) / 2)) / zoom);
 		return lx < 0 ? -1 : (lx / SIZE);
 	}
 	
@@ -256,7 +270,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 *         on screen y-coordinate.
 	 */
 	private int toGridY(int py){
-		int ly = py - dy - ((this.getHeight() - height * SIZE) / 2);
+		int ly = (int)((py - dy - ((this.getHeight() - height * SIZE) / 2)) / zoom);
 		return ly < 0 ? -1 : (ly / SIZE);
 	}
 	
@@ -290,6 +304,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 				computeJudgement(x, y);
 				checkSolution();
 			}
+			this.repaint();
 		}
 	}
 	
@@ -362,6 +377,118 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	}
 	
 	/**
+	 * Enters test mode.
+	 */
+	public void enterTestMode(){
+		if(!solved){
+			testMode = true;
+			this.repaint();
+		}
+	}
+	
+	/**
+	 * Leaves test mode.
+	 * @param save Whether to save the changes
+	 *        made or to revert them.
+	 */
+	public void leaveTestMode(boolean save){
+		if(testMode){
+			if(save){
+				for(int x = 0; x < width; x++){
+					for(int y = 0; y < height; y++){
+						if(state[x][y].isTest()){
+							state[x][y] = state[x][y].toReal();
+						}
+					}
+				}
+				checkSolution();
+			}else{
+				for(int x = 0; x < width; x++){
+					for(int y = 0; y < height; y++){
+						if(state[x][y].isTest()){
+							state[x][y] = Tile.EMPTY;
+							computeRowJudgement(y);
+						}
+					}
+					computeColJudgement(x);
+				}
+			}
+			testMode = false;
+			this.repaint();
+		}
+	}
+	
+	/**
+	 * Sets whether to show the solution or not.
+	 * @param shown True to show the solution,
+	 *        false to hide it.
+	 */
+	public void showSolution(boolean shown){
+		reveal = shown;
+		this.repaint();
+	}
+	
+	/**
+	 * Changes the current zoom level to the given level.
+	 * @param newZoom The new zoom level.
+	 */
+	public void changeZoom(double newZoom){
+		dx = (((dx - SIZE * (width / 2.0D)) * newZoom) / zoom) + SIZE * (width / 2.0D);
+		dy = (((dy - SIZE * (height / 2.0D)) * newZoom) / zoom) + SIZE * (height / 2.0D);
+		zoom = newZoom;
+		this.repaint();
+	}
+	
+	/**
+	 * Gets the current zoom level.
+	 * @return The current zoom level.
+	 */
+	public double getZoom(){
+		return zoom;
+	}
+	
+	/**
+	 * Moves the view down.
+	 */
+	public void moveViewDown(){
+		dy -= DELTA;
+		this.repaint();
+	}
+	
+	/**
+	 * Moves the view up.
+	 */
+	public void moveViewUp(){
+		dy += DELTA;
+		this.repaint();
+	}
+	
+	/**
+	 * Moves the view right.
+	 */
+	public void moveViewRight(){
+		dx -= DELTA;
+		this.repaint();
+	}
+	
+	/**
+	 * Moves the view left.
+	 */
+	public void moveViewLeft(){
+		dx += DELTA;
+		this.repaint();
+	}
+	
+	/**
+	 * Resets all view translations.
+	 */
+	public void resetTranslation(){
+		dx = 0;
+		dy = 0;
+		this.repaint();
+	}
+	
+	/**
 	 * Resets the board to its initial cleared state.
 	 */
 	public void reset(){
@@ -370,6 +497,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		reveal = false;
 		dx = 0;
 		dy = 0;
+		zoom = 1.0D;
 		solved = false;
 		endTime = -1;
 		startTime = System.currentTimeMillis();
@@ -610,7 +738,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	
 	@Override
 	public Dimension getPreferredSize(){
-		return new Dimension(width * SIZE + dx * 2, height * SIZE + dy + 1);
+		return new Dimension((int)(width * SIZE + dx * 2), (int)(height * SIZE + dy + 1));
 	}
 	
 	@Override
@@ -659,27 +787,29 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		}
 		
 		//origin at the top left corner of the grid
-		g.translate((this.getWidth() - width * SIZE) / 2 + dx, (this.getHeight() - height * SIZE) / 2 + dy);
+		double ox = (this.getWidth() - width * SIZE) / 2.0D + dx;
+		double oy = (this.getHeight() - height * SIZE) / 2.0D + dy;
+		g.translate(ox, oy);
+		g.scale(zoom, zoom);
+		ox /= zoom;
+		oy /= zoom;
 		
 		//grid
 		g.setColor(Color.GRAY);
-		for(int x = 0; x < width; x++){
-			g.fillRect(x * SIZE - 1, 0, 2, height * SIZE);
+		for(int x = 0; x <= width; x++){
+			g.fillRect(x * SIZE - 1, -1, 2, height * SIZE + 2);
 		}
-		for(int y = 0; y < height; y++){
-			g.fillRect(0, y * SIZE - 1, width * SIZE, 2);
+		for(int y = 0; y <= height; y++){
+			g.fillRect(-1, y * SIZE - 1, width * SIZE + 2, 2);
 		}
 		
 		g.setColor(Color.BLACK);
-		g.drawRect(-1, -1, 1, 1);
-		for(int x = 0; x < width; x += 5){
-			g.fillRect(x * SIZE - 1, 0, 2, height * SIZE);
+		for(int x = 0; x <= width; x += 5){
+			g.fillRect(x * SIZE - 1, -1, 2, height * SIZE + 2);
 		}
-		for(int y = 0; y < height; y += 5){
-			g.fillRect(0, y * SIZE - 1, width * SIZE, 2);
+		for(int y = 0; y <= height; y += 5){
+			g.fillRect(-1, y * SIZE - 1, width * SIZE + 2, 2);
 		}
-		g.fillRect(width * SIZE - 1, 0, 2, height * SIZE + 1);
-		g.fillRect(0, height * SIZE - 1, width * SIZE + 1, 2);
 		
 		//cell status
 		for(int x = 0; x < width; x++){
@@ -747,6 +877,12 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		for(int y = 0; y < height; y++){
 			Boolean[] found = rowJudgement[y];
 			int offset = -10;
+			int s = -20 * rowHints[y].length;
+			if(ox < -s){
+				offset -= ox + s;
+				g.setColor(BACKDROP);
+				g.fillRect(offset + s, y * SIZE + 15, -s + 10, SIZE - 30);
+			}
 			for(int i = rowHints[y].length - 1; i >= 0; i--){
 				g.setColor(solved ? SOLVED_COLOR : (found[i] == null ? MISTAKE_COLOR : (found[i] ? Color.GRAY : Color.BLACK)));
 				String str = String.valueOf(rowHints[y][i]);
@@ -759,6 +895,12 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		for(int x = 0; x < width; x++){
 			Boolean[] found = colJudgement[x];
 			int offset = -5;
+			int s = -20 * colHints[x].length;
+			if(oy < -s){
+				offset -= oy + s;
+				g.setColor(BACKDROP);
+				g.fillRect(x * SIZE + 15, offset + s, SIZE - 30, -s + 5);
+			}
 			for(int i = colHints[x].length - 1; i >= 0; i--){
 				g.setColor(solved ? SOLVED_COLOR : (found[i] == null ? MISTAKE_COLOR : (found[i] ? Color.GRAY : Color.BLACK)));
 				String str = String.valueOf(colHints[x][i]);
@@ -775,15 +917,17 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	@Override
 	public void mousePressed(MouseEvent e){
 		last = e.getPoint();
-		lastPress = new Point(toGridX(last.x), toGridY(last.y));
-		if(isWithinGridBounds(lastPress)){
-			switch(e.getButton()){
-			case MouseEvent.BUTTON1:
-				nextType = nextTileState(lastPress.x, lastPress.y, Tile.BLACK);
-				break;
-			case MouseEvent.BUTTON3:
-				nextType = nextTileState(lastPress.x, lastPress.y, Tile.WHITE);
-				break;
+		if(!e.isControlDown()){
+			lastPress = new Point(toGridX(last.x), toGridY(last.y));
+			if(isWithinGridBounds(lastPress)){
+				switch(e.getButton()){
+				case MouseEvent.BUTTON1:
+					nextType = nextTileState(lastPress.x, lastPress.y, Tile.BLACK);
+					break;
+				case MouseEvent.BUTTON3:
+					nextType = nextTileState(lastPress.x, lastPress.y, Tile.WHITE);
+					break;
+				}
 			}
 		}
 	}
@@ -807,11 +951,12 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	}
 
 	@Override
-	public void mouseEntered(MouseEvent e){		
+	public void mouseEntered(MouseEvent e){
+		this.requestFocusInWindow();
 	}
 
 	@Override
-	public void mouseExited(MouseEvent e){		
+	public void mouseExited(MouseEvent e){
 	}
 
 	@Override
@@ -828,78 +973,66 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			setGridClicked(x, y, Tile.WHITE, true);
 			break;
 		case KeyEvent.VK_W:
-		case KeyEvent.VK_UP:
-		case KeyEvent.VK_KP_UP:
 			if(x == -1){
 				x = 0;
 			}else if(y > 0){
 				y--;
 			}
+			this.repaint();
 			break;
 		case KeyEvent.VK_S:
-		case KeyEvent.VK_DOWN:
-		case KeyEvent.VK_KP_DOWN:
 			if(x == -1){
 				x = 0;
 			}else if(y < height - 1){
 				y++;
 			}
+			this.repaint();
 			break;
 		case KeyEvent.VK_D:
-		case KeyEvent.VK_RIGHT:
-		case KeyEvent.VK_KP_RIGHT:
 			if(x == -1){
 				x = 0;
 			}else if(x < width - 1){
 				x++;
 			}
+			this.repaint();
 			break;
 		case KeyEvent.VK_A:
-		case KeyEvent.VK_LEFT:
-		case KeyEvent.VK_KP_LEFT:
 			if(x == -1){
 				x = 0;
 			}else if(x > 0){
 				x--;
 			}
+			this.repaint();
 			break;
 		case KeyEvent.VK_T:
-			if(!solved){
-				testMode = true;
-			}
+			enterTestMode();
 			break;
 		case KeyEvent.VK_R:
-			reveal = !reveal;
+			showSolution(!reveal);
 			break;
 		case KeyEvent.VK_V:
-			if(testMode){
-				for(int x = 0; x < width; x++){
-					for(int y = 0; y < height; y++){
-						if(state[x][y].isTest()){
-							state[x][y] = Tile.EMPTY;
-							computeRowJudgement(y);
-						}
-					}
-					computeColJudgement(x);
-				}
-				testMode = false;
-			}
+			leaveTestMode(false);
 			break;
 		case KeyEvent.VK_C:
-			if(testMode){
-				for(int x = 0; x < width; x++){
-					for(int y = 0; y < height; y++){
-						if(state[x][y].isTest()){
-							state[x][y] = state[x][y].toReal();
-						}
-					}
-				}
-				testMode = false;
-				checkSolution();
-			}
+			leaveTestMode(true);
+			break;
+		case KeyEvent.VK_UP:
+		case KeyEvent.VK_KP_UP:
+			moveViewUp();
+			break;
+		case KeyEvent.VK_LEFT:
+		case KeyEvent.VK_KP_LEFT:
+			moveViewLeft();
+			break;
+		case KeyEvent.VK_RIGHT:
+		case KeyEvent.VK_KP_RIGHT:
+			moveViewRight();
+			break;
+		case KeyEvent.VK_DOWN:
+		case KeyEvent.VK_KP_DOWN:
+			moveViewDown();
 			break;
 		}
-		this.repaint();
 	}
 
 	@Override
@@ -912,7 +1045,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		int tx = toGridX(to.x);
 		int ty = toGridY(to.y);
 		
-		if(tx < 0 || tx > width || ty < 0 || ty > height){
+		if(tx < 0 || tx >= width || ty < 0 || ty >= height || solved || e.isControlDown()){
 			dx += to.x - last.x;
 			dy += to.y - last.y;
 		}else{
@@ -926,5 +1059,10 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 
 	@Override
 	public void mouseMoved(MouseEvent e){		
+	}
+
+	@Override
+	public void mouseWheelMoved(MouseWheelEvent e){
+		changeZoom(Math.max(zoom * (e.getWheelRotation() == -1 ? 1.1D : 0.9), 0.1D));
 	}
 }

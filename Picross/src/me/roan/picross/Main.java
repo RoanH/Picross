@@ -5,9 +5,6 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
-import java.awt.KeyEventDispatcher;
-import java.awt.KeyboardFocusManager;
-import java.awt.event.KeyEvent;
 import java.io.IOException;
 
 import javax.imageio.ImageIO;
@@ -24,8 +21,6 @@ import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.SwingConstants;
 import javax.swing.Timer;
-import javax.swing.UIManager;
-import javax.swing.UnsupportedLookAndFeelException;
 
 import me.roan.util.ClickableLink;
 import me.roan.util.Dialog;
@@ -87,10 +82,7 @@ public class Main{
 	 * Constructs and shows the GUI.
 	 */
 	private static final void showGameGUI(){
-		try{
-			UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-		}catch(ClassNotFoundException | InstantiationException | IllegalAccessException | UnsupportedLookAndFeelException e1){
-		}
+		Util.installUI();
 
 		try{
 			Image img = ImageIO.read(ClassLoader.getSystemResource("icon.png"));
@@ -184,6 +176,20 @@ public class Main{
 			}
 		});
 		
+		JMenuItem showSolution = new JMenuItem("Show solution");
+		showSolution.addActionListener(e->{
+			if(board != null){
+				board.showSolution(true);
+			}
+		});
+		
+		JMenuItem hideSolution = new JMenuItem("Hide solution");
+		hideSolution.addActionListener(e->{
+			if(board != null){
+				board.showSolution(false);
+			}
+		});
+		
 		game.add(fromRandom);
 		//game.add(fromImage);
 		game.add(fromSeed);
@@ -192,9 +198,110 @@ public class Main{
 		game.add(quickB);
 		game.add(quickC);
 		game.addSeparator();
+		game.add(showSolution);
+		game.add(hideSolution);
+		game.addSeparator();
 		game.add(reset);
 		
+		JMenu testMode = new JMenu("Test mode");
+		
+		JMenuItem enterTest = new JMenuItem("Enter test mode");
+		enterTest.addActionListener(e->{
+			if(board != null){
+				board.enterTestMode();
+			}
+		});
+		
+		JMenuItem leaveTestSave = new JMenuItem("Leave & save changes");
+		leaveTestSave.addActionListener(e->{
+			if(board != null){
+				board.leaveTestMode(true);
+			}
+		});
+		
+		JMenuItem leaveTestUndo = new JMenuItem("Leave & undo changes");
+		leaveTestUndo.addActionListener(e->{
+			if(board != null){
+				board.leaveTestMode(false);
+			}
+		});
+		
+		testMode.add(enterTest);
+		testMode.addSeparator();
+		testMode.add(leaveTestSave);
+		testMode.add(leaveTestUndo);
+		
+		JMenu view = new JMenu("View");
+
+		JMenuItem zoomIn = new JMenuItem("Zoom in");
+		zoomIn.addActionListener(e->{
+			if(board != null){
+				board.changeZoom(board.getZoom() * 1.25D);
+			}
+		});
+
+		JMenuItem zoomOut = new JMenuItem("Zoom out");
+		zoomOut.addActionListener(e->{
+			if(board != null){
+				board.changeZoom(Math.max(0.1D, board.getZoom() * 0.75D));
+			}
+		});
+
+		JMenuItem zoomReset = new JMenuItem("Reset zoom");
+		zoomReset.addActionListener(e->{
+			if(board != null){
+				board.changeZoom(1.0D);
+			}
+		});
+
+		JMenuItem moveUp = new JMenuItem("Move view up");
+		moveUp.addActionListener(e->{
+			if(board != null){
+				board.moveViewUp();
+			}
+		});
+
+		JMenuItem moveDown = new JMenuItem("Move view down");
+		moveDown.addActionListener(e->{
+			if(board != null){
+				board.moveViewDown();
+			}
+		});
+
+		JMenuItem moveLeft = new JMenuItem("Move view left");
+		moveLeft.addActionListener(e->{
+			if(board != null){
+				board.moveViewLeft();
+			}
+		});
+
+		JMenuItem moveRight = new JMenuItem("Move view right");
+		moveRight.addActionListener(e->{
+			if(board != null){
+				board.moveViewRight();
+			}
+		});
+
+		JMenuItem moveReset = new JMenuItem("Reset translations");
+		moveReset.addActionListener(e->{
+			if(board != null){
+				board.resetTranslation();
+			}
+		});
+		
+		view.add(zoomIn);
+		view.add(zoomOut);
+		view.add(zoomReset);
+		view.addSeparator();
+		view.add(moveUp);
+		view.add(moveDown);
+		view.add(moveLeft);
+		view.add(moveRight);
+		view.add(moveReset);
+		
 		bar.add(game);
+		bar.add(view);
+		bar.add(testMode);
 		bar.add(help);
 		
 		frame.setJMenuBar(bar);
@@ -210,7 +317,7 @@ public class Main{
 		
 		JPanel footer = new JPanel(new GridLayout(1, 2));
 		footer.setBorder(BorderFactory.createEmptyBorder(0, 2, 0, 2));
-		footer.add(Util.getVersionLabel("Picross", "v1.1", false, SwingConstants.LEFT));//XXX Version number - don't forget build.gradle
+		footer.add(Util.getVersionLabel("Picross", "v1.2", false, SwingConstants.LEFT));//XXX Version number - don't forget build.gradle
 		JLabel git = new JLabel("<html><font color=blue><u>GitHub</u></font></html>", SwingConstants.RIGHT);
 		git.addMouseListener(new ClickableLink("https://github.com/RoanH/Picross"));
 		footer.add(git);
@@ -223,26 +330,6 @@ public class Main{
 		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
-		
-		KeyboardFocusManager.getCurrentKeyboardFocusManager().addKeyEventDispatcher(new KeyEventDispatcher(){
-			@Override
-			public boolean dispatchKeyEvent(KeyEvent e){
-				if(board != null){
-					switch(e.getID()){
-					case KeyEvent.KEY_PRESSED:
-						board.keyPressed(e);
-						break;
-					case KeyEvent.KEY_RELEASED:
-						board.keyReleased(e);
-						break;
-					case KeyEvent.KEY_TYPED:
-						board.keyTyped(e);
-						break;
-					}
-				}
-				return false;
-			}
-		});
 	}
 	
 	/**
@@ -299,16 +386,27 @@ public class Main{
 			+ "- Left click a filled tile to empty it<br>"
 			+ "- Right click a cross to remove it<br><br>"
 			+ "<b>Keyboard:</b><br>"
-			+ "- W or arrow up to move up<br>"
-			+ "- S or arrow down to move down<br>"
-			+ "- A or arrow left to move left<br>"
-			+ "- D or arrow right to move right<br>"
+			+ "- W to move up<br>"
+			+ "- S to move down<br>"
+			+ "- A to move left<br>"
+			+ "- D to move right<br>"
 			+ "- Space bar to fill a tile<br>"
 			+ "- Shift to place a cross<br>"
 			+ "- Press space bar on a filled tile to empty it<br>"
 			+ "- Press shift on a cross to remove it<html>"
 		);
 		controls.setBorder(BorderFactory.createTitledBorder("Playing"));
+		
+		JLabel moving = new JLabel(
+			"<html>"
+			+ "- Up arrow to move the view up (and board down)<br>"
+			+ "- Down arrow to move the view down (and board up)<br>"
+			+ "- Right arrow to move the view right (and board left)<br>"
+			+ "- Left arrow to move the view left (and board right)<br>"
+			+ "- Mouse scroll wheel to zoom in and out<br>"
+			+ "- You can drag the game around with the mouse if you click and hold outside the grid or also hold down Ctrl<html>"
+		);
+		moving.setBorder(BorderFactory.createTitledBorder("Moving"));
 		
 		JLabel test = new JLabel(
 			"<html>"
@@ -324,16 +422,10 @@ public class Main{
 		);
 		check.setBorder(BorderFactory.createTitledBorder("Check"));
 		
-		JLabel other = new JLabel(
-			"<html>"
-			+ "- You can drag the game around with the mouse if you click and hold outside the grid (useful if numbers are offscreen)"
-		);
-		other.setBorder(BorderFactory.createTitledBorder("Other"));
-		
 		help.add(controls);
+		help.add(moving);
 		help.add(test);
 		help.add(check);
-		help.add(other);
 		
 		Dialog.showMessageDialog(help);
 	}
