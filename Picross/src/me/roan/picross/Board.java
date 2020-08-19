@@ -55,6 +55,9 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * Font to use to draw the hint numbers.
 	 */
 	private static final Font NUMBERS = new Font("Dialog", Font.BOLD, 15);
+	/**
+	 * Composite to draw area actions with.
+	 */
 	private static final Composite FADE_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.2F);
 	/**
 	 * Size in pixels of the grid cells.
@@ -152,8 +155,19 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * Whether or not this puzzle is currently solved.
 	 */
 	private boolean solved = false;
+	/**
+	 * Additional tiles selected on the x-axis
+	 * for the currently selected area.
+	 */
 	private int hx = 0;
+	/**
+	 * Additional tiles selected on the y-axis
+	 * for the currently selected area.
+	 */
 	private int hy = 0;
+	/**
+	 * The type of tile to place when the mouse is released.
+	 */
 	private Tile nextType = null;
 	/**
 	 * Current zoom level.
@@ -214,7 +228,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	
 	/**
 	 * Returns whether this board is solved.
-	 * @return True if this board is sovled,
+	 * @return True if this board is solved,
 	 *         false if it is not.
 	 */
 	public boolean isSolved(){
@@ -274,21 +288,12 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		return ly < 0 ? -1 : (ly / SIZE);
 	}
 	
-	private boolean isSelected(int x, int y){
-		if(lastPress != null){
-			int mx = Math.min(lastPress.x, lastPress.x + hx);
-			int my = Math.min(lastPress.y, lastPress.y + hy);
-			return x >= mx && x <= mx + Math.abs(hx) && y >= my && y <= my + Math.abs(hy);
-		}else{
-			return false;
-		}
-	}
-	
 	/**
 	 * Computes the new state for the given clicked tile.
 	 * @param x The x-coordinate for the tile that was clicked.
 	 * @param y The y-coordinate for the tile that was clicked.
 	 * @param newState The new state for the tile that was clicked.
+	 * @param toggle True to toggle the state, false to override the state.
 	 */
 	public void setGridClicked(int x, int y, Tile newState, boolean toggle){
 		if(x >= 0 && y >= 0 && x < width && y < height && !solved){
@@ -704,6 +709,17 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		}
 	}
 	
+	/**
+	 * Gets the state of the tile at the given coordinates.
+	 * Usually this is the actual state on the board of the
+	 * tile. However when the given tile is part of the currently
+	 * selected area this reflected the state the tile will
+	 * change to when the area is realised.
+	 * @param x The x coordinate of the tile to get.
+	 * @param y The y coordinate of the tile to get.
+	 * @return The state of the requested tile.
+	 * @see Tile
+	 */
 	private Tile getState(int x, int y){
 		if(lastPress != null && !solved){
 			int mx = Math.min(lastPress.x, lastPress.x + hx);
@@ -717,6 +733,18 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		return state[x][y];
 	}
 	
+	/**
+	 * Gets the next tile stage for the tile at the given
+	 * location given a specific base action. Typically the
+	 * returned tile will either be the provided base tile or
+	 * the test mode variant of the base tile. If the given
+	 * grid cell is currently not empty the returned tile
+	 * will be empty.
+	 * @param x The x coordinate of the tile to check.
+	 * @param y The y coordinate of the tile to check.
+	 * @param base The base tile action.
+	 * @return The next tile state for the requested tile.
+	 */
 	private Tile nextTileState(int x, int y, Tile base){
 		Tile current = state[x][y];
 		if(current == Tile.EMPTY){
@@ -728,10 +756,23 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		}
 	}
 	
+	/**
+	 * Checks if the grid cell denoted by the given
+	 * point is within the bounds of the grid.
+	 * @param p The point to check.
+	 * @return True if the point is within the game grid.
+	 */
 	private boolean isWithinGridBounds(Point p){
 		return isWithinGridBounds(p.x, p.y);
 	}
 	
+	/**
+	 * Checks if the cell denoted by the given
+	 * coordinates is within the bounds of the grid.
+	 * @param x The x coordinate.
+	 * @param y The y coordinate.
+	 * @return True if the point is within the game grid.
+	 */
 	private boolean isWithinGridBounds(int x, int y){
 		return x >= 0 && y >=0 && x < width && y < height;
 	}
