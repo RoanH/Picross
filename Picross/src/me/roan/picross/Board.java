@@ -169,6 +169,9 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * The type of tile to place when the mouse is released.
 	 */
 	private Tile nextType = null;
+	/**
+	 * Current tile type of the tile an area selection was started from.
+	 */
 	private Tile baseType = null;
 	/**
 	 * Current zoom level.
@@ -309,6 +312,13 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		}
 	}
 	
+	/**
+	 * Sets the new state for the tile at the
+	 * given coordinates based on the current game state.
+	 * @param x The x-coordinate for the tile.
+	 * @param y The y-coordinate for the tile.
+	 * @param newState The new state to change to.
+	 */
 	public void setNextState(int x, int y, Tile newState){
 		Tile nextState = nextTileState(x, y, newState);
 		if(state[x][y].canOverride(nextState, testMode, state[x][y])){
@@ -997,6 +1007,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 					nextType = nextTileState(lastPress.x, lastPress.y, Tile.CROSS);
 					break;
 				}
+			}else{
+				lastPress = null;
 			}
 		}
 	}
@@ -1013,6 +1025,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 					}
 				}
 			}
+			nextType = null;
+			baseType = null;
 		}
 		
 		this.repaint();
@@ -1118,7 +1132,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		int ty = toGridY(to.y);
 		
 		if(!isWithinGridBounds(tx, ty) || solved || e.isControlDown()){
-			if(isWithinBounds(last) && !e.isControlDown() && !solved){
+			if(last == null || (isWithinBounds(last) && !e.isControlDown() && !solved)){
 				return;
 			}
 			dx += to.x - last.x;
