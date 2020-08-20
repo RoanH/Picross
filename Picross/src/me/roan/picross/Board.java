@@ -294,20 +294,27 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * @param x The x-coordinate for the tile that was clicked.
 	 * @param y The y-coordinate for the tile that was clicked.
 	 * @param newState The new state for the tile that was clicked.
-	 * @param toggle True to toggle the state, false to override the state.
 	 */
-	public void setGridClicked(int x, int y, Tile newState, boolean toggle){
-		if(x >= 0 && y >= 0 && x < width && y < height && !solved){
-			Tile old = state[x][y];
+	public void setGridClicked(int x, int y, Tile newState){
+		if(isWithinGridBounds(x, y) && !solved){
 			if(testMode){
-				if(state[x][y] == Tile.EMPTY || state[x][y].isTest()){
-					newState = newState.toTest();
-					state[x][y] = (old == newState && toggle) ? Tile.EMPTY : newState;
-					computeJudgement(x, y);
-				}
-			}else{
-				state[x][y] = (old == newState && toggle) ? Tile.EMPTY : newState;
+				state[x][y] = newState.toTest();
 				computeJudgement(x, y);
+			}else{
+				state[x][y] = newState;
+				computeJudgement(x, y);
+				checkSolution();
+			}
+			this.repaint();
+		}
+	}
+	
+	public void setNextState(int x, int y, Tile newState){
+		Tile nextState = nextTileState(x, y, newState);
+		if(state[x][y].canOverride(nextState, testMode, state[x][y])){
+			state[x][y] = nextState;
+			computeJudgement(x, y);
+			if(!testMode){
 				checkSolution();
 			}
 			this.repaint();
@@ -978,8 +985,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	@Override
 	public void mousePressed(MouseEvent e){
 		last = e.getPoint();
-		lastPress = new Point(toGridX(last.x), toGridY(last.y));
 		if(!e.isControlDown()){
+			lastPress = new Point(toGridX(last.x), toGridY(last.y));
 			if(isWithinGridBounds(lastPress)){
 				baseType = state[lastPress.x][lastPress.y];
 				switch(e.getButton()){
@@ -1002,7 +1009,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			for(int x = mx; x <= mx + Math.abs(hx); x++){
 				for(int y = my; y <= my + Math.abs(hy); y++){
 					if(state[x][y].canOverride(nextType, testMode, baseType)){
-						setGridClicked(x, y, nextType, false);
+						setGridClicked(x, y, nextType);
 					}
 				}
 			}
@@ -1032,10 +1039,10 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	public void keyPressed(KeyEvent e){
 		switch(e.getKeyCode()){
 		case KeyEvent.VK_SPACE:
-			setGridClicked(x, y, Tile.FILL, true);
+			setNextState(x, y, Tile.FILL);
 			break;
 		case KeyEvent.VK_SHIFT:
-			setGridClicked(x, y, Tile.CROSS, true);
+			setNextState(x, y, Tile.CROSS);
 			break;
 		case KeyEvent.VK_W:
 			if(x == -1){
@@ -1116,7 +1123,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			}
 			dx += to.x - last.x;
 			dy += to.y - last.y;
-		}else{
+		}else if(lastPress != null){
 			hx = tx - lastPress.x;
 			hy = ty - lastPress.y;
 		}
