@@ -10,21 +10,67 @@ public enum Tile{
 	 */
 	EMPTY,
 	/**
-	 * Indicates a white or 'cross' tile.
+	 * Indicates a 'cross' tile.
 	 */
-	WHITE,
+	CROSS,
 	/**
-	 * Indicates a black or 'filled' tile.
+	 * Indicates a 'filled' tile.
 	 */
-	BLACK,
+	FILL,
 	/**
-	 * Indicates a test mode white or 'cross' tile.
+	 * Indicates a test mode 'cross' tile.
 	 */
-	TRY_WHITE,
+	TRY_CROSS,
 	/**
-	 * Indicates a test mode black or 'filled' tile.
+	 * Indicates a test mode 'filled' tile.
 	 */
-	TRY_BLACK;
+	TRY_FILL,
+	/**
+	 * Indicates an area selection tile that will transition
+	 * towards the {@link #EMPTY} state.
+	 */
+	SEL_EMPTY,
+	/**
+	 * Indicates an area selection tile that will transition
+	 * towards the {@link #CROSS} state.
+	 */
+	SEL_CROSS,
+	/**
+	 * Indicates an area selection tile that will transition
+	 * towards the {@link #FILL} state.
+	 */
+	SEL_FILL,
+	/**
+	 * Indicates an area selection tile that will transition
+	 * towards the {@link #TRY_CROSS} state.
+	 */
+	SEL_TRY_CROSS,
+	/**
+	 * Indicates an area selection tile that will transition
+	 * towards the {@link #TRY_FILL} state.
+	 */
+	SEL_TRY_FILL;
+	
+	/**
+	 * Gets the area selection variant of this tile.
+	 * @return The area selection variant of this tile.
+	 */
+	public Tile toSelection(){
+		switch(this){
+		case FILL:
+			return SEL_FILL;
+		case EMPTY:
+			return SEL_EMPTY;
+		case TRY_FILL:
+			return SEL_TRY_FILL;
+		case TRY_CROSS:
+			return SEL_TRY_CROSS;
+		case CROSS:
+			return SEL_CROSS;
+		default:
+			return this;
+		}
+	}
 	
 	/**
 	 * Converts this tile to it's non-test
@@ -36,10 +82,10 @@ public enum Tile{
 	 */
 	public Tile toReal(){
 		switch(this){
-		case TRY_BLACK:
-			return BLACK;
-		case TRY_WHITE:
-			return WHITE;
+		case TRY_FILL:
+			return FILL;
+		case TRY_CROSS:
+			return CROSS;
 		default:
 			return this;
 		}
@@ -55,10 +101,10 @@ public enum Tile{
 	 */
 	public Tile toTest(){
 		switch(this){
-		case BLACK:
-			return TRY_BLACK;
-		case WHITE:
-			return TRY_WHITE;
+		case FILL:
+			return TRY_FILL;
+		case CROSS:
+			return TRY_CROSS;
 		default:
 			return this;
 		}
@@ -70,6 +116,33 @@ public enum Tile{
 	 *         false if it is not.
 	 */
 	public boolean isTest(){
-		return this == TRY_BLACK || this == TRY_WHITE;
+		return this == TRY_FILL || this == TRY_CROSS;
+	}
+	
+	/**
+	 * Returns if this tile is a non test mode tile.
+	 * @return True if this tile is not a test mode tile.
+	 */
+	public boolean isReal(){
+		return this == FILL || this == CROSS;
+	}
+	
+	/**
+	 * Check to see if the given tile can replace this tile.
+	 * @param replacement The replacement tile.
+	 * @param testMode Whether test mode is enabled or not.
+	 * @param base The type of the tile was initially clicked.
+	 * @return True if the given replacement tile can override this tile.
+	 */
+	public boolean canOverride(Tile replacement, boolean testMode, Tile base){
+		if((testMode && this.isReal()) || this == replacement){
+			return false;
+		}else{
+			if(replacement == EMPTY){
+				return (!testMode && this.isReal()) || this.isTest();
+			}else{
+				return this == base || this == EMPTY;
+			}
+		}
 	}
 }

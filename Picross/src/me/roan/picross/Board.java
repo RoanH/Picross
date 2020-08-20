@@ -1,6 +1,8 @@
 package me.roan.picross;
 
+import java.awt.AlphaComposite;
 import java.awt.Color;
+import java.awt.Composite;
 import java.awt.Dimension;
 import java.awt.Font;
 import java.awt.FontMetrics;
@@ -53,6 +55,10 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * Font to use to draw the hint numbers.
 	 */
 	private static final Font NUMBERS = new Font("Dialog", Font.BOLD, 15);
+	/**
+	 * Composite to draw area actions with.
+	 */
+	private static final Composite FADE_COMPOSITE = AlphaComposite.getInstance(AlphaComposite.SRC_OVER, 0.2F);
 	/**
 	 * Size in pixels of the grid cells.
 	 */
@@ -120,9 +126,13 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 */
 	private boolean testMode = false;
 	/**
-	 * Last click or drag location.
+	 * Last drag location.
 	 */
 	private Point last;
+	/**
+	 * Last click location.
+	 */
+	private Point lastPress;
 	/**
 	 * x-coordinate of the currently selected grid cell.
 	 * Will be <code>-1</code> if the users is not playing
@@ -145,6 +155,24 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * Whether or not this puzzle is currently solved.
 	 */
 	private boolean solved = false;
+	/**
+	 * Additional tiles selected on the x-axis
+	 * for the currently selected area.
+	 */
+	private int hx = 0;
+	/**
+	 * Additional tiles selected on the y-axis
+	 * for the currently selected area.
+	 */
+	private int hy = 0;
+	/**
+	 * The type of tile to place when the mouse is released.
+	 */
+	private Tile nextType = null;
+	/**
+	 * Current tile type of the tile an area selection was started from.
+	 */
+	private Tile baseType = null;
 	/**
 	 * Current zoom level.
 	 */
@@ -204,7 +232,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	
 	/**
 	 * Returns whether this board is solved.
-	 * @return True if this board is sovled,
+	 * @return True if this board is solved,
 	 *         false if it is not.
 	 */
 	public boolean isSolved(){
@@ -266,32 +294,37 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	
 	/**
 	 * Computes the new state for the given clicked tile.
-	 * @param px The on screen x-coordinate for the tile that was clicked.
-	 * @param py The on screen y-coordinate for the tile that was clicked.
-	 * @param newState The new state for the tile that was clicked.
-	 */
-	public void setClicked(int px, int py, Tile newState){
-		setGridClicked(toGridX(px), toGridY(py), newState);
-	}
-	
-	/**
-	 * Computes the new state for the given clicked tile.
 	 * @param x The x-coordinate for the tile that was clicked.
 	 * @param y The y-coordinate for the tile that was clicked.
 	 * @param newState The new state for the tile that was clicked.
 	 */
 	public void setGridClicked(int x, int y, Tile newState){
-		if(x >= 0 && y >= 0 && x < width && y < height && !solved){
-			Tile old = state[x][y];
+		if(isWithinGridBounds(x, y) && !solved){
 			if(testMode){
-				if(state[x][y] == Tile.EMPTY || state[x][y].isTest()){
-					newState = newState.toTest();
-					state[x][y] = (old == newState) ? Tile.EMPTY : newState;
-					computeJudgement(x, y);
-				}
-			}else{
-				state[x][y] = (old == newState) ? Tile.EMPTY : newState;
+				state[x][y] = newState.toTest();
 				computeJudgement(x, y);
+			}else{
+				state[x][y] = newState;
+				computeJudgement(x, y);
+				checkSolution();
+			}
+			this.repaint();
+		}
+	}
+	
+	/**
+	 * Sets the new state for the tile at the
+	 * given coordinates based on the current game state.
+	 * @param x The x-coordinate for the tile.
+	 * @param y The y-coordinate for the tile.
+	 * @param newState The new state to change to.
+	 */
+	public void setNextState(int x, int y, Tile newState){
+		Tile nextState = nextTileState(x, y, newState);
+		if(state[x][y].canOverride(nextState, testMode, state[x][y])){
+			state[x][y] = nextState;
+			computeJudgement(x, y);
+			if(!testMode){
 				checkSolution();
 			}
 			this.repaint();
@@ -323,8 +356,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * with final solution tiles. Final solution
 	 * tiles are non-empty and non-test mode tiles.
 	 * This means that the entire board has to be
-	 * filled with {@link Tile#BLACK} and
-	 * {@link Tile#WHITE} tiles.
+	 * filled with {@link Tile#FILL} and
+	 * {@link Tile#CROSS} tiles.
 	 * @return Whether or not the entire grid is filled.
 	 * @see Tile
 	 */
@@ -652,17 +685,17 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			}
 			
 			//if the current tile is filled
-			boolean black = (state.apply(x) == Tile.BLACK) || (state.apply(x) == Tile.TRY_BLACK);
+			boolean filled = (state.apply(x) == Tile.FILL) || (state.apply(x) == Tile.TRY_FILL);
 			//if we're at the end of a search
 			boolean end = (x == 0 && dir == -1) || (x == max - 1 && dir == 1);
 			
 			//increment chain length
-			if(black){
+			if(filled){
 				f++;
 			}
 			
-			//if we hit the end or are on a white tile
-			if(state.apply(x) == Tile.WHITE || state.apply(x) == Tile.TRY_WHITE || end){
+			//if we hit the end or are on a cross tile
+			if(state.apply(x) == Tile.CROSS || state.apply(x) == Tile.TRY_CROSS || end){
 				if(f != 0){
 					//too many chains found
 					if((h < 0 || h >= result.length)){
@@ -694,6 +727,84 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		}
 	}
 	
+	/**
+	 * Gets the state of the tile at the given coordinates.
+	 * Usually this is the actual state on the board of the
+	 * tile. However when the given tile is part of the currently
+	 * selected area this reflected the state the tile will
+	 * change to when the area is realised.
+	 * @param x The x coordinate of the tile to get.
+	 * @param y The y coordinate of the tile to get.
+	 * @return The state of the requested tile.
+	 * @see Tile
+	 */
+	private Tile getState(int x, int y){
+		if(lastPress != null && !solved){
+			int mx = Math.min(lastPress.x, lastPress.x + hx);
+			int my = Math.min(lastPress.y, lastPress.y + hy);
+			if(x >= mx && x <= mx + Math.abs(hx) && y >= my && y <= my + Math.abs(hy)){
+				if(state[x][y].canOverride(nextType, testMode, baseType)){
+					return nextType.toSelection();
+				}
+			}
+		}
+		return state[x][y];
+	}
+	
+	/**
+	 * Gets the next tile stage for the tile at the given
+	 * location given a specific base action. Typically the
+	 * returned tile will either be the provided base tile or
+	 * the test mode variant of the base tile. If the given
+	 * grid cell is currently not empty the returned tile
+	 * will be empty.
+	 * @param x The x coordinate of the tile to check.
+	 * @param y The y coordinate of the tile to check.
+	 * @param base The base tile action.
+	 * @return The next tile state for the requested tile.
+	 */
+	private Tile nextTileState(int x, int y, Tile base){
+		Tile current = state[x][y];
+		if(current == Tile.EMPTY){
+			return testMode ? base.toTest() : base;
+		}else if(testMode){
+			return current == base.toTest() ? Tile.EMPTY : base.toTest();
+		}else{
+			return current == base ? Tile.EMPTY : base;
+		}
+	}
+	
+	/**
+	 * Checks if the given on screen coordinate is within
+	 * the game grid.
+	 * @param p The point to check.
+	 * @return True if the point is within the game grid.
+	 */
+	private boolean isWithinBounds(Point p){
+		return isWithinGridBounds(toGridX(p.x), toGridY(p.y));
+	}
+	
+	/**
+	 * Checks if the grid cell denoted by the given
+	 * point is within the bounds of the grid.
+	 * @param p The point to check.
+	 * @return True if the point is within the game grid.
+	 */
+	private boolean isWithinGridBounds(Point p){
+		return isWithinGridBounds(p.x, p.y);
+	}
+	
+	/**
+	 * Checks if the cell denoted by the given
+	 * coordinates is within the bounds of the grid.
+	 * @param x The x coordinate.
+	 * @param y The y coordinate.
+	 * @return True if the point is within the game grid.
+	 */
+	private boolean isWithinGridBounds(int x, int y){
+		return x >= 0 && y >= 0 && x < width && y < height;
+	}
+	
 	@Override
 	public Dimension getPreferredSize(){
 		return new Dimension((int)(width * SIZE + dx * 2), (int)(height * SIZE + dy + 1));
@@ -715,33 +826,33 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		}
 		
 		FontMetrics fm = g.getFontMetrics();
-		int black = getTileCount(Tile.BLACK);
-		int tryBlack = getTileCount(Tile.TRY_BLACK);
-		int white = getTileCount(Tile.WHITE);
-		int tryWhite = getTileCount(Tile.TRY_WHITE);
+		int filled = getTileCount(Tile.FILL);
+		int tryFill = getTileCount(Tile.TRY_FILL);
+		int crossed = getTileCount(Tile.CROSS);
+		int tryCross = getTileCount(Tile.TRY_CROSS);
 		
 		g.setColor(Color.BLACK);
-		String line = " Filled: " + black;
+		String line = " Filled: " + filled;
 		g.drawString(line, 0, 30);
 		if(testMode){
 			g.setColor(TEST_MODE_COLOR);
-			g.drawString(" (+" + tryBlack + ")", fm.stringWidth(line), 30);
+			g.drawString(" (+" + tryFill + ")", fm.stringWidth(line), 30);
 		}
 		
 		g.setColor(Color.BLACK);
-		line = " Crossed: " + white;
+		line = " Crossed: " + crossed;
 		g.drawString(line, 0, 45);
 		if(testMode){
 			g.setColor(TEST_MODE_COLOR);
-			g.drawString(" (+" + tryWhite + ")", fm.stringWidth(line), 45);
+			g.drawString(" (+" + tryCross + ")", fm.stringWidth(line), 45);
 		}
 		
 		g.setColor(Color.BLACK);
-		line = String.format(" Done: %1$.2f%%", (100.0D * (black + white)) / getTileCount());
+		line = String.format(" Done: %1$.2f%%", (100.0D * (filled + crossed)) / getTileCount());
 		g.drawString(line, 0, 60);
 		if(testMode){
 			g.setColor(TEST_MODE_COLOR);
-			g.drawString(String.format(" (+%1$.2f%%)", (100.0D * (tryBlack + tryWhite)) / getTileCount()), fm.stringWidth(line), 60);
+			g.drawString(String.format(" (+%1$.2f%%)", (100.0D * (tryFill + tryCross)) / getTileCount()), fm.stringWidth(line), 60);
 		}
 		
 		//origin at the top left corner of the grid
@@ -772,34 +883,64 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		//cell status
 		for(int x = 0; x < width; x++){
 			for(int y = 0; y < height; y++){
-				switch(state[x][y]){
-				case BLACK:
+				Tile currentState = getState(x, y);
+				Composite comp = g.getComposite();
+				if(currentState == Tile.SEL_EMPTY){
+					g.setComposite(FADE_COMPOSITE);
+					currentState = state[x][y];
+				}
+				
+				switch(currentState){
+				case SEL_FILL:
+					g.setComposite(FADE_COMPOSITE);
+					//$FALL-THROUGH$
+				case FILL:
 					g.setColor(Color.BLACK);
 					g.fillRect(x * SIZE + 5, y * SIZE + 5, SIZE - 10, SIZE - 10);
 					break;
-				case WHITE:
+				case SEL_CROSS:
+					g.setComposite(FADE_COMPOSITE);
+					//$FALL-THROUGH$
+				case CROSS:
 					g.setColor(Color.BLACK);
 					g.drawLine(x * SIZE + 5, y * SIZE + 5, x * SIZE + SIZE - 5, y * SIZE + SIZE - 5);
 					g.drawLine(x * SIZE + SIZE - 5, y * SIZE + 5, x * SIZE + 5, y * SIZE + SIZE - 5);
 					break;
-				case EMPTY:
-					break;
-				case TRY_BLACK:
+				case SEL_TRY_FILL:
+					g.setComposite(FADE_COMPOSITE);
+					//$FALL-THROUGH$
+				case TRY_FILL:
 					g.setColor(Color.BLUE);
 					g.fillRect(x * SIZE + 5, y * SIZE + 5, SIZE - 10, SIZE - 10);
 					break;
-				case TRY_WHITE:
+				case SEL_TRY_CROSS:
+					g.setComposite(FADE_COMPOSITE);
+					//$FALL-THROUGH$
+				case TRY_CROSS:
 					g.setColor(Color.BLUE);
 					g.drawLine(x * SIZE + 5, y * SIZE + 5, x * SIZE + SIZE - 5, y * SIZE + SIZE - 5);
 					g.drawLine(x * SIZE + SIZE - 5, y * SIZE + 5, x * SIZE + 5, y * SIZE + SIZE - 5);
+					break;
+				default:
 					break;
 				}
-
+				
+				g.setComposite(comp);
+				
 				if(reveal && solution[x][y]){
 					g.setColor(Color.RED);
 					g.fillRect(x * SIZE + 15, y * SIZE + 15, 20, 20);
 				}
 			}
+		}
+		
+		if(hx != 0 || hy != 0){
+			g.setColor(Color.BLACK);
+			g.drawString(
+				(Math.abs(hx) + 1) + " x " + (Math.abs(hy) + 1),
+				Math.min(lastPress.x, lastPress.x + hx) * SIZE + 5,
+				Math.min(lastPress.y, lastPress.y + hy) * SIZE + g.getFontMetrics().getHeight()
+			);
 		}
 		
 		if(x != -1){
@@ -853,23 +994,46 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 
 	@Override
 	public void mousePressed(MouseEvent e){
-		if(!e.isControlDown()){
-			switch(e.getButton()){
-			case MouseEvent.BUTTON1:
-				setClicked(e.getX(), e.getY(), Tile.BLACK);
-				break;
-			case MouseEvent.BUTTON3:
-				setClicked(e.getX(), e.getY(), Tile.WHITE);
-				break;
-			}
-			this.repaint();
-		}
 		last = e.getPoint();
+		if(!e.isControlDown()){
+			lastPress = new Point(toGridX(last.x), toGridY(last.y));
+			if(isWithinGridBounds(lastPress)){
+				baseType = state[lastPress.x][lastPress.y];
+				switch(e.getButton()){
+				case MouseEvent.BUTTON1:
+					nextType = nextTileState(lastPress.x, lastPress.y, Tile.FILL);
+					break;
+				case MouseEvent.BUTTON3:
+					nextType = nextTileState(lastPress.x, lastPress.y, Tile.CROSS);
+					break;
+				}
+			}else{
+				lastPress = null;
+			}
+		}
 	}
 
 	@Override
 	public void mouseReleased(MouseEvent e){
+		if(lastPress != null){
+			int mx = Math.min(lastPress.x, lastPress.x + hx);
+			int my = Math.min(lastPress.y, lastPress.y + hy);
+			for(int x = mx; x <= mx + Math.abs(hx); x++){
+				for(int y = my; y <= my + Math.abs(hy); y++){
+					if(state[x][y].canOverride(nextType, testMode, baseType)){
+						setGridClicked(x, y, nextType);
+					}
+				}
+			}
+			nextType = null;
+			baseType = null;
+		}
 		
+		this.repaint();
+		lastPress = null;
+		last = null;
+		hx = 0;
+		hy = 0;
 	}
 
 	@Override
@@ -889,10 +1053,10 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	public void keyPressed(KeyEvent e){
 		switch(e.getKeyCode()){
 		case KeyEvent.VK_SPACE:
-			setGridClicked(x, y, Tile.BLACK);
+			setNextState(x, y, Tile.FILL);
 			break;
 		case KeyEvent.VK_SHIFT:
-			setGridClicked(x, y, Tile.WHITE);
+			setNextState(x, y, Tile.CROSS);
 			break;
 		case KeyEvent.VK_W:
 			if(x == -1){
@@ -967,9 +1131,15 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		int tx = toGridX(to.x);
 		int ty = toGridY(to.y);
 		
-		if(tx < 0 || tx >= width || ty < 0 || ty >= height || solved || e.isControlDown()){
+		if(!isWithinGridBounds(tx, ty) || solved || e.isControlDown()){
+			if(last == null || (isWithinBounds(last) && !e.isControlDown() && !solved)){
+				return;
+			}
 			dx += to.x - last.x;
 			dy += to.y - last.y;
+		}else if(lastPress != null){
+			hx = tx - lastPress.x;
+			hy = ty - lastPress.y;
 		}
 		
 		last = to;
