@@ -169,6 +169,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * The type of tile to place when the mouse is released.
 	 */
 	private Tile nextType = null;
+	private Tile baseType = null;
 	/**
 	 * Current zoom level.
 	 */
@@ -725,7 +726,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			int mx = Math.min(lastPress.x, lastPress.x + hx);
 			int my = Math.min(lastPress.y, lastPress.y + hy);
 			if(x >= mx && x <= mx + Math.abs(hx) && y >= my && y <= my + Math.abs(hy)){
-				if(state[x][y].canOverride(nextType, testMode)){
+				if(state[x][y].canOverride(nextType, testMode, baseType)){
 					return nextType.toSelection();
 				}
 			}
@@ -977,9 +978,10 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	@Override
 	public void mousePressed(MouseEvent e){
 		last = e.getPoint();
+		lastPress = new Point(toGridX(last.x), toGridY(last.y));
 		if(!e.isControlDown()){
-			lastPress = new Point(toGridX(last.x), toGridY(last.y));
 			if(isWithinGridBounds(lastPress)){
+				baseType = state[lastPress.x][lastPress.y];
 				switch(e.getButton()){
 				case MouseEvent.BUTTON1:
 					nextType = nextTileState(lastPress.x, lastPress.y, Tile.FILL);
@@ -999,7 +1001,9 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			int my = Math.min(lastPress.y, lastPress.y + hy);
 			for(int x = mx; x <= mx + Math.abs(hx); x++){
 				for(int y = my; y <= my + Math.abs(hy); y++){
-					setGridClicked(x, y, nextType, false);
+					if(state[x][y].canOverride(nextType, testMode, baseType)){
+						setGridClicked(x, y, nextType, false);
+					}
 				}
 			}
 		}

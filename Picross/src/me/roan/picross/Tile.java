@@ -133,14 +133,14 @@ public enum Tile{
 	 * @param testMode Whether test mode is enabled or not.
 	 * @return True if the given replacement tile can override this tile.
 	 */
-	public boolean canOverride(Tile replacement, boolean testMode){
+	public boolean canOverride(Tile replacement, boolean testMode, Tile base){
 		if((testMode && this.isReal()) || this == replacement){
 			return false;
 		}else{
 			if(replacement == EMPTY){
 				return (!testMode && this.isReal()) || this.isTest();
 			}else{
-				return this.equalMode(replacement) || this == EMPTY;
+				return /*this.equalMode(replacement) ||*/ this == base || this == EMPTY;
 			}
 		}
 	}
