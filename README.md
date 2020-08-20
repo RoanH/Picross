@@ -13,6 +13,7 @@ The program looks like this:
 - Realtime feedback via the numbers on the side.
 - Option to see a possible solution for each puzzle.
 - Zoomable and movable board where the hint numbers follow the view so they are never off screen.
+- Ability to update multiple tiles at the same time by dragging.
 
 ## Rules
 _[See also the Wikipedia article.](https://en.wikipedia.org/wiki/Nonogram)_
@@ -34,6 +35,7 @@ General controls needed to play the game.
 - Right mouse button to place a cross
 - Left click a filled tile to empty it
 - Right click a cross to remove it
+- You can select an area by dragging to update multiple tiles at once
 
 ##### Keyboard
 - W to move up
@@ -63,8 +65,8 @@ General controls needed to play the game.
 
 ## Downloads
 _Requires Java 8 or higher_  
-- [Windows executable](https://github.com/RoanH/Picross/releases/download/v1.2/Picross-v1.2.exe)    
-- [Runnable Java Archive](https://github.com/RoanH/Picross/releases/download/v1.2/Picross-v1.2.jar)
+- [Windows executable](https://github.com/RoanH/Picross/releases/download/v1.3/Picross-v1.3.exe)    
+- [Runnable Java Archive](https://github.com/RoanH/Picross/releases/download/v1.3/Picross-v1.3.jar)
 
 All releases: [releases](https://github.com/RoanH/Picross/releases)<br>
 GitHub repository: [repository](https://github.com/RoanH/Picross)<br>
