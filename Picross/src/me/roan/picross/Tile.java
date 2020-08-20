@@ -121,7 +121,7 @@ public enum Tile{
 	
 	/**
 	 * Returns if this tile is a non test mode tile.
-	 * @return True if this tile is not a tset mode tile.
+	 * @return True if this tile is not a test mode tile.
 	 */
 	public boolean isReal(){
 		return this == FILL || this == CROSS;
@@ -131,6 +131,7 @@ public enum Tile{
 	 * Check to see if the given tile can replace this tile.
 	 * @param replacement The replacement tile.
 	 * @param testMode Whether test mode is enabled or not.
+	 * @param base The type of the tile was initially clicked.
 	 * @return True if the given replacement tile can override this tile.
 	 */
 	public boolean canOverride(Tile replacement, boolean testMode, Tile base){
@@ -140,19 +141,8 @@ public enum Tile{
 			if(replacement == EMPTY){
 				return (!testMode && this.isReal()) || this.isTest();
 			}else{
-				return /*this.equalMode(replacement) ||*/ this == base || this == EMPTY;
+				return this == base || this == EMPTY;
 			}
 		}
-	}
-	
-	/**
-	 * Checks to see of this tile and the given tile
-	 * are for the same mode (test mode or not).
-	 * @param other The other tile.
-	 * @return True if this tile and the given tile are
-	 *         for the same mode.
-	 */
-	public boolean equalMode(Tile other){
-		return (this.isTest() && other.isTest()) || (this.isReal() && other.isReal());
 	}
 }
