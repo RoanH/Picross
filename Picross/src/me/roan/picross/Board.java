@@ -757,6 +757,16 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	}
 	
 	/**
+	 * Checks if the given on screen coordinate is within
+	 * the game grid.
+	 * @param p The point to check.
+	 * @return True if the point is within the game grid.
+	 */
+	private boolean isWithinBounds(Point p){
+		return isWithinGridBounds(toGridX(p.x), toGridY(p.y));
+	}
+	
+	/**
 	 * Checks if the grid cell denoted by the given
 	 * point is within the bounds of the grid.
 	 * @param p The point to check.
@@ -774,7 +784,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * @return True if the point is within the game grid.
 	 */
 	private boolean isWithinGridBounds(int x, int y){
-		return x >= 0 && y >=0 && x < width && y < height;
+		return x >= 0 && y >= 0 && x < width && y < height;
 	}
 	
 	@Override
@@ -996,6 +1006,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		
 		this.repaint();
 		lastPress = null;
+		last = null;
 		hx = 0;
 		hy = 0;
 	}
@@ -1096,6 +1107,9 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		int ty = toGridY(to.y);
 		
 		if(!isWithinGridBounds(tx, ty) || solved || e.isControlDown()){
+			if(isWithinBounds(last) && !e.isControlDown() && !solved){
+				return;
+			}
 			dx += to.x - last.x;
 			dy += to.y - last.y;
 		}else{
