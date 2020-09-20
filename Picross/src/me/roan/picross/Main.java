@@ -190,6 +190,12 @@ public class Main{
 			}
 		});
 		
+		//TODO temporary
+		JMenuItem solve = new JMenuItem("Solve");
+		solve.addActionListener(e->{
+			new Solver(board).solveOne();
+		});
+		
 		game.add(fromRandom);
 		//game.add(fromImage);
 		game.add(fromSeed);
@@ -202,6 +208,7 @@ public class Main{
 		game.add(hideSolution);
 		game.addSeparator();
 		game.add(reset);
+		game.add(solve);
 		
 		JMenu testMode = new JMenu("Test mode");
 		

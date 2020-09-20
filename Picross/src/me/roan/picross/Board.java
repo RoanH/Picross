@@ -210,6 +210,26 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		initialiseGrid();
 	}
 	
+	public int[] getColHints(int col){
+		return colHints[col];
+	}
+	
+	public int[] getRowHints(int row){
+		return rowHints[row];
+	}
+	
+	public Boolean[] getColJudgement(int col){
+		return colJudgement[col];
+	}
+	
+	public Boolean[] getRowJudgement(int row){
+		return rowJudgement[row];
+	}
+	
+	public Tile getTile(int col, int row){
+		return state[col][row];
+	}
+	
 	/**
 	 * Gets the number of milliseconds that have
 	 * passed since this board was created.
