@@ -303,9 +303,11 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			if(testMode){
 				state[x][y] = newState.toTest();
 				computeJudgement(x, y);
+				assist(x, y);
 			}else{
 				state[x][y] = newState;
 				computeJudgement(x, y);
+				assist(x, y);
 				checkSolution();
 			}
 			this.repaint();
@@ -328,6 +330,32 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 				checkSolution();
 			}
 			this.repaint();
+		}
+	}
+	
+	private void assist(int x, int y){
+		if(state[x][y].toReal() == Tile.FILL){
+			System.out.println(x + " / " + y);
+			if((x == 0 || (x - 1 >= 0 && state[x - 1][y] != Tile.EMPTY)) && x + 1 < width && state[x + 1][y] == Tile.EMPTY){
+				System.out.println("in");
+				int len = 0;
+				while(x - len >= 0 && state[x - len][y].toReal() == Tile.FILL){
+					System.out.println("run");
+					len++;
+				}
+				
+				int hint = 0;
+				while(rowJudgement[y][hint] == Boolean.TRUE){
+					hint++;
+				}
+				
+				System.out.println("hint: " + hint + " / " + rowHints[y][hint] + " / " + len);
+				for(int i = x + 1; i <= x + rowHints[y][hint] - len; i++){
+					setNextState(i, y, Tile.FILL);
+				}
+			}
+			
+			
 		}
 	}
 	
