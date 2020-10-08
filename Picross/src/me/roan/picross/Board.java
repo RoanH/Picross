@@ -336,7 +336,13 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	private void assist(int x, int y){
 		if(state[x][y].toReal() == Tile.FILL){
 			System.out.println(x + " / " + y);
-			if((x == 0 || (x - 1 >= 0 && state[x - 1][y] != Tile.EMPTY)) && x + 1 < width && state[x + 1][y] == Tile.EMPTY){
+			posx: if((x == 0 || (x - 1 >= 0 && state[x - 1][y] != Tile.EMPTY)) && x + 1 < width && state[x + 1][y] == Tile.EMPTY){
+				for(int i = x; i >= 0; i--){
+					if(state[i][y] == Tile.EMPTY){
+						break posx;
+					}
+				}
+				
 				System.out.println("in");
 				int len = 0;
 				while(x - len >= 0 && state[x - len][y].toReal() == Tile.FILL){
@@ -350,8 +356,18 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 				}
 				
 				System.out.println("hint: " + hint + " / " + rowHints[y][hint] + " / " + len);
-				for(int i = x + 1; i <= x + rowHints[y][hint] - len; i++){
+				int max = x + rowHints[y][hint] - len;
+				for(int i = x + 1; i <= max; i++){
 					setNextState(i, y, Tile.FILL);
+				}
+				
+				if(max + 1 < width){
+					setNextState(max + 1, y, Tile.CROSS);
+					if(hint == rowHints[y].length - 1){
+						for(int i = max + 2; i < width; i++){
+							setNextState(i, y, Tile.CROSS);
+						}
+					}
 				}
 			}
 			
