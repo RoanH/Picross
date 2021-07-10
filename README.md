@@ -1,6 +1,9 @@
 # Picross
 Picross ([nonogram](https://en.wikipedia.org/wiki/Nonogram)) implementation inspired by the NDS Picross game.
 
+[Jump direction to downloads](#downloads)
+
+## Introduction
 The goal of the game is to complete the grid with filled tiles and cross tiles according to the restrictions given on the sides. A more detailed explanation is given below.
 
 The program looks like this:    
