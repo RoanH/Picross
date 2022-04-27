@@ -1,4 +1,4 @@
-# Picross
+# <img src="Picross/src/icon.png" width="40"/> Picross [![](https://img.shields.io/github/release/RoanH/Picross.svg)](https://github.com/RoanH/Picross/releases) [![](https://img.shields.io/github/downloads/RoanH/Picross/total.svg)](#downloads)
 Picross ([nonogram](https://en.wikipedia.org/wiki/Nonogram)) implementation inspired by the NDS Picross game.
 
 [Jump directly to downloads](#downloads)
