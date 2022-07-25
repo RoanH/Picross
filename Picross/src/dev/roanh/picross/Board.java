@@ -201,6 +201,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 */
 	private double zoom = 1.0D;
 	private Deque<List<StateChange>> undoStack = new ArrayDeque<List<StateChange>>();
+	private Deque<List<StateChange>> redoStack = new ArrayDeque<List<StateChange>>();
 	
 	/**
 	 * Constructs a new board from
@@ -317,54 +318,33 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	}
 	
 	/**
-	 * Computes the new state for the given clicked tile.
-	 * @param x The x-coordinate for the tile that was clicked.
-	 * @param y The y-coordinate for the tile that was clicked.
-	 * @param newState The new state for the tile that was clicked.
-	 * @return The board state change event.
-	 */
-	public StateChange setGridClicked(int x, int y, Tile newState){
-		if(isWithinGridBounds(x, y) && !solved){
-			StateChange event = applyStateChange(x, y, testMode ? newState.toTest() : newState);
-			if(!testMode){
-				checkSolution();
-			}
-			
-			this.repaint();
-			return event;
-		}else{
-			return null;
-		}
-	}
-	
-	/**
 	 * Sets the new state for the tile at the
 	 * given coordinates based on the current game state.
 	 * @param x The x-coordinate for the tile.
 	 * @param y The y-coordinate for the tile.
 	 * @param newState The new state to change to.
-	 * @return The board state change event.
 	 */
-	public StateChange setNextState(int x, int y, Tile newState){
+	public void setNextState(int x, int y, Tile newState){
 		Tile nextState = nextTileState(x, y, newState);
 		if(state[x][y].canOverride(nextState, testMode, state[x][y])){
-			StateChange event = applyStateChange(x, y, newState);
+			undoStack.push(Collections.singletonList(applyStateChange(x, y, nextState)));
+		}
+	}
+	
+	private StateChange applyStateChange(int x, int y, Tile set){
+		if(isWithinGridBounds(x, y) && !solved){
+			StateChange event = new StateChange(x, y, state[x][y], set);
+			event.apply();
 			if(!testMode){
 				checkSolution();
 			}
 			
 			this.repaint();
+			redoStack.clear();
 			return event;
 		}else{
 			return null;
 		}
-	}
-	
-	private StateChange applyStateChange(int x, int y, Tile set){
-		StateChange event = new StateChange(x, y, state[x][y]);
-		state[x][y] = set;
-		computeJudgement(x, y);
-		return event;
 	}
 	
 	/**
@@ -569,7 +549,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		for(int y = 0; y < height; y++){
 			Arrays.fill(rowJudgement[y], Boolean.FALSE);
 		}
-		//TODO clear undo stack
+		undoStack.clear();
+		redoStack.clear();
 		this.repaint();
 	}
 	
@@ -842,6 +823,24 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		return x >= 0 && y >= 0 && x < width && y < height;
 	}
 	
+	public void undo(){
+		if(!undoStack.isEmpty() && !solved){
+			List<StateChange> events = undoStack.pop();
+			events.forEach(StateChange::undo);
+			redoStack.push(events);
+			this.repaint();
+		}
+	}
+	
+	public void redo(){
+		if(!redoStack.isEmpty() && !solved){
+			List<StateChange> events = redoStack.pop();
+			events.forEach(StateChange::apply);
+			undoStack.push(events);
+			this.repaint();
+		}
+	}
+	
 	@Override
 	public Dimension getPreferredSize(){
 		return new Dimension((int)(width * SIZE + dx * 2), (int)(height * SIZE + dy + 1));
@@ -1063,11 +1062,11 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			for(int x = mx; x <= mx + Math.abs(hx); x++){
 				for(int y = my; y <= my + Math.abs(hy); y++){
 					if(state[x][y].canOverride(nextType, testMode, baseType)){
-						changes.add(setGridClicked(x, y, nextType));
+						changes.add(applyStateChange(x, y, testMode ? nextType.toTest() : nextType));
 					}
 				}
 			}
-			undoStack.add(changes);
+			undoStack.push(changes);
 			nextType = null;
 			baseType = null;
 		}
@@ -1096,10 +1095,10 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	public void keyPressed(KeyEvent e){
 		switch(e.getKeyCode()){
 		case KeyEvent.VK_SPACE:
-			undoStack.add(Collections.singletonList(setNextState(x, y, Tile.FILL)));
+			setNextState(x, y, Tile.FILL);
 			break;
 		case KeyEvent.VK_SHIFT:
-			undoStack.add(Collections.singletonList(setNextState(x, y, Tile.CROSS)));
+			setNextState(x, y, Tile.CROSS);
 			break;
 		case KeyEvent.VK_W:
 			if(x == -1){
@@ -1161,6 +1160,16 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		case KeyEvent.VK_KP_DOWN:
 			moveViewDown();
 			break;
+		case KeyEvent.VK_Z:
+			if(e.isControlDown()){
+				undo();
+			}
+			break;
+		case KeyEvent.VK_Y:
+			if(e.isControlDown()){
+				redo();
+			}
+			break;
 		}
 	}
 
@@ -1202,15 +1211,22 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		private final int x;
 		private final int y;
 		private Tile old;
+		private Tile next;
 		
-		private StateChange(int x, int y, Tile old){
+		private StateChange(int x, int y, Tile old, Tile next){
 			this.x = x;
 			this.y = y;
 			this.old = old;
+			this.next = next;
 		}
 		
 		private void undo(){
 			state[x][y] = old;
+			computeJudgement(x, y);
+		}
+		
+		private void apply(){
+			state[x][y] = next;
 			computeJudgement(x, y);
 		}
 	}
