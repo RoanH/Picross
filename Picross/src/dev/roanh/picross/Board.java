@@ -1024,6 +1024,10 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 				case MouseEvent.BUTTON3:
 					nextType = nextTileState(lastPress.x, lastPress.y, Tile.CROSS);
 					break;
+				default:
+					baseType = null;
+					lastPress = null;
+					break;
 				}
 			}else{
 				lastPress = null;
