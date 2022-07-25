@@ -34,14 +34,11 @@ repositories{
 			url "$nexusPublic"
 		}
 	}
-	jcenter()
-	maven{
-		url "https://jitpack.io"
-	}
+	mavenCentral();
 }
 
 dependencies{
-	implementation 'com.github.RoanH:Util:v1.4'
+	implementation 'dev.roanh.util:util:2.4'
 }
 
 application{
