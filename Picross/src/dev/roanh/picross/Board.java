@@ -35,7 +35,12 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
 
@@ -195,6 +200,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * Current zoom level.
 	 */
 	private double zoom = 1.0D;
+	private Deque<List<StateChange>> undoStack = new ArrayDeque<List<StateChange>>();
 	
 	/**
 	 * Constructs a new board from
@@ -315,18 +321,19 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * @param x The x-coordinate for the tile that was clicked.
 	 * @param y The y-coordinate for the tile that was clicked.
 	 * @param newState The new state for the tile that was clicked.
+	 * @return The board state change event.
 	 */
-	public void setGridClicked(int x, int y, Tile newState){
+	public StateChange setGridClicked(int x, int y, Tile newState){
 		if(isWithinGridBounds(x, y) && !solved){
-			if(testMode){
-				state[x][y] = newState.toTest();
-				computeJudgement(x, y);
-			}else{
-				state[x][y] = newState;
-				computeJudgement(x, y);
+			StateChange event = applyStateChange(x, y, testMode ? newState.toTest() : newState);
+			if(!testMode){
 				checkSolution();
 			}
+			
 			this.repaint();
+			return event;
+		}else{
+			return null;
 		}
 	}
 	
@@ -336,17 +343,28 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * @param x The x-coordinate for the tile.
 	 * @param y The y-coordinate for the tile.
 	 * @param newState The new state to change to.
+	 * @return The board state change event.
 	 */
-	public void setNextState(int x, int y, Tile newState){
+	public StateChange setNextState(int x, int y, Tile newState){
 		Tile nextState = nextTileState(x, y, newState);
 		if(state[x][y].canOverride(nextState, testMode, state[x][y])){
-			state[x][y] = nextState;
-			computeJudgement(x, y);
+			StateChange event = applyStateChange(x, y, newState);
 			if(!testMode){
 				checkSolution();
 			}
+			
 			this.repaint();
+			return event;
+		}else{
+			return null;
 		}
+	}
+	
+	private StateChange applyStateChange(int x, int y, Tile set){
+		StateChange event = new StateChange(x, y, state[x][y]);
+		state[x][y] = set;
+		computeJudgement(x, y);
+		return event;
 	}
 	
 	/**
@@ -551,6 +569,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		for(int y = 0; y < height; y++){
 			Arrays.fill(rowJudgement[y], Boolean.FALSE);
 		}
+		//TODO clear undo stack
 		this.repaint();
 	}
 	
@@ -1040,13 +1059,15 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		if(lastPress != null){
 			int mx = Math.min(lastPress.x, lastPress.x + hx);
 			int my = Math.min(lastPress.y, lastPress.y + hy);
+			List<StateChange> changes = new ArrayList<StateChange>();
 			for(int x = mx; x <= mx + Math.abs(hx); x++){
 				for(int y = my; y <= my + Math.abs(hy); y++){
 					if(state[x][y].canOverride(nextType, testMode, baseType)){
-						setGridClicked(x, y, nextType);
+						changes.add(setGridClicked(x, y, nextType));
 					}
 				}
 			}
+			undoStack.add(changes);
 			nextType = null;
 			baseType = null;
 		}
@@ -1075,10 +1096,10 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	public void keyPressed(KeyEvent e){
 		switch(e.getKeyCode()){
 		case KeyEvent.VK_SPACE:
-			setNextState(x, y, Tile.FILL);
+			undoStack.add(Collections.singletonList(setNextState(x, y, Tile.FILL)));
 			break;
 		case KeyEvent.VK_SHIFT:
-			setNextState(x, y, Tile.CROSS);
+			undoStack.add(Collections.singletonList(setNextState(x, y, Tile.CROSS)));
 			break;
 		case KeyEvent.VK_W:
 			if(x == -1){
@@ -1175,5 +1196,22 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e){
 		changeZoom(Math.max(zoom * (e.getWheelRotation() == -1 ? 1.1D : 0.9), 0.1D));
+	}
+	
+	private final class StateChange{
+		private final int x;
+		private final int y;
+		private Tile old;
+		
+		private StateChange(int x, int y, Tile old){
+			this.x = x;
+			this.y = y;
+			this.old = old;
+		}
+		
+		private void undo(){
+			state[x][y] = old;
+			computeJudgement(x, y);
+		}
 	}
 }
