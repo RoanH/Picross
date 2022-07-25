@@ -1,4 +1,4 @@
-package me.roan.picross;
+package dev.roanh.picross;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.StandardCharsets;

@@ -1,4 +1,4 @@
-package me.roan.picross;
+package dev.roanh.picross;
 
 /**
  * Enum of different Tile states.
