@@ -42,7 +42,7 @@ dependencies{
 }
 
 application{
-	mainClassName = 'me.roan.picross.Main'
+	mainClassName = 'dev.roanh.picross.Main'
 }
 
 launch4j{
