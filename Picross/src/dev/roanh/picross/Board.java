@@ -35,7 +35,12 @@ import java.awt.event.MouseListener;
 import java.awt.event.MouseMotionListener;
 import java.awt.event.MouseWheelEvent;
 import java.awt.event.MouseWheelListener;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
+import java.util.Deque;
+import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
 
@@ -195,6 +200,14 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * Current zoom level.
 	 */
 	private double zoom = 1.0D;
+	/**
+	 * Undo stack of moves that can be undone.
+	 */
+	private Deque<List<StateChange>> undoStack = new ArrayDeque<List<StateChange>>();
+	/**
+	 * Redo stack of moves that can be redone.
+	 */
+	private Deque<List<StateChange>> redoStack = new ArrayDeque<List<StateChange>>();
 	
 	/**
 	 * Constructs a new board from
@@ -311,26 +324,6 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	}
 	
 	/**
-	 * Computes the new state for the given clicked tile.
-	 * @param x The x-coordinate for the tile that was clicked.
-	 * @param y The y-coordinate for the tile that was clicked.
-	 * @param newState The new state for the tile that was clicked.
-	 */
-	public void setGridClicked(int x, int y, Tile newState){
-		if(isWithinGridBounds(x, y) && !solved){
-			if(testMode){
-				state[x][y] = newState.toTest();
-				computeJudgement(x, y);
-			}else{
-				state[x][y] = newState;
-				computeJudgement(x, y);
-				checkSolution();
-			}
-			this.repaint();
-		}
-	}
-	
-	/**
 	 * Sets the new state for the tile at the
 	 * given coordinates based on the current game state.
 	 * @param x The x-coordinate for the tile.
@@ -340,12 +333,31 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	public void setNextState(int x, int y, Tile newState){
 		Tile nextState = nextTileState(x, y, newState);
 		if(state[x][y].canOverride(nextState, testMode, state[x][y])){
-			state[x][y] = nextState;
-			computeJudgement(x, y);
+			undoStack.push(Collections.singletonList(applyStateChange(x, y, nextState)));
+		}
+	}
+	
+	/**
+	 * Changes the state of the given title
+	 * to the given new value.
+	 * @param x The x-coordinate to update.
+	 * @param y The y-coordinate to update.
+	 * @param set The new title state.
+	 * @return An event describing the change.
+	 */
+	private StateChange applyStateChange(int x, int y, Tile set){
+		if(isWithinGridBounds(x, y) && !solved){
+			StateChange event = new StateChange(x, y, state[x][y], set);
+			event.apply();
 			if(!testMode){
 				checkSolution();
 			}
+			
 			this.repaint();
+			redoStack.clear();
+			return event;
+		}else{
+			return null;
 		}
 	}
 	
@@ -551,6 +563,8 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		for(int y = 0; y < height; y++){
 			Arrays.fill(rowJudgement[y], Boolean.FALSE);
 		}
+		undoStack.clear();
+		redoStack.clear();
 		this.repaint();
 	}
 	
@@ -823,6 +837,30 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		return x >= 0 && y >= 0 && x < width && y < height;
 	}
 	
+	/**
+	 * Undoes the last move executed.
+	 */
+	public void undo(){
+		if(!undoStack.isEmpty() && !solved){
+			List<StateChange> events = undoStack.pop();
+			events.forEach(StateChange::undo);
+			redoStack.push(events);
+			this.repaint();
+		}
+	}
+	
+	/**
+	 * Redoes the last move undone.
+	 */
+	public void redo(){
+		if(!redoStack.isEmpty() && !solved){
+			List<StateChange> events = redoStack.pop();
+			events.forEach(StateChange::apply);
+			undoStack.push(events);
+			this.repaint();
+		}
+	}
+	
 	@Override
 	public Dimension getPreferredSize(){
 		return new Dimension((int)(width * SIZE + dx * 2), (int)(height * SIZE + dy + 1));
@@ -1040,13 +1078,15 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		if(lastPress != null){
 			int mx = Math.min(lastPress.x, lastPress.x + hx);
 			int my = Math.min(lastPress.y, lastPress.y + hy);
+			List<StateChange> changes = new ArrayList<StateChange>();
 			for(int x = mx; x <= mx + Math.abs(hx); x++){
 				for(int y = my; y <= my + Math.abs(hy); y++){
 					if(state[x][y].canOverride(nextType, testMode, baseType)){
-						setGridClicked(x, y, nextType);
+						changes.add(applyStateChange(x, y, testMode ? nextType.toTest() : nextType));
 					}
 				}
 			}
+			undoStack.push(changes);
 			nextType = null;
 			baseType = null;
 		}
@@ -1140,6 +1180,16 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		case KeyEvent.VK_KP_DOWN:
 			moveViewDown();
 			break;
+		case KeyEvent.VK_Z:
+			if(e.isControlDown()){
+				undo();
+			}
+			break;
+		case KeyEvent.VK_Y:
+			if(e.isControlDown()){
+				redo();
+			}
+			break;
 		}
 	}
 
@@ -1175,5 +1225,59 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	@Override
 	public void mouseWheelMoved(MouseWheelEvent e){
 		changeZoom(Math.max(zoom * (e.getWheelRotation() == -1 ? 1.1D : 0.9), 0.1D));
+	}
+	
+	/**
+	 * Event describing a state change of a single tile.
+	 * @author Roan
+	 */
+	private final class StateChange{
+		/**
+		 * The x-coordinate that changed.
+		 */
+		private final int x;
+		/**
+		 * The y-coordinate that changed.
+		 */
+		private final int y;
+		/**
+		 * The previous state of the tile.
+		 */
+		private Tile old;
+		/**
+		 * The new state of the tile.
+		 */
+		private Tile next;
+		
+		/**
+		 * Constructs a new change event with the
+		 * given location and old and new state.
+		 * @param x The x-coordinate.
+		 * @param y The y-coordinate.
+		 * @param old The old tile state.
+		 * @param next The new tile state.
+		 */
+		private StateChange(int x, int y, Tile old, Tile next){
+			this.x = x;
+			this.y = y;
+			this.old = old;
+			this.next = next;
+		}
+		
+		/**
+		 * Reverts the change described by this event.
+		 */
+		private void undo(){
+			state[x][y] = old;
+			computeJudgement(x, y);
+		}
+		
+		/**
+		 * Applies the change described by this event.
+		 */
+		private void apply(){
+			state[x][y] = next;
+			computeJudgement(x, y);
+		}
 	}
 }
