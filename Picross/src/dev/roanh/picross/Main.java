@@ -23,7 +23,11 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.Toolkit;
+import java.awt.datatransfer.StringSelection;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.io.IOException;
 import java.util.function.Consumer;
 
@@ -123,6 +127,31 @@ public class Main{
 		seedField.setEditable(false);
 		infoField = new JLabel("", SwingConstants.LEFT);
 		timerField = new JLabel("", SwingConstants.CENTER);
+		seedField.addMouseListener(new MouseListener(){
+			
+			@Override
+			public void mouseReleased(MouseEvent e){
+			}
+			
+			@Override
+			public void mousePressed(MouseEvent e){
+			}
+			
+			@Override
+			public void mouseExited(MouseEvent e){
+			}
+			
+			@Override
+			public void mouseEntered(MouseEvent e){
+			}
+			
+			@Override
+			public void mouseClicked(MouseEvent e){
+				seedField.select(7, seedField.getText().length());
+				StringSelection seed = new StringSelection(board == null ? "" : board.getSeed().toString());
+				Toolkit.getDefaultToolkit().getSystemClipboard().setContents(seed, seed);
+			}
+		});
 		
 		JMenuBar bar = new JMenuBar();
 		
