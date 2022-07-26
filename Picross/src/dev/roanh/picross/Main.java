@@ -23,7 +23,9 @@ import java.awt.Color;
 import java.awt.FlowLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.event.ActionListener;
 import java.io.IOException;
+import java.util.function.Consumer;
 
 import javax.imageio.ImageIO;
 import javax.swing.BorderFactory;
@@ -188,25 +190,19 @@ public class Main{
 		});
 		
 		JMenuItem reset = new JMenuItem("Reset");
-		reset.addActionListener(e->{
-			if(board != null){
-				board.reset();
-			}
-		});
+		reset.addActionListener(boardAction(Board::reset));
 		
 		JMenuItem showSolution = new JMenuItem("Show solution");
-		showSolution.addActionListener(e->{
-			if(board != null){
-				board.showSolution(true);
-			}
-		});
+		showSolution.addActionListener(boardAction(b->b.showSolution(true)));
 		
 		JMenuItem hideSolution = new JMenuItem("Hide solution");
-		hideSolution.addActionListener(e->{
-			if(board != null){
-				board.showSolution(false);
-			}
-		});
+		hideSolution.addActionListener(boardAction(b->b.showSolution(false)));
+		
+		JMenuItem undo = new JMenuItem("Undo");
+		undo.addActionListener(boardAction(Board::undo));
+		
+		JMenuItem redo = new JMenuItem("Redo");
+		redo.addActionListener(boardAction(Board::redo));
 		
 		game.add(fromRandom);
 		//game.add(fromImage);
@@ -219,30 +215,21 @@ public class Main{
 		game.add(showSolution);
 		game.add(hideSolution);
 		game.addSeparator();
+		game.add(undo);
+		game.add(redo);
+		game.addSeparator();
 		game.add(reset);
 		
 		JMenu testMode = new JMenu("Test mode");
 		
 		JMenuItem enterTest = new JMenuItem("Enter test mode");
-		enterTest.addActionListener(e->{
-			if(board != null){
-				board.enterTestMode();
-			}
-		});
+		enterTest.addActionListener(boardAction(Board::enterTestMode));
 		
 		JMenuItem leaveTestSave = new JMenuItem("Leave & save changes");
-		leaveTestSave.addActionListener(e->{
-			if(board != null){
-				board.leaveTestMode(true);
-			}
-		});
+		leaveTestSave.addActionListener(boardAction(b->b.leaveTestMode(true)));
 		
 		JMenuItem leaveTestUndo = new JMenuItem("Leave & undo changes");
-		leaveTestUndo.addActionListener(e->{
-			if(board != null){
-				board.leaveTestMode(false);
-			}
-		});
+		leaveTestUndo.addActionListener(boardAction(b->b.leaveTestMode(false)));
 		
 		testMode.add(enterTest);
 		testMode.addSeparator();
@@ -252,60 +239,28 @@ public class Main{
 		JMenu view = new JMenu("View");
 
 		JMenuItem zoomIn = new JMenuItem("Zoom in");
-		zoomIn.addActionListener(e->{
-			if(board != null){
-				board.changeZoom(board.getZoom() * 1.25D);
-			}
-		});
+		zoomIn.addActionListener(boardAction(b->b.changeZoom(b.getZoom() * 1.25D)));
 
 		JMenuItem zoomOut = new JMenuItem("Zoom out");
-		zoomOut.addActionListener(e->{
-			if(board != null){
-				board.changeZoom(Math.max(0.1D, board.getZoom() * 0.75D));
-			}
-		});
+		zoomOut.addActionListener(boardAction(b->b.changeZoom(Math.max(0.1D, b.getZoom() * 0.75D))));
 
 		JMenuItem zoomReset = new JMenuItem("Reset zoom");
-		zoomReset.addActionListener(e->{
-			if(board != null){
-				board.changeZoom(1.0D);
-			}
-		});
+		zoomReset.addActionListener(boardAction(b->b.changeZoom(1.0D)));
 
 		JMenuItem moveUp = new JMenuItem("Move view up");
-		moveUp.addActionListener(e->{
-			if(board != null){
-				board.moveViewUp();
-			}
-		});
+		moveUp.addActionListener(boardAction(Board::moveViewUp));
 
 		JMenuItem moveDown = new JMenuItem("Move view down");
-		moveDown.addActionListener(e->{
-			if(board != null){
-				board.moveViewDown();
-			}
-		});
+		moveDown.addActionListener(boardAction(Board::moveViewDown));
 
 		JMenuItem moveLeft = new JMenuItem("Move view left");
-		moveLeft.addActionListener(e->{
-			if(board != null){
-				board.moveViewLeft();
-			}
-		});
+		moveLeft.addActionListener(boardAction(Board::moveViewLeft));
 
 		JMenuItem moveRight = new JMenuItem("Move view right");
-		moveRight.addActionListener(e->{
-			if(board != null){
-				board.moveViewRight();
-			}
-		});
+		moveRight.addActionListener(boardAction(Board::moveViewRight));
 
 		JMenuItem moveReset = new JMenuItem("Reset translations");
-		moveReset.addActionListener(e->{
-			if(board != null){
-				board.resetTranslation();
-			}
-		});
+		moveReset.addActionListener(boardAction(Board::resetTranslation));
 		
 		view.add(zoomIn);
 		view.add(zoomOut);
@@ -348,6 +303,14 @@ public class Main{
 		frame.setLocationRelativeTo(null);
 		frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		frame.setVisible(true);
+	}
+	
+	private static ActionListener boardAction(Consumer<Board> fun){
+		return e->{
+			if(board != null){
+				fun.accept(board);
+			}
+		};
 	}
 	
 	/**
@@ -435,6 +398,13 @@ public class Main{
 		);
 		test.setBorder(BorderFactory.createTitledBorder("Test mode"));
 		
+		JLabel history = new JLabel(
+			"<html>"
+			+ "- Ctrl+Z to undo the last edit<br>"
+			+ "- Ctrl+Y to redo the last edit<html>"
+		);
+		history.setBorder(BorderFactory.createTitledBorder("History"));
+		
 		JLabel check = new JLabel(
 			"<html>"
 			+ "- R to toggle showing the original solution (note that other solutions might also be valid)</html>"
@@ -444,6 +414,7 @@ public class Main{
 		help.add(controls);
 		help.add(moving);
 		help.add(test);
+		help.add(history);
 		help.add(check);
 		
 		Dialog.showMessageDialog(help);
