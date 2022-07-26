@@ -305,6 +305,12 @@ public class Main{
 		frame.setVisible(true);
 	}
 	
+	/**
+	 * Constructs an action listener that invokes the given
+	 * function on the current game board is one is present.
+	 * @param fun The function to call on the game board.
+	 * @return A newly constructed action listener.
+	 */
 	private static ActionListener boardAction(Consumer<Board> fun){
 		return e->{
 			if(board != null){

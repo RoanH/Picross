@@ -200,7 +200,13 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 * Current zoom level.
 	 */
 	private double zoom = 1.0D;
+	/**
+	 * Undo stack of moves that can be undone.
+	 */
 	private Deque<List<StateChange>> undoStack = new ArrayDeque<List<StateChange>>();
+	/**
+	 * Redo stack of moves that can be redone.
+	 */
 	private Deque<List<StateChange>> redoStack = new ArrayDeque<List<StateChange>>();
 	
 	/**
@@ -331,6 +337,14 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		}
 	}
 	
+	/**
+	 * Changes the state of the given title
+	 * to the given new value.
+	 * @param x The x-coordinate to update.
+	 * @param y The y-coordinate to update.
+	 * @param set The new title state.
+	 * @return An event describing the change.
+	 */
 	private StateChange applyStateChange(int x, int y, Tile set){
 		if(isWithinGridBounds(x, y) && !solved){
 			StateChange event = new StateChange(x, y, state[x][y], set);
@@ -823,6 +837,9 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		return x >= 0 && y >= 0 && x < width && y < height;
 	}
 	
+	/**
+	 * Undoes the last move executed.
+	 */
 	public void undo(){
 		if(!undoStack.isEmpty() && !solved){
 			List<StateChange> events = undoStack.pop();
@@ -832,6 +849,9 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		}
 	}
 	
+	/**
+	 * Redoes the last move undone.
+	 */
 	public void redo(){
 		if(!redoStack.isEmpty() && !solved){
 			List<StateChange> events = redoStack.pop();
@@ -1207,12 +1227,36 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		changeZoom(Math.max(zoom * (e.getWheelRotation() == -1 ? 1.1D : 0.9), 0.1D));
 	}
 	
+	/**
+	 * Event describing a state change of a single tile.
+	 * @author Roan
+	 */
 	private final class StateChange{
+		/**
+		 * The x-coordinate that changed.
+		 */
 		private final int x;
+		/**
+		 * The y-coordinate that changed.
+		 */
 		private final int y;
+		/**
+		 * The previous state of the tile.
+		 */
 		private Tile old;
+		/**
+		 * The new state of the tile.
+		 */
 		private Tile next;
 		
+		/**
+		 * Constructs a new change event with the
+		 * given location and old and new state.
+		 * @param x The x-coordinate.
+		 * @param y The y-coordinate.
+		 * @param old The old tile state.
+		 * @param next The new tile state.
+		 */
 		private StateChange(int x, int y, Tile old, Tile next){
 			this.x = x;
 			this.y = y;
@@ -1220,11 +1264,17 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			this.next = next;
 		}
 		
+		/**
+		 * Reverts the change described by this event.
+		 */
 		private void undo(){
 			state[x][y] = old;
 			computeJudgement(x, y);
 		}
 		
+		/**
+		 * Applies the change described by this event.
+		 */
 		private void apply(){
 			state[x][y] = next;
 			computeJudgement(x, y);
