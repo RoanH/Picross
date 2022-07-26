@@ -204,6 +204,9 @@ public class Main{
 		JMenuItem redo = new JMenuItem("Redo");
 		redo.addActionListener(boardAction(Board::redo));
 		
+		JMenuItem mistakes = new JMenuItem("Clear wrong tiles");
+		mistakes.addActionListener(boardAction(Board::clearMistakes));
+		
 		game.add(fromRandom);
 		//game.add(fromImage);
 		game.add(fromSeed);
@@ -218,6 +221,7 @@ public class Main{
 		game.add(undo);
 		game.add(redo);
 		game.addSeparator();
+		game.add(mistakes);
 		game.add(reset);
 		
 		JMenu testMode = new JMenu("Test mode");

@@ -347,7 +347,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 */
 	private StateChange applyStateChange(int x, int y, Tile set){
 		if(isWithinGridBounds(x, y) && !solved){
-			StateChange event = new StateChange(x, y, state[x][y], set);
+			StateChange event = new StateChange(x, y, state[x][y], set, testMode);
 			event.apply();
 			if(!testMode){
 				checkSolution();
@@ -446,11 +446,12 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 	 */
 	public void leaveTestMode(boolean save){
 		if(testMode){
+			List<StateChange> changes = new ArrayList<StateChange>();
 			if(save){
 				for(int x = 0; x < width; x++){
 					for(int y = 0; y < height; y++){
 						if(state[x][y].isTest()){
-							state[x][y] = state[x][y].toReal();
+							changes.add(applyStateChange(x, y, state[x][y].toReal()));
 						}
 					}
 				}
@@ -459,12 +460,13 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 				for(int x = 0; x < width; x++){
 					for(int y = 0; y < height; y++){
 						if(state[x][y].isTest()){
-							state[x][y] = Tile.EMPTY;
-							computeRowJudgement(y);
+							changes.add(applyStateChange(x, y, Tile.EMPTY));
 						}
 					}
-					computeColJudgement(x);
 				}
+			}
+			if(!changes.isEmpty()){
+				undoStack.push(changes);
 			}
 			testMode = false;
 			this.repaint();
@@ -566,6 +568,27 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		undoStack.clear();
 		redoStack.clear();
 		this.repaint();
+	}
+	
+	public void clearMistakes(){
+		if(!solved){
+			List<StateChange> changes = new ArrayList<StateChange>();
+			for(int x = 0; x < width; x++){
+				for(int y = 0; y < height; y++){
+					if(state[x][y].isReal() && testMode){
+						continue;
+					}
+					
+					if(state[x][y].toReal() == Tile.FILL && !solution[x][y] || state[x][y].toReal() == Tile.CROSS && solution[x][y]){
+						changes.add(applyStateChange(x, y, Tile.EMPTY));
+					}
+				}
+			}
+			
+			if(!changes.isEmpty()){
+				undoStack.push(changes);
+			}
+		}
 	}
 	
 	/**
@@ -1086,7 +1109,9 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 					}
 				}
 			}
-			undoStack.push(changes);
+			if(!changes.isEmpty()){
+				undoStack.push(changes);
+			}
 			nextType = null;
 			baseType = null;
 		}
@@ -1248,6 +1273,10 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		 * The new state of the tile.
 		 */
 		private Tile next;
+		/**
+		 * True if test mode was enabled during this change.
+		 */
+		private boolean test;
 		
 		/**
 		 * Constructs a new change event with the
@@ -1256,18 +1285,21 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		 * @param y The y-coordinate.
 		 * @param old The old tile state.
 		 * @param next The new tile state.
+		 * @param test Whether test mode was enabled.
 		 */
-		private StateChange(int x, int y, Tile old, Tile next){
+		private StateChange(int x, int y, Tile old, Tile next, boolean test){
 			this.x = x;
 			this.y = y;
 			this.old = old;
 			this.next = next;
+			this.test = test;
 		}
 		
 		/**
 		 * Reverts the change described by this event.
 		 */
 		private void undo(){
+			testMode = test;
 			state[x][y] = old;
 			computeJudgement(x, y);
 		}
@@ -1276,6 +1308,7 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		 * Applies the change described by this event.
 		 */
 		private void apply(){
+			testMode = test;
 			state[x][y] = next;
 			computeJudgement(x, y);
 		}
