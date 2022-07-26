@@ -934,6 +934,10 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 			g.drawString(String.format(" (+%1$.2f%%)", (100.0D * (tryFill + tryCross)) / getTileCount()), fm.stringWidth(line), 60);
 		}
 		
+		g.setColor(Color.BLACK);
+		line = " Moves: " + undoStack.size();
+		g.drawString(line, 0, 75);
+		
 		//origin at the top left corner of the grid
 		double ox = (this.getWidth() - width * SIZE) / 2.0D + dx;
 		double oy = (this.getHeight() - height * SIZE) / 2.0D + dy;
