@@ -18,7 +18,7 @@ The program looks like this:
 - Zoomable and movable board where the hint numbers follow the view so they are never off screen.
 - Ability to update multiple tiles at the same time by dragging.
 - Undo & redo functionality.
-- Option to clear incorrect tiles without have to see the solution.
+- Option to clear incorrect tiles without having to see the solution.
 
 ## Rules
 _[See also the Wikipedia article.](https://en.wikipedia.org/wiki/Nonogram)_
