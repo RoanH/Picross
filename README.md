@@ -17,6 +17,8 @@ The program looks like this:
 - Option to see a possible solution for each puzzle.
 - Zoomable and movable board where the hint numbers follow the view so they are never off screen.
 - Ability to update multiple tiles at the same time by dragging.
+- Undo & redo functionality.
+- Option to clear incorrect tiles without have to see the solution.
 
 ## Rules
 _[See also the Wikipedia article.](https://en.wikipedia.org/wiki/Nonogram)_
@@ -63,13 +65,17 @@ General controls needed to play the game.
 - C to leave test mode and save changes
 - V to leave test mode and undo changes
 
+### History
+- Ctrl+Z to undo the last edit
+- Ctrl+Y to redo the last edit
+
 ### Check
 - R to toggle showing the original solution (note that other solutions might also be valid)
 
 ## Downloads
 _Requires Java 8 or higher_  
-- [Windows executable](https://github.com/RoanH/Picross/releases/download/v1.3/Picross-v1.3.exe)    
-- [Runnable Java Archive](https://github.com/RoanH/Picross/releases/download/v1.3/Picross-v1.3.jar)
+- [Windows executable](https://github.com/RoanH/Picross/releases/download/v1.4/Picross-v1.4.exe)    
+- [Runnable Java Archive](https://github.com/RoanH/Picross/releases/download/v1.4/Picross-v1.4.jar)
 
 All releases: [releases](https://github.com/RoanH/Picross/releases)<br>
 GitHub repository: [repository](https://github.com/RoanH/Picross)<br>
