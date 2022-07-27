@@ -570,6 +570,10 @@ public class Board extends JPanel implements KeyListener, MouseListener, MouseMo
 		this.repaint();
 	}
 	
+	/**
+	 * Clears any titles that have a tile that doesn't
+	 * match the original solution for the board.
+	 */
 	public void clearMistakes(){
 		if(!solved){
 			List<StateChange> changes = new ArrayList<StateChange>();
