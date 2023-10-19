@@ -7,7 +7,7 @@ Picross ([nonogram](https://en.wikipedia.org/wiki/Nonogram)) implementation insp
 The goal of the game is to complete the grid with filled tiles and cross tiles according to the restrictions given on the sides. A more detailed explanation is given below.
 
 The program looks like this:    
-![GUI](https://i.imgur.com/HHkKVyv.png)
+![GUI](https://media.roanh.dev/picross/gui.png)
 
 ## Features
 - Randomized Picross puzzles of a customizable size and density (can also be shared using the seed).
